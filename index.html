@@ -20,7 +20,7 @@
 </div>
 <div class="shell plain">
   <div class="notice">
-    <strong>手机上浏览？</strong>每份资料都有手机版（字号更大、单栏排版、目录可折叠）。点卡片上的<b>手机版</b>即可。桌面版在手机上也能看，会自动缩放。
+    <strong>手机上浏览？</strong>每份资料都有手机版（字号更大、单栏排版、目录可折叠）。点卡片上的<b>手机版</b>即可。
   </div>
   <section class="idx-group">
     <h2>核心资料</h2>
@@ -95,5 +95,11 @@
     申论学习库 ｜ <a href="https://github.com/Medivhcrf/CivilServants">GitHub 仓库</a>
   </footer>
 </div>
+<script>
+(function(){try{
+  if(/[?&]desk=1/.test(location.search))return;
+  if(window.innerWidth<760)location.replace('index-m.html');
+}catch(e){}})();
+</script>
 </body>
 </html>
