@@ -4,6 +4,24 @@
 
 ---
 
+## 🌐 在线浏览（电脑 / 手机 / iPad）
+
+**站点地址：<https://medivhcrf.github.io/CivilServants/>**
+
+用 Safari 直接打开即可，不需要安装任何东西。每份资料都做了两个版本：
+
+| 入口 | 地址 | 适合 |
+| --- | --- | --- |
+| 总目录（桌面版） | <https://medivhcrf.github.io/CivilServants/> | 电脑、iPad 横屏 |
+| 总目录（手机版） | <https://medivhcrf.github.io/CivilServants/index-m.html> | iPhone、安卓手机 |
+| 图解课件 | <https://medivhcrf.github.io/CivilServants/diagram-02.html> | 两端通用（悬停／点按联动） |
+
+- **手机版**：单栏大字号、目录可折叠、宽表格可左右滑动、适配 iPhone 刘海安全区
+- **桌面版**：左侧目录吸附在滚动位置，正文卡片排版
+- 页面右上角可随时在**桌面版 / 手机版**之间切换
+
+---
+
 ## 目录结构
 
 ```
@@ -28,6 +46,23 @@ skill/                           教学系统（AI 助教 Skill）
 │   └── 07-图解课件规范.md
 └── scripts/
     └── check_diagram.py         图解课件结构校验脚本
+
+tools/                           站点构建与发布
+├── build_site.py                Markdown → 静态站点（自带 Markdown 解析器）
+└── publish.sh                   一键构建 + 推送 main + 同步 gh-pages
+
+docs/                            构建产物（GitHub Pages 从 gh-pages 分支发布）
+├── index.html / index-m.html    总目录（桌面版 / 手机版）
+├── handbook.html / -m.html      学习手册
+├── practice.html / -m.html      练习记录
+├── points.html / -m.html        找点方法论
+├── types.html / -m.html         五大题型公式
+├── vocab.html / -m.html         表达与素材库
+├── cards.html / -m.html         素材卡模板
+├── rubric.html / -m.html        批改评分标准
+├── nine-steps.html / -m.html    示范课九步法
+├── diagram-02.html              第 2 课图解课件（响应式，两端通用）
+└── assets/                      共用样式与预览图
 ```
 
 ---
@@ -95,6 +130,26 @@ python3 skill/scripts/check_diagram.py 申论/第2课-综合分析-图解.html
 ```
 
 校验项：`data-src` 引用完整性、HTML 标签平衡、答案块与注释块数量一致、**「考场版」与「逐句注释版」逐字一致**、字数实测。
+
+---
+
+## 如何更新站点
+
+改完 `申论/` 或 `skill/references/` 里的 Markdown 后，跑一条命令即可：
+
+```bash
+./tools/publish.sh "更新第3课内容"
+```
+
+它会依次完成：**构建 `docs/` → 推送到 `main` → 同步到 `gh-pages` 分支**（GitHub Pages 从后者发布，约 30 秒后生效）。
+
+只构建不发布：
+
+```bash
+python3 tools/build_site.py     # 产物在 docs/
+```
+
+新增一份资料，只要在 `tools/build_site.py` 顶部的 `PAGES` 列表里加一行即可自动出桌面版和手机版。
 
 ---
 
