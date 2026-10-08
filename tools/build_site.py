@@ -647,6 +647,15 @@ def main() -> int:
             print(f"  ✗ 图解缺失：{d['src']}")
             continue
         dh = dsrc.read_text(encoding="utf-8")
+        # 窄屏保护：表格若没有滚动容器，会被浏览器压成竖条。自动补一个。
+        if 'class="tw"' not in dh and 'class="table-wrap"' not in dh:
+            dh = re.sub(r"(<table[^>]*>.*?</table>)", r'<div class="tw">\1</div>', dh, flags=re.S)
+            dh = dh.replace(
+                "</head>",
+                "<style>.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0}"
+                ".tw table{min-width:540px}</style></head>",
+                1,
+            )
         if 'href="index.html"' not in dh:
             dh = dh.replace("</body>", (
                 '<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:99;'
