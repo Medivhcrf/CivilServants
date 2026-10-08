@@ -92,8 +92,15 @@ description: 申论私教 skill。用于系统学习申论（国考／省考／�
 
 | 位置 | 内容 |
 | --- | --- |
+| **https://medivhcrf.github.io/CivilServants/** | **在线站点（桌面版 + 手机版），学员用手机 Safari 复习** |
 | `/home/crf/single_cat/申论/学习手册.md` | 学员用书：路线图、方法速查、进度与成绩 |
 | `/home/crf/single_cat/申论/练习记录.md` | 每次作答的存档与诊断、考场版参考答案 |
 | `/home/crf/single_cat/申论/素材/` | 素材卡，一篇文章一个文件 |
 | `/home/crf/single_cat/申论/*.html` | 图解课件 |
 | `/home/crf/single_cat/申论/*-效果预览.png` | 图解课件的悬停态预览图 |
+| `/home/crf/single_cat/tools/build_site.py` | Markdown → 静态站点构建脚本 |
+| `/home/crf/single_cat/tools/publish.sh` | 一键构建并发布到 GitHub Pages |
+
+**每课上完后**：更新 `练习记录.md` 与 `学习手册.md` 的进度，然后跑
+`cd /home/crf/single_cat && ./tools/publish.sh "说明"` 发布，让学员能在手机上接着复习。
+站点构成与更新流程详见 `references/00-学习路线与进度.md`。
