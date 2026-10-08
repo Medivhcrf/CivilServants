@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>解释型综合分析题 · 全流程拆解 ｜ 申论第 2 课</title>
+<style>
+  :root{
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --ink:#1f2430;
+    --ink-2:#5a6473;
+    --ink-3:#8b93a1;
+    --line:#e3e7ee;
+    --c-bg:#64748b;        /* 背景 */
+    --c-meaning:#2563eb;   /* 意义 */
+    --c-problem:#dc2626;   /* 问题 */
+    --c-action:#059669;    /* 做法 */
+    --c-conclusion:#7c3aed;/* 结论 */
+    --c-define:#d97706;    /* 释义 */
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    font-size:15px;line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- 头部 ---------- */
+  header{
+    background:linear-gradient(135deg,#1e293b 0%,#312e81 55%,#4c1d95 100%);
+    color:#fff;padding:44px 20px 38px;margin-bottom:28px;
+  }
+  header .inner{max-width:1180px;margin:0 auto}
+  header .kicker{
+    display:inline-block;font-size:12px;letter-spacing:.14em;
+    background:rgba(255,255,255,.16);padding:5px 12px;border-radius:99px;margin-bottom:16px;
+  }
+  header h1{margin:0 0 10px;font-size:29px;line-height:1.35;letter-spacing:-.01em}
+  header .sub{margin:0;color:#c7d2fe;font-size:14.5px}
+  header .meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  header .meta span{
+    font-size:12.5px;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18);padding:4px 11px;border-radius:99px;
+  }
+
+  /* ---------- 图例（吸附） ---------- */
+  .legend{
+    position:sticky;top:0;z-index:50;background:rgba(246,247,249,.94);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    padding:11px 20px;margin:0 -20px 26px;
+  }
+  .legend .lg-inner{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .legend .lg-title{font-size:12px;color:var(--ink-3);margin-right:4px;letter-spacing:.06em}
+  .lg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 10px 3px 7px;border-radius:99px;background:#fff;border:1px solid var(--line);cursor:default}
+  .lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .lg.bg i{background:var(--c-bg)} .lg.bg{color:#475569}
+  .lg.meaning i{background:var(--c-meaning)} .lg.meaning{color:var(--c-meaning)}
+  .lg.problem i{background:var(--c-problem)} .lg.problem{color:var(--c-problem)}
+  .lg.action i{background:var(--c-action)} .lg.action{color:var(--c-action)}
+  .lg.conclusion i{background:var(--c-conclusion)} .lg.conclusion{color:var(--c-conclusion)}
+  .lg.define i{background:var(--c-define)} .lg.define{color:var(--c-define)}
+  .legend .hint{margin-left:auto;font-size:12px;color:var(--ink-3)}
+
+  /* ---------- 通用卡片 ---------- */
+  section{margin-bottom:34px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  h2{
+    font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:11px;letter-spacing:-.01em;
+  }
+  h2 .num{
+    flex:none;width:28px;height:28px;border-radius:9px;background:#eef2ff;color:#4338ca;
+    font-size:13px;display:grid;place-items:center;font-weight:700;
+  }
+  .h2sub{color:var(--ink-3);font-size:13px;margin:0 0 20px;padding-left:39px}
+  h3{font-size:15px;margin:24px 0 10px;color:var(--ink)}
+  p{margin:0 0 12px}
+  .muted{color:var(--ink-2)}
+
+  /* ---------- 审题 ---------- */
+  .quiz{
+    border-left:4px solid #4338ca;background:#f8f9ff;border-radius:0 10px 10px 0;
+    padding:16px 20px;margin-bottom:20px;font-size:15px;
+  }
+  .quiz .tag{font-size:11.5px;color:#4338ca;letter-spacing:.1em;display:block;margin-bottom:6px}
+  .quiz mark{background:#e0e7ff;color:#312e81;padding:1px 5px;border-radius:4px;font-weight:600}
+
+  .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:6px}
+  .chip{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .chip .k{font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;display:block;margin-bottom:4px}
+  .chip .v{font-size:14px;font-weight:600}
+  .chip .w{font-size:12.5px;color:var(--ink-2);margin-top:5px;font-weight:400}
+  .chip.amber{border-color:#fde68a;background:#fffbeb}
+
+  /* ---------- 表格 ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f9fafb;color:var(--ink-2);font-weight:600;font-size:12.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .fn{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;font-weight:600;white-space:nowrap}
+
+  /* 功能色 */
+  .f-bg{background:#f1f5f9;color:#475569}
+  .f-meaning{background:#eff6ff;color:var(--c-meaning)}
+  .f-problem{background:#fef2f2;color:var(--c-problem)}
+  .f-action{background:#ecfdf5;color:var(--c-action)}
+  .f-conclusion{background:#f5f3ff;color:var(--c-conclusion)}
+  .f-define{background:#fffbeb;color:var(--c-define)}
+
+  /* ---------- 完整答案 ---------- */
+  .final{background:linear-gradient(180deg,#fffdf6,#fff);border:1px solid #fde68a;border-radius:12px;padding:18px 20px;margin-bottom:22px}
+  .final-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .final-head b{font-size:14px}
+  .final-badge{font-size:11.5px;background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:99px;font-weight:700}
+  .final p{margin:0 0 11px;font-size:14px;line-height:1.95;color:#2c3340}
+  .final p:last-of-type{margin-bottom:0}
+  .final .seg{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;margin-right:7px;vertical-align:2px;font-weight:700}
+
+  /* ---------- 工作台 ---------- */
+  .bench{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  .pane{background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .pane-title{
+    font-size:12.5px;letter-spacing:.08em;color:var(--ink-3);
+    padding-bottom:10px;margin-bottom:14px;border-bottom:1px dashed var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .pane-title b{color:var(--ink);letter-spacing:0;font-size:13.5px}
+
+  /* 材料段落 */
+  .para{margin-bottom:16px;padding:11px 13px 11px 14px;border-left:3px solid var(--line);border-radius:0 8px 8px 0;background:#fff;transition:.22s}
+  .para:last-child{margin-bottom:0}
+  .para-bg{border-left-color:var(--c-bg)}
+  .para-meaning{border-left-color:var(--c-meaning)}
+  .para-problem{border-left-color:var(--c-problem)}
+  .para-action{border-left-color:var(--c-action)}
+  .para-conclusion{border-left-color:var(--c-conclusion)}
+  .para .phead{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+  .para .pnum{font-size:11.5px;color:var(--ink-3);font-weight:700}
+  .para .ptext{font-size:13.5px;line-height:1.9;color:#2c3340}
+  .pnote{
+    margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);
+    font-size:12px;line-height:1.7;color:var(--ink-3);
+  }
+  .pnote b{color:#b45309;font-weight:600}
+
+  /* 材料句子高亮 */
+  .s{transition:background .18s, box-shadow .18s;border-radius:4px;padding:1px 0}
+  .s.hl{background:#fff3c4;box-shadow:0 0 0 3px #fff3c4}
+
+  .k-problem{background:#fee2e2;color:#991b1b;padding:1px 4px;border-radius:4px;font-weight:600}
+  .k-action{background:#d1fae5;color:#065f46;padding:1px 4px;border-radius:4px;font-weight:600}
+  .k-conclusion{background:#ede9fe;color:#5b21b6;padding:1px 4px;border-radius:4px;font-weight:600}
+  .k-meaning{background:#dbeafe;color:#1e40af;padding:1px 4px;border-radius:4px;font-weight:600}
+  .k-quote{background:#fef3c7;color:#92400e;padding:1px 4px;border-radius:4px;font-weight:600}
+
+  /* 答案句 + 注释 */
+  .ans{
+    background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);
+    border-radius:0 9px 9px 0;padding:12px 14px;margin-bottom:11px;cursor:pointer;
+    transition:.2s;
+  }
+  .ans:hover,.ans.on{background:#fffdf5;border-color:#fcd34d;box-shadow:0 2px 10px rgba(217,119,6,.1)}
+  .ans[data-kind="define"]{border-left-color:var(--c-define)}
+  .ans[data-kind="problem"]{border-left-color:var(--c-problem)}
+  .ans[data-kind="action"]{border-left-color:var(--c-action)}
+  .ans[data-kind="conclusion"]{border-left-color:var(--c-conclusion)}
+  .ans-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .ans-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
+  .ans-src{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+  .ans-text{font-size:13.5px;line-height:1.85;color:#2c3340}
+  .ans-note{
+    font-size:12.5px;color:var(--ink-2);margin-top:8px;padding-top:8px;
+    border-top:1px dashed var(--line);line-height:1.7;display:none;
+  }
+  .ans:hover .ans-note,.ans.on .ans-note{display:block}
+  .ans-note b{color:#b45309}
+
+  /* ---------- 骨架图 ---------- */
+  .flow{display:grid;gap:10px;margin-top:8px}
+  .flow-row{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+  .flow-label{font-size:12.5px;font-weight:700;text-align:right;padding-right:4px}
+  .flow-body{border-radius:10px;padding:11px 15px;font-size:13.5px}
+  .fl-define{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+  .fl-problem{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+  .fl-action{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+  .fl-conclusion{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6}
+  .flow-arrow{grid-column:1/-1;text-align:center;color:var(--ink-3);font-size:15px;line-height:1}
+
+  /* 反面教材 */
+  .bad{border:1px solid #fecaca;background:#fff5f5;border-radius:12px;padding:18px 20px}
+  .bad .badtext{font-size:13.5px;line-height:1.9;color:#7f1d1d}
+  .bad .badtext .x{background:#fee2e2;text-decoration:line-through;text-decoration-color:#dc2626;padding:0 3px;border-radius:3px}
+  .bad-list{margin:14px 0 0;padding-left:0;list-style:none}
+  .bad-list li{font-size:13.5px;color:#991b1b;padding:7px 0 7px 26px;position:relative;border-top:1px dashed #fecaca}
+  .bad-list li:before{content:"✕";position:absolute;left:4px;top:7px;color:#dc2626;font-weight:700}
+
+  /* 公式 */
+  .formula{display:grid;gap:9px;margin-top:8px}
+  .fstep{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 15px}
+  .fstep .n{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12.5px;font-weight:700;background:#eef2ff;color:#4338ca}
+  .fstep .t{font-size:13.5px}
+  .fstep .t code{background:#f1f5f9;padding:2px 7px;border-radius:5px;font-size:12.8px;color:#334155;font-family:inherit;font-weight:600}
+  .fstep .d{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+
+  .tip{background:#f0fdf4;border-left:3px solid var(--c-action);border-radius:0 9px 9px 0;padding:12px 16px;font-size:13.5px;color:#065f46;margin-top:14px}
+  .warn{background:#fffbeb;border-left:3px solid var(--c-define);border-radius:0 9px 9px 0;padding:12px 16px;font-size:13.5px;color:#92400e;margin-top:14px}
+
+  @media (max-width:920px){
+    .bench{grid-template-columns:1fr}
+    .legend .hint{display:none}
+    header h1{font-size:23px}
+    .card{padding:20px 18px}
+    .flow-row{grid-template-columns:1fr;gap:5px}
+    .flow-label{text-align:left}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <span class="kicker">申论 · 第 2 课</span>
+    <h1>解释型综合分析题 · 全流程拆解</h1>
+    <p class="sub">社区食堂："办食堂不能只算眼前账，更要算长远账"</p>
+    <div class="meta">
+      <span>250 字以内</span><span>15 分</span>
+      <span>骨架：是什么 → 为什么 → 怎么办</span>
+      <span>悬停右侧答案句，左侧材料自动高亮</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="legend">
+    <div class="lg-inner">
+      <span class="lg-title">材料功能图例</span>
+      <span class="lg bg"><i></i>背景引子</span>
+      <span class="lg meaning"><i></i>意义价值</span>
+      <span class="lg problem"><i></i>问题危害</span>
+      <span class="lg action"><i></i>做法对策</span>
+      <span class="lg conclusion"><i></i>观点结论</span>
+      <span class="lg define"><i></i>释义</span>
+      <span class="hint">← 鼠标移到答案句上试试</span>
+    </div>
+  </div>
+
+  <!-- ================= 1 审题 ================= -->
+  <section class="card" id="s1">
+    <h2><span class="num">1</span>审题：30 秒，决定后面全部</h2>
+    <p class="h2sub">题干里藏着的四个信息，每一个都决定了后面的动作。</p>
+
+    <div class="quiz">
+      <span class="tag">作答要求</span>
+      给定资料中提到"<mark>办食堂不能只算眼前账，更要算长远账</mark>"。请谈谈你对这句话的<mark>理解</mark>。（250 字以内，15 分）
+    </div>
+
+    <div class="chips">
+      <div class="chip">
+        <span class="k">圈 ①　题型动词</span>
+        <span class="v">"谈谈你对这句话的理解"</span>
+        <div class="w">→ 判定为 <b>解释型综合分析题</b></div>
+      </div>
+      <div class="chip">
+        <span class="k">圈 ②　对象</span>
+        <span class="v">一句带引号的话</span>
+        <div class="w">→ <b>必须释义</b>，不能直接抄点</div>
+      </div>
+      <div class="chip">
+        <span class="k">圈 ③　出处</span>
+        <span class="v">第 5 段，专家说的</span>
+        <div class="w">→ 第 5 段是<b>释义与结论</b>的来源</div>
+      </div>
+      <div class="chip amber">
+        <span class="k">圈 ④　字数与分值</span>
+        <span class="v">250 字 / 15 分</span>
+        <div class="w">→ 中等体量，约 <b>4–5 个采分层次</b></div>
+      </div>
+    </div>
+
+    <div class="warn">
+      <b>最关键的一个判断：</b>这句话是专家对「社区食堂」这件事的评价。所以答案的舞台是<b>社区食堂怎么办</b>，而不是空谈"要有长远眼光"。<br>
+      把抽象道理落回具体话题，是解释型的第一道关。
+    </div>
+  </section>
+
+  <!-- ================= 2 段落功能地图 ================= -->
+  <section class="card" id="s2">
+    <h2><span class="num">2</span>段落功能地图</h2>
+    <p class="h2sub">先给每段贴标签，再决定抄不抄。这一步是综合分析题和概括题的第一个分岔口。</p>
+
+    <table>
+      <thead>
+        <tr><th>段</th><th>内容概要</th><th>功能</th><th>要不要用</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>老龄化、老人吃饭难、食堂兴起、十元一餐</td>
+          <td><span class="fn f-bg">背景</span></td>
+          <td class="muted">❌ 只能当引子，不抄点</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>解决吃饭、成了"社交场"、日间照料</td>
+          <td><span class="fn f-meaning">意义</span></td>
+          <td>✅ 长远账要保住的社会价值</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>运营不足六成、单价低、客流单一、靠补贴</td>
+          <td><span class="fn f-problem">问题</span></td>
+          <td><b>✅✅ 核心 → 解释"为什么不能只算眼前账"</b></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>G 市错峰经营、H 市中央厨房、I 市志愿者</td>
+          <td><span class="fn f-action">做法</span></td>
+          <td><b>✅✅ 核心 → 回答"长远账怎么算"</b></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>一头饭碗一头治理温度；各方参与</td>
+          <td><span class="fn f-conclusion">观点·结论</span></td>
+          <td>✅ 释义 + 结尾的来源</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warn">
+      <b>发现了吗——这道题 5 段几乎全都有用。</b><br>
+      这就是综合分析题和概括题最大的区别：<b>概括题只用材料的一部分</b>（问困难就别抄做法），<b>综合分析题要调动整篇材料</b>。因为那句话要成立，需要背景、意义、问题、对策、结论全套支撑。<br>
+      很多零基础的人在这里翻车：还用概括题的思路，只挑了第 3 段写成答案 —— <b>那样最多 5 分。</b>
+    </div>
+  </section>
+
+  <!-- ================= 3 对照工作台 ================= -->
+  <section class="card" id="bench">
+    <h2><span class="num">3</span>材料 × 答案　对照工作台</h2>
+    <p class="h2sub">把鼠标移到右边任意一句答案上 —— 左边会亮出它对应的材料原句。这就是"注释"。</p>
+
+    <div class="final">
+      <div class="final-head">
+        <b>完整答案（考场版）</b>
+        <span class="final-badge">250 字 ／ 15 分</span>
+        <span class="final-badge" style="background:#ecfdf5;color:#065f46">四段 = 释义 · 反面 · 正面 · 结论</span>
+      </div>
+      <p><span class="seg f-define" style="background:#fffbeb;color:#b45309">① 释义</span>这句话指出，社区食堂既要让老人当下吃上便捷廉价的饭菜，更要建立可持续的运营机制，长期发挥民生和治理效能。</p>
+      <p><span class="seg" style="background:#fef2f2;color:#b91c1c">② 反面</span>只算眼前账，食堂难以为继。就餐单价低、客源结构单一，营业额撑不起房租人工；依赖政府补贴，补贴一停饭菜质量下降、老人流失，反而损害民生。</p>
+      <p><span class="seg" style="background:#ecfdf5;color:#047857">③ 正面</span>算长远账，需多方发力。要面向全龄段错峰经营，与写字楼、学校、上班族对接，推出小份菜和外卖打包；由国企建中央厨房，集中采购统一配送降成本；引入志愿者和公益组织，以服务时长兑换就餐优惠。</p>
+      <p><span class="seg" style="background:#f5f3ff;color:#6d28d9">④ 结论</span>唯有政府、市场、社会协同参与，兼顾公益与市场，才能让这件民生实事办得久、办得实。</p>
+    </div>
+
+    <div class="bench">
+
+      <!-- 左：材料 -->
+      <div class="pane">
+        <div class="pane-title"><b>给定资料（带功能色标）</b><span>左</span></div>
+
+        <div class="para para-bg">
+          <div class="phead"><span class="pnum">第 1 段</span><span class="fn f-bg">背景</span></div>
+          <div class="ptext">
+            随着人口老龄化程度加深，一些高龄、独居老人"做饭难、吃饭难"问题日益突出。近年来，多地兴起社区食堂，为老年人提供就近、便捷、价廉的助餐服务。某社区食堂负责人介绍，食堂开业以来，每天中午都有上百位老人前来就餐，一荤两素一汤只要十元。
+          </div>
+        </div>
+
+        <div class="para para-meaning">
+          <div class="phead"><span class="pnum">第 2 段</span><span class="fn f-meaning">意义价值</span></div>
+          <div class="ptext">
+            "在这里吃饭，比自己在家凑合强多了。"82 岁的刘奶奶说。她一个人住，以前常常一顿饭对付两顿。<span class="s" id="m2-1">社区食堂不仅<span class="k-meaning">解决了吃饭问题</span>，还成了老人们的"<span class="k-quote">社交场</span>"</span>——吃完饭，大家坐在一起聊天、下棋，有的社区还在食堂旁边开设了日间照料室。
+          </div>
+        </div>
+
+        <div class="para para-problem">
+          <div class="phead"><span class="pnum">第 3 段</span><span class="fn f-problem">问题 · 危害</span></div>
+          <div class="ptext">
+            <span class="s" id="m3-1">但热闹背后，不少社区食堂过得并不轻松。</span><span class="s" id="m3-2">记者调查发现，某市两年内开办的 87 家社区食堂，目前仍在运营的<span class="k-problem">不足六成</span>。</span><span class="s" id="m3-3">一位经营者算了一笔账：老年人就餐<span class="k-problem">单价低</span>，一天最多接待一百多人，营业额<span class="k-problem">撑不起房租和人工</span>；</span><span class="s" id="m3-4">年轻人嫌食堂"太老年化"不愿意来，<span class="k-problem">客流结构单一</span>。</span><span class="s" id="m3-5">为维持运转，有的食堂只能<span class="k-problem">依赖政府补贴</span>，</span><span class="s" id="m3-6"><span class="k-problem">补贴一停，饭菜质量就下降，老人又开始流失</span>。</span>
+          </div>
+          <div class="pnote"><b>m3-2 是数据句，示范答案里省略了</b>——但你要知道它证明了什么：难以为继不是个别现象。数据不是采分词，是"要点成立"的证据。</div>
+        </div>
+
+        <div class="para para-action">
+          <div class="phead"><span class="pnum">第 4 段</span><span class="fn f-action">做法 · 对策</span></div>
+          <div class="ptext">
+            <span class="s" id="m4-1">也有一些食堂找到了出路。</span><span class="s" id="m4-2">G 市一家社区食堂与周边写字楼、学校合作，中午为老人提供助餐，晚上面向上班族和居民开放，还推出小份菜、外卖打包；</span><span class="s" id="m4-3">H 市由国有企业统一建设中央厨房，<span class="k-action">集中采购、统一配送</span>，把单份成本压下来近两成；</span><span class="s" id="m4-4">I 市则<span class="k-action">引入志愿者和公益组织</span>，鼓励低龄老人为高龄老人送餐，用志愿服务时长兑换就餐优惠。</span>
+          </div>
+          <div class="pnote"><b>m4-1 是过渡句，不抄。</b>三市做法各成一条，按"主体 + 做法 + 效果"提炼，这才是"长远账怎么算"的答案来源。</div>
+        </div>
+
+        <div class="para para-conclusion">
+          <div class="phead"><span class="pnum">第 5 段</span><span class="fn f-conclusion">观点 · 结论</span></div>
+          <div class="ptext">
+            <span class="s" id="m5-1">专家指出，社区食堂一头连着老年人的饭碗，一头连着基层治理的温度。</span><span class="s" id="m5-2">办食堂不能只算眼前账，更要算长远账。</span><span class="s" id="m5-3">政府、市场、社会各方都要参与进来，才能让这件民生实事办得久、办得实。</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：答案 -->
+      <div class="pane">
+        <div class="pane-title"><b>示范答案（逐句注释）</b><span>右</span></div>
+
+        <div class="ans" data-kind="define" data-src="m5-2,m2-1">
+          <div class="ans-head">
+            <span class="ans-badge f-define">释义</span>
+            <span class="ans-src">← 第 5 段 + 第 2 段</span>
+          </div>
+          <div class="ans-text">这句话指出，社区食堂既要让老人当下吃上便捷廉价的饭菜，更要建立可持续的运营机制，长期发挥民生和治理效能。</div>
+          <div class="ans-note"><b>注释：</b>把"眼前账"落成<b>当下吃上便捷廉价的饭</b>，把"长远账"落成<b>可持续运营 + 长期治理效能</b>。用"既要…更要…"复现原句的<b>递进</b>关系——注意是"不能<b>只</b>算眼前账"，不是否定眼前账。</div>
+        </div>
+
+        <div class="ans" data-kind="problem" data-src="m3-1">
+          <div class="ans-head">
+            <span class="ans-badge f-problem">反面总起</span>
+            <span class="ans-src">← 第 3 段首句</span>
+          </div>
+          <div class="ans-text">只算眼前账，食堂难以为继。</div>
+          <div class="ans-note"><b>注释：</b>一句话承接题干的"眼前账"，把反面层立起来。这是骨架的转轴，缺了它整篇答案就散成点。</div>
+        </div>
+
+        <div class="ans" data-kind="problem" data-src="m3-3,m3-4">
+          <div class="ans-head">
+            <span class="ans-badge f-problem">分析 · 问题</span>
+            <span class="ans-src">← 第 3 段 3、4 句</span>
+          </div>
+          <div class="ans-text">就餐单价低、客源结构单一，营业额撑不起房租人工；</div>
+          <div class="ans-note"><b>注释：</b>三个采分词<b>合并</b>成一句：单价低（收入端）＋ 客流单一（客源端）→ 撑不起房租人工（结果）。<b>不是抄三句，是抄出一条因果链。</b></div>        </div>
+
+        <div class="ans" data-kind="problem" data-src="m3-5,m3-6">
+          <div class="ans-head">
+            <span class="ans-badge f-problem">分析 · 危害</span>
+            <span class="ans-src">← 第 3 段 5、6 句</span>
+          </div>
+          <div class="ans-text">依赖政府补贴，补贴一停饭菜质量下降、老人流失，反而损害民生。</div>
+          <div class="ans-note"><b>注释：</b>把"依赖补贴 → 质量下降 → 老人流失"写成<b>恶性循环</b>，并补一句"反而损害民生"——这是你的分析，不是抄来的，是分析题允许也需要的加工。</div>
+        </div>
+
+        <div class="ans" data-kind="action" data-src="m4-1">
+          <div class="ans-head">
+            <span class="ans-badge f-action">正面总起</span>
+            <span class="ans-src">← 第 4 段首句</span>
+          </div>
+          <div class="ans-text">算长远账，需多方发力。</div>
+          <div class="ans-note"><b>注释：</b>与反面层的"只算眼前账，食堂难以为继"<b>对称</b>。两个总起句一正一反，骨架就立住了——阅卷人一眼能看出你在"分析"，不是在"抄点"。</div>
+        </div>
+
+        <div class="ans" data-kind="action" data-src="m4-2">
+          <div class="ans-head">
+            <span class="ans-badge f-action">正面 · 做法①</span>
+            <span class="ans-src">← 第 4 段 G 市</span>
+          </div>
+          <div class="ans-text">要面向全龄段错峰经营，与写字楼、学校、上班族对接，推出小份菜和外卖打包；</div>
+          <div class="ans-note"><b>注释：</b>按<b>主体 + 做法 + 效果</b>提炼：拓宽客源 ＋ 丰富供给形式。"写字楼、学校、上班族"是材料原词，必须保留。</div>
+        </div>
+
+        <div class="ans" data-kind="action" data-src="m4-3">
+          <div class="ans-head">
+            <span class="ans-badge f-action">正面 · 做法②</span>
+            <span class="ans-src">← 第 4 段 H 市</span>
+          </div>
+          <div class="ans-text">由国企建中央厨房，集中采购统一配送降成本；</div>
+          <div class="ans-note"><b>注释：</b>H 市的核心动作是<b>降成本</b>。"国有企业"这个主体不能丢——综合分析题也要交代主体。</div>
+        </div>
+
+        <div class="ans" data-kind="action" data-src="m4-4">
+          <div class="ans-head">
+            <span class="ans-badge f-action">正面 · 做法③</span>
+            <span class="ans-src">← 第 4 段 I 市</span>
+          </div>
+          <div class="ans-text">引入志愿者和公益组织，以服务时长兑换就餐优惠。</div>
+          <div class="ans-note"><b>注释：</b>I 市的核心动作是<b>引入社会力量</b>。这一条为结尾的"政府、市场、社会协同"埋下伏笔。</div>
+        </div>
+
+        <div class="ans" data-kind="conclusion" data-src="m5-3,m5-1">
+          <div class="ans-head">
+            <span class="ans-badge f-conclusion">结论</span>
+            <span class="ans-src">← 第 5 段 1、3 句</span>
+          </div>
+          <div class="ans-text">唯有政府、市场、社会协同参与，兼顾公益与市场，才能让这件民生实事办得久、办得实。</div>
+          <div class="ans-note"><b>注释：</b>直接用材料现成的结论句，加一句"兼顾公益与市场"做提炼。<b>不写"综上所述""我认为"——直接写结论本身。</b></div>
+        </div>
+
+        <div class="tip">
+          <b>8 个采分层 = 250 字 = 15 分。</b>每一句都对应材料里的一句话，没有一句是自己凭空发挥的。
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 4 标点切分 ================= -->
+  <section class="card" id="s4">
+    <h2><span class="num">4</span>标点切分法实战</h2>
+    <p class="h2sub">按句号、分号把段落切成句子，一句一勾。第 3 段的六句话，就是六个可能的采分点。</p>
+
+    <table>
+      <thead><tr><th>#</th><th>切出来的句子</th><th>采分点</th><th>怎么处理</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>但热闹背后，不少社区食堂过得并不轻松。</td><td><span class="fn f-problem">运营困难（总起）</span></td><td class="muted">做反面层的总起句</td></tr>
+        <tr><td>2</td><td>某市两年内开办的 87 家社区食堂，仍在运营的不足六成。</td><td><span class="fn f-problem">难以为继</span></td><td class="muted">数据，可省略不写</td></tr>
+        <tr><td>3</td><td>老年人就餐单价低，一天最多接待一百多人，营业额撑不起房租和人工。</td><td><span class="fn f-problem">收入端不足</span></td><td><b>必写</b></td></tr>
+        <tr><td>4</td><td>年轻人嫌食堂"太老年化"不愿意来，客流结构单一。</td><td><span class="fn f-problem">客源结构单一</span></td><td><b>必写</b></td></tr>
+        <tr><td>5</td><td>为维持运转，有的食堂只能依赖政府补贴。</td><td><span class="fn f-problem">依赖补贴</span></td><td><b>必写</b></td></tr>
+        <tr><td>6</td><td>补贴一停，饭菜质量就下降，老人又开始流失。</td><td><span class="fn f-problem">恶性循环</span></td><td><b>必写</b></td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">
+      <b>六句话，但不能写成六条。</b>第 3～6 句其实是同一条因果链：<b>收入少 ＋ 客源窄 → 撑不住 → 只能靠补贴 → 补贴一停就崩</b>。<br>
+      把它们合并成 1–2 句，才叫"分析"。<b>概括题到这里就交卷了，分析题才刚开头。</b>
+    </div>
+  </section>
+
+  <!-- ================= 5 骨架 ================= -->
+  <section class="card" id="s5">
+    <h2><span class="num">5</span>重新排队：这一步是分析题的灵魂</h2>
+    <p class="h2sub">同样这些词，排队方式不同，分数差一倍。</p>
+
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-label" style="color:var(--c-define)">是什么</div>
+        <div class="flow-body fl-define">既要满足当下助餐需求，更要可持续、长期惠民</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-row">
+        <div class="flow-label" style="color:var(--c-problem)">为什么 · 反面</div>
+        <div class="flow-body fl-problem">只算眼前账 → 收入少、客源窄 → 靠补贴 → 补贴停就崩</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-row">
+        <div class="flow-label" style="color:var(--c-action)">为什么 · 正面</div>
+        <div class="flow-body fl-action">算长远账 → 拓宽客源 · 丰富供给 · 降成本 · 引社会力量</div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-row">
+        <div class="flow-label" style="color:var(--c-conclusion)">怎么办</div>
+        <div class="flow-body fl-conclusion">政府、市场、社会协同，兼顾公益与市场</div>
+      </div>
+    </div>
+
+    <div class="warn" style="margin-top:18px">
+      你在概括题里做的动作是<b>平铺</b>，在这里做的动作是<b>排队</b>。
+    </div>
+  </section>
+
+  <!-- ================= 6 反面教材 ================= -->
+  <section class="card" id="s6">
+    <h2><span class="num">6</span>反面教材：点都抄全了，还是丢一半</h2>
+    <p class="h2sub">这是用概括题思路写出来的答案。看看它错在哪。</p>
+
+    <div class="bad">
+      <div class="badtext">
+        社区食堂存在的问题：一是老年人就餐单价低，营业额撑不起房租人工；二是客流结构单一，年轻人不愿意来；三是依赖政府补贴，补贴一停就难以为继。<br>
+        对策：一是面向全龄段错峰经营；二是建设中央厨房集中采购配送；三是引入志愿者和公益组织。
+      </div>
+      <ul class="bad-list">
+        <li><b>没有回答"这句话是什么意思"</b> —— 题干问的是"理解这句话"，你答的是"概括问题和做法"。<b>审题偏了。</b></li>
+        <li><b>没有体现"眼前账 / 长远账"的对应与递进</b> —— 阅卷人看不到你确实理解了那句话。</li>
+        <li><b>没有结论</b> —— 收不了口，答案像断在半空。</li>
+      </ul>
+    </div>
+
+    <div class="warn" style="margin-top:16px">
+      这份答案实得分大约 <b>7 分</b>。明明点都抄到了，还是丢一半 ——
+      <b>这就是综合分析题和概括题的分水岭，也是它最容易拉开差距的原因。</b>
+    </div>
+  </section>
+
+  <!-- ================= 7 公式 ================= -->
+  <section class="card" id="s7">
+    <h2><span class="num">7</span>可以迁移的骨架</h2>
+    <p class="h2sub">解释型综合分析题的通用公式。过渡期照着填，熟了就能脱开。</p>
+
+    <div class="formula">
+      <div class="fstep">
+        <span class="n">①</span>
+        <div>
+          <div class="t"><code>这句话指出，……既要……，更要……。</code></div>
+          <div class="d">用<b>递进词</b>（既要…更要… / 不能只…更要…），并把抽象说法落到材料的具体事上。</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="n">②</span>
+        <div>
+          <div class="t"><code>只……，就会……。</code></div>
+          <div class="d">反面层：材料里的<b>问题 + 危害</b>。得分主力，写 2–3 条，分号隔开。</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="n">③</span>
+        <div>
+          <div class="t"><code>要……，需要……。</code></div>
+          <div class="d">正面层：材料里的<b>做法 + 经验</b>。同样是得分主力。</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="n">④</span>
+        <div>
+          <div class="t"><code>唯有……才能……。</code></div>
+          <div class="d">结论句：直接用材料里的观点句。<b>不写"综上所述""我认为"。</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-top:18px">
+      <b>下次动笔前的固定动作：</b>先给段落贴功能标签 → 标点切分、一句一勾 → 把点塞进"释义 / 反面 / 正面 / 结论"四格 → 再动笔。
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  // 悬停答案句 → 高亮对应材料句
+  var ans = document.querySelectorAll('.ans');
+  ans.forEach(function(a){
+    var ids = (a.getAttribute('data-src')||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+    function on(){
+      ids.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.classList.add('hl');
+      });
+    }
+    function off(){
+      ids.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.classList.remove('hl');
+      });
+    }
+    a.addEventListener('mouseenter', on);
+    a.addEventListener('mouseleave', function(){ if(!a.classList.contains('on')) off(); });
+    a.addEventListener('click', function(){
+      var was = a.classList.contains('on');
+      // 先清掉其它 pinned
+      ans.forEach(function(b){ if(b!==a){ b.classList.remove('on'); } });
+      if(was){ a.classList.remove('on'); off(); }
+      else { a.classList.add('on'); on(); }
+    });
+  });
+})();
+</script>
+<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:99;background:rgba(30,41,59,.9);color:#fff;font-size:13px;padding:8px 15px;border-radius:99px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)">← 总目录</a>
+</body>
+</html>
