@@ -63,7 +63,7 @@ DIAGRAMS = [
     dict(slug="diagram-05", group="核心资料", title="练习 5 三色解剖",
          sub="哪些是抄的、哪些是自己写的 · 成分实测对比 · 正反对称",
          src="申论/练习5-综合分析-图解.html",
-         preview=None, thumb=None),
+         preview="申论/练习5-图解-效果预览.png", thumb="assets/preview-05.png"),
 ]
 
 GROUP_ORDER = ["核心资料", "方法", "教学标准"]
