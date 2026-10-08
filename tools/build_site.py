@@ -55,10 +55,16 @@ PAGES = [
 ]
 
 # 图解课件：整份 HTML 搬运，不转换
-DIAGRAM = dict(slug="diagram-02", group="核心资料", title="第 2 课图解课件",
-               sub="解释型综合分析题 · 悬停答案句自动高亮材料原句",
-               src="申论/第2课-综合分析-图解.html",
-               preview="申论/第2课-图解-效果预览.png")
+DIAGRAMS = [
+    dict(slug="diagram-02", group="核心资料", title="第 2 课图解课件",
+         sub="解释型综合分析题 · 悬停答案句自动高亮材料原句",
+         src="申论/第2课-综合分析-图解.html",
+         preview="申论/第2课-图解-效果预览.png", thumb="assets/preview-02.png"),
+    dict(slug="diagram-05", group="核心资料", title="练习 5 三色解剖",
+         sub="哪些是抄的、哪些是自己写的 · 成分实测对比 · 正反对称",
+         src="申论/练习5-综合分析-图解.html",
+         preview=None, thumb=None),
+]
 
 GROUP_ORDER = ["核心资料", "方法", "教学标准"]
 
@@ -500,7 +506,8 @@ def build_index(mode: str) -> str:
     groups: dict[str, list[dict]] = {}
     for p in PAGES:
         groups.setdefault(p["group"], []).append(p)
-    groups.setdefault(DIAGRAM["group"], []).insert(0, {**DIAGRAM, "is_diagram": True})
+    for d in reversed(DIAGRAMS):
+        groups.setdefault(d["group"], []).insert(0, {**d, "is_diagram": True})
 
     sections = []
     for g in GROUP_ORDER:
@@ -509,8 +516,8 @@ def build_index(mode: str) -> str:
         cards = []
         for p in groups[g]:
             thumb = (
-                '<img class="thumb" src="assets/preview-02.png" alt="课件预览">'
-                if p.get("is_diagram") else ""
+                f'<img class="thumb" src="{p["thumb"]}" alt="课件预览">'
+                if p.get("is_diagram") and p.get("thumb") else ""
             )
             if p.get("is_diagram"):
                 links = f'<a class="pri" href="{p["slug"]}.html">打开课件</a>'
@@ -633,24 +640,27 @@ def main() -> int:
         built.append((p["slug"], len(toc)))
         print(f"  ✓ {p['title']:<14} 桌面版 + 手机版　（{len(toc)} 个目录项）")
 
-    # 图解课件：整份搬运 + 注入返回目录按钮
-    dsrc = ROOT / DIAGRAM["src"]
-    if dsrc.is_file():
+    # 图解课件：整份搬运；若自身没有返回目录按钮，则注入一个
+    for d in DIAGRAMS:
+        dsrc = ROOT / d["src"]
+        if not dsrc.is_file():
+            print(f"  ✗ 图解缺失：{d['src']}")
+            continue
         dh = dsrc.read_text(encoding="utf-8")
-        inject = (
-            '<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:99;'
-            "background:rgba(30,41,59,.9);color:#fff;font-size:13px;padding:8px 15px;"
-            'border-radius:99px;text-decoration:none;'
-            'font-family:-apple-system,BlinkMacSystemFont,\'PingFang SC\',sans-serif;'
-            'box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)">← 总目录</a>'
-        )
-        dh = dh.replace("</body>", inject + "\n</body>")
-        (DOCS / f"{DIAGRAM['slug']}.html").write_text(dh, encoding="utf-8")
-        print(f"  ✓ {DIAGRAM['title']:<14} 图解课件（响应式，两端通用）")
-
-    pv = ROOT / DIAGRAM["preview"]
-    if pv.is_file():
-        shutil.copy2(pv, ASSETS / "preview-02.png")
+        if 'href="index.html"' not in dh:
+            dh = dh.replace("</body>", (
+                '<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:99;'
+                "background:rgba(30,41,59,.9);color:#fff;font-size:13px;padding:8px 15px;"
+                'border-radius:99px;text-decoration:none;'
+                "font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;"
+                'box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)">← 总目录</a>'
+            ) + "\n</body>")
+        (DOCS / f"{d['slug']}.html").write_text(dh, encoding="utf-8")
+        print(f"  ✓ {d['title']:<14} 图解课件（响应式，两端通用）")
+        if d.get("preview"):
+            pv = ROOT / d["preview"]
+            if pv.is_file():
+                shutil.copy2(pv, ASSETS / Path(d["thumb"]).name)
 
     (DOCS / "index.html").write_text(build_index("desktop"), encoding="utf-8")
     (DOCS / "index-m.html").write_text(build_index("mobile"), encoding="utf-8")
