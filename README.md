@@ -28,9 +28,14 @@
 申论/                            学员用书与学习产出
 ├── 学习手册.md                  12 周路线图、方法速查、进度与成绩表
 ├── 练习记录.md                  每次作答的存档、诊断结论与考场版参考答案
-├── 第2课-综合分析-图解.html      可交互图解课件（第 2 课示范 · 悬停联动）
-├── 练习5-综合分析-图解.html      答案三色解剖（抄／自／概 + 成分实测对比）
+├── 练习档案.html                练习总览：成长曲线 ·「抄」占比变化 · 失分模式
+├── 第2课-综合分析-图解.html      第 2 课示范课件（悬停联动）
+├── 练习5-综合分析-图解.html      练习 5 三色解剖（综合分析）
+├── 练习1-归纳概括-图解.html      练习 1 三色解剖
+├── 练习2-归纳概括-图解.html      练习 2 三色解剖
+├── 练习3-归纳概括-图解.html      练习 3 三色解剖
 ├── 第2课-图解-效果预览.png      课件效果预览
+├── 练习5-图解-效果预览.png      练习 5 课件效果预览
 └── 素材/
     └── 00-素材卡模板.md         每日积累用，一篇文章一张卡
 
@@ -50,6 +55,7 @@ skill/                           教学系统（AI 助教 Skill）
 
 tools/                           站点构建与发布
 ├── build_site.py                Markdown → 静态站点（自带 Markdown 解析器）
+├── build_diagrams.py            练习解析图解生成器（三色占比由脚本实算）
 └── publish.sh                   一键构建 + 推送 main + 同步 gh-pages
 
 docs/                            构建产物（GitHub Pages 从 gh-pages 分支发布）
@@ -62,8 +68,12 @@ docs/                            构建产物（GitHub Pages 从 gh-pages 分支
 ├── cards.html / -m.html         素材卡模板
 ├── rubric.html / -m.html        批改评分标准
 ├── nine-steps.html / -m.html    示范课九步法
-├── diagram-02.html              第 2 课图解课件（响应式，两端通用）
-├── diagram-05.html              练习 5 三色解剖（响应式，两端通用）
+├── practice-archive.html        练习档案（总览，响应式）
+├── diagram-02.html              第 2 课图解课件
+├── diagram-05.html              练习 5 三色解剖
+├── diagram-p1.html              练习 1 三色解剖
+├── diagram-p2.html              练习 2 三色解剖
+├── diagram-p3.html              练习 3 三色解剖
 └── assets/                      共用样式与预览图
 ```
 

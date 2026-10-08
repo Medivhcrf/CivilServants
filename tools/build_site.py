@@ -64,9 +64,31 @@ DIAGRAMS = [
          sub="哪些是抄的、哪些是自己写的 · 成分实测对比 · 正反对称",
          src="申论/练习5-综合分析-图解.html",
          preview="申论/练习5-图解-效果预览.png", thumb="assets/preview-05.png"),
+    dict(slug="practice-archive", group="练习解析", title="练习档案",
+         sub="成长曲线 ·「抄」的占比变化 · 五份解析索引 · 复现的毛病",
+         src="申论/练习档案.html", preview=None, thumb=None),
+    dict(slug="diagram-p1", group="练习解析", title="练习 1 三色解剖",
+         sub="老旧小区困难 · 4.5/15：把一整段压成了一句话",
+         src="申论/练习1-归纳概括-图解.html", preview=None, thumb=None),
+    dict(slug="diagram-p2", group="练习解析", title="练习 2 三色解剖",
+         sub="三市做法 · 7/10：审题对了，输在一个词上",
+         src="申论/练习2-归纳概括-图解.html", preview=None, thumb=None),
+    dict(slug="diagram-p3", group="练习解析", title="练习 3 三色解剖",
+         sub="乡村民宿问题 · 11/15：结构对了，差在段落后半截",
+         src="申论/练习3-归纳概括-图解.html", preview=None, thumb=None),
 ]
 
-GROUP_ORDER = ["核心资料", "方法", "教学标准"]
+# 图解源文件里的站内链接 → 站点 slug（源文件按本地文件名互链，发布时改写）
+LINK_FIX = {
+    "练习档案.html": "practice-archive.html",
+    "练习1-归纳概括-图解.html": "diagram-p1.html",
+    "练习2-归纳概括-图解.html": "diagram-p2.html",
+    "练习3-归纳概括-图解.html": "diagram-p3.html",
+    "练习5-综合分析-图解.html": "diagram-05.html",
+    "第2课-综合分析-图解.html": "diagram-02.html",
+}
+
+GROUP_ORDER = ["核心资料", "练习解析", "方法", "教学标准"]
 
 # ---------------------------------------------------------------- Markdown 转换
 
@@ -647,6 +669,9 @@ def main() -> int:
             print(f"  ✗ 图解缺失：{d['src']}")
             continue
         dh = dsrc.read_text(encoding="utf-8")
+        # 站内互链改写（源文件按本地文件名互链）
+        for local, slug in LINK_FIX.items():
+            dh = dh.replace(f'href="{local}"', f'href="{slug}"')
         # 窄屏保护：表格若没有滚动容器，会被浏览器压成竖条。自动补一个。
         if 'class="tw"' not in dh and 'class="table-wrap"' not in dh:
             dh = re.sub(r"(<table[^>]*>.*?</table>)", r'<div class="tw">\1</div>', dh, flags=re.S)

@@ -93,7 +93,9 @@ def section_ratios(src: str) -> list[tuple[str, int, dict[str, int]]]:
         for at in ats:
             for k in MARK_CLASSES:
                 for m in re.findall(r'<span class="%s">(.*?)</span>' % k, at, re.S):
-                    counts[k] += len(strip_tags(m))
+                    # 必须用 norm()：材料里常有「A 市」这类词间空格，
+                    # 只 strip_tags 会把空格算进字数，导致占比虚高。
+                    counts[k] += len(norm(m))
         total = len(norm("".join(ats)))
         if total:
             out.append((f"section {idx}", total, counts))
