@@ -567,21 +567,32 @@ BODY
     申论学习库 ｜ <a href="https://github.com/Medivhcrf/CivilServants">GitHub 仓库</a>
   </footer>
 </div>
+AUTODETECT
 </body>
 </html>
 """
     notice = (
         "<strong>手机上浏览？</strong>每份资料都有手机版（字号更大、单栏排版、目录可折叠）。"
-        "点卡片上的<b>手机版</b>即可。桌面版在手机上也能看，会自动缩放。"
+        "点卡片上的<b>手机版</b>即可。"
         if mode == "desktop" else
         "<strong>你在看手机版。</strong>手机版是单栏大字号排版，目录可折叠、表格可左右滑动。"
-        "想用电脑看，点卡片上的<b>桌面版</b>。"
+        "想用电脑看，点卡片上的<b>桌面版</b>；"
+        '也可以<a href="index.html?desk=1">强制打开桌面版总目录</a>。'
+    )
+    # 手机打开首页时自动切到手机版；用 ?desk=1 可以强制留在桌面版
+    autodetect = (
+        "<script>\n(function(){try{\n"
+        "  if(/[?&]desk=1/.test(location.search))return;\n"
+        "  if(window.innerWidth<760)location.replace('index-m.html');\n"
+        "}catch(e){}})();\n</script>"
+        if mode == "desktop" else ""
     )
     return (
         css_common.replace("SITEDESC", SITE_DESC)
         .replace("SITETITLE", SITE_TITLE + (" · 总目录（手机版）" if mode == "mobile" else " · 总目录"))
         .replace("MODE", "mode-mobile" if mode == "mobile" else "mode-desktop")
         .replace("NOTICE", notice)
+        .replace("AUTODETECT", autodetect)
         .replace("BODY", body)
     )
 
