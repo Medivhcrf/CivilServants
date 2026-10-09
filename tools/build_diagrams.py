@@ -123,6 +123,8 @@ tr:last-child td{border-bottom:none}
 .fl{font-size:12.5px;font-weight:700;text-align:right;padding-right:4px}
 .fb{border-radius:10px;padding:11px 15px;font-size:13.5px}
 .fl-d{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+
+.fl-m{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
 .fl-p{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
 .fl-a{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
 .fl-c{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6}
@@ -186,6 +188,18 @@ MARK_RE = re.compile(r'<span class="(mk-copy|mk-own|mk-cond)">(.*?)</span>', re.
 
 def _text(s: str) -> str:
     return re.sub(r"\s+", "", re.sub(r"<[^>]+>", "", s))
+
+
+PLAIN_RE = re.compile(r'<span class="mk-(?:copy|own|cond)">(.*?)</span>', re.S)
+
+
+def _plain(h: str) -> str:
+    """去掉三色标记，还原成考场上真正写下去的黑字。"""
+    prev = None
+    while prev != h:
+        prev = h
+        h = PLAIN_RE.sub(r"\1", h)
+    return h
 
 
 def mark_stats(blocks: list[dict]) -> dict:
@@ -691,6 +705,9 @@ def main() -> int:
     if not want or "quote" in want:
         (OUT / "引号与抽象概念-图解.html").write_text(render_quote_page(), encoding="utf-8")
         print("  ✓ 引号与抽象概念  →  引号与抽象概念-图解.html")
+    if not want or "gw" in want:
+        (OUT / "第4课-贯彻执行-图解.html").write_text(render_gongwen_page(), encoding="utf-8")
+        print("  ✓ 第 4 课贯彻执行示范  →  第4课-贯彻执行-图解.html")
     for d in ALL:
         if want and d["slug"] not in want:
             continue
@@ -1598,6 +1615,322 @@ P7 = dict(
         dict(point='畅通渠道、敢说"不"', ref='畅通基层反映渠道，让干部敢于对不合理的要求说"不"', mine='畅通基层反馈渠道，保障基层干部话语权，允许基层抵制不合理工作要求', j='hit', note='第 5 段。「反映」写成「反馈」是一字之差，阅卷人仍认得出；「抵制不合理要求」是「敢于说不」的转述，意思到位'),
     ],
 )
+
+# ══════════════════════════════════════════════════════════ 第 4 课 · 贯彻执行（倡议书）示范
+
+JY = [  # 厉行节约、反对餐饮浪费
+    dict(no="第 1 段", fn="bg", fnlabel="背景", sents=[
+        ("jy1-1", "有关数据显示，我国餐饮业人均食物浪费量为每人每餐 93 克，浪费率 11.7%；大型聚会食物浪费率高达 38%。"),
+        ("jy1-2", "H 市一家酒店承办的婚宴上，20 桌饭菜有近三分之一被倒掉，餐后\"光盘\"的桌子寥寥无几。"),
+    ]),
+    dict(no="第 2 段", fn="meaning", fnlabel="意义", sents=[
+        ("jy2-1", "粮食浪费不仅消耗了大量耕地和水资源，还加重了城市生活垃圾处理负担。"),
+        ("jy2-2", "我国粮食供求长期处于紧平衡状态，节约粮食对保障国家粮食安全意义重大。"),
+        ("jy2-3", "同时，勤俭节约是中华民族的传统美德，\"一粥一饭，当思来处不易\"。"),
+    ]),
+    dict(no="第 3 段", fn="problem", fnlabel="问题", sents=[
+        ("jy3-1", "记者走访发现，一些餐馆为追求营业额，用\"多点才够吃\"\"这个菜量大\"等话术诱导顾客超量点餐；"),
+        ("jy3-2", "部分单位食堂管理粗放，剩饭剩菜无人过问；"),
+        ("jy3-3", "不少消费者碍于情面，觉得\"菜点少了没面子\"，也不习惯打包，餐后大量剩菜直接进了垃圾桶。"),
+    ]),
+    dict(no="第 4 段", fn="action", fnlabel="做法", sents=[
+        ("jy4-1", "H 市某餐饮企业推出\"光盘送券\"活动：顾客餐后不剩菜，可获 10 元代金券，活动开展半年来该店厨余垃圾减少六成。"),
+        ("jy4-2", "另一家餐厅推出小份菜、半份菜菜单，价格按量下调，很受欢迎。"),
+        ("jy4-3", "2025 年，H 市出台《反餐饮浪费实施办法》，明确餐饮服务经营者应当主动提示消费者适量点餐、按需取餐，并提供小份菜、半份菜和打包服务；对造成明显浪费的，可收取厨余垃圾处理费；鼓励行业协会将反浪费要求纳入行业规范。"),
+    ]),
+    dict(no="第 5 段", fn="conclusion", fnlabel="结论", sents=[
+        ("jy5-1", "有专家指出，制止餐饮浪费，既要靠制度约束，也要靠习惯养成，需要政府、企业、社会组织和消费者共同努力，让节约粮食成为全社会的自觉行动。"),
+    ]),
+]
+
+GW_AUDIT = [
+    dict(k="①", q="我是谁", a="H 市文明办的一名工作人员",
+         why="决定<b>口气</b>。你代表市文明办，可以发号召，用「我们倡议」；不能代表市政府下命令。", tone="d"),
+    dict(k="②", q="写给谁", a="全市餐饮服务单位 ＋ 广大市民",
+         why="决定<b>称谓和语气</b>。题干给了两个对象，称谓里<b>两个都要点到</b>，正文也要分两组写。", tone="m"),
+    dict(k="③", q="为什么写", a="倡导厉行节约、反对餐饮浪费",
+         why="决定<b>正文重点</b>。倡议书的正文 = 为什么做（现状＋意义）＋ 怎么做（分对象、分条）。", tone="a"),
+    dict(k="④", q="什么场合", a="倡议书（书面，面向社会）",
+         why="决定<b>格式</b>。倡议书四件齐：标题 ＋ 称谓 ＋ 正文 ＋ 落款（单位＋日期）。", tone="c"),
+]
+
+GW_PARTS = [
+    dict(no="①", name="标题", tag="格式分 1 分", wc=14, tone="c", style="font-size:15px;font-weight:700",
+         html='<span class="mk-copy">「厉行节约、反对浪费」</span><span class="mk-own">倡议书</span>',
+         note='题干里给了主题词，直接搬进标题。<b>标准写法：「主题」＋文种</b>，或「关于……的倡议书」。别自己另起一个文艺标题。'),
+    dict(no="②", name="称谓", tag="格式分 1 分", wc=17, tone="m", style="font-weight:700",
+         html='<span class="mk-own">全市餐饮服务单位、广大市民朋友们：</span>',
+         note='题干给了<b>两个对象，一个都不能少</b>。称谓顶格写、冒号结尾。漏掉一类对象，格式分直接少一半。'),
+    dict(no="③", name="开头（发文目的）", tag="内容分 2 分 · 硬上限 50 字", wc=50, tone="d", style="",
+         html='<span class="mk-copy">我国餐饮业人均每餐浪费食物 93 克，浪费率 11.7%</span><span class="mk-own">。为守护</span><span class="mk-cond">粮食安全</span><span class="mk-own">、传承</span><span class="mk-cond">勤俭美德</span><span class="mk-own">，我们发出如下倡议：</span>',
+         note='只干两件事：<b>摆现状（把数据抄上）＋ 讲意义（材料原词）</b>，然后一句「发出如下倡议」收口。<br>数据是采分点，第 1 段那三个数字花 20 秒抄进来，就是分。'),
+    dict(no="④", name="主体一 · 对餐饮单位", tag="内容分 · 引导顾客", wc=78, tone="a", style="",
+         html='<span class="mk-own">一、餐饮单位要做节约用餐的引导者。</span><span class="mk-own">主动</span><span class="mk-copy">提示顾客适量点餐、按需取餐</span><span class="mk-own">，</span><span class="mk-own">不</span><span class="mk-copy">诱导超量点餐</span><span class="mk-own">；提供</span><span class="mk-copy">小份菜、半份菜</span><span class="mk-own">，</span><span class="mk-copy">价格按量下调</span><span class="mk-own">；主动提供</span><span class="mk-copy">打包服务</span><span class="mk-own">，让顾客吃不完能带走。</span>',
+         note='<b>「提示适量点餐」「小份菜半份菜」「打包服务」三件事全在第 4 段摆着，直接抄。</b>唯一的加工是「不诱导超量点餐」—— 材料第 3 段是问题（诱导超量点餐），加一个「不」字就变成倡议，<b>这叫正话反说，反推也要用材料原词</b>。'),
+    dict(no="⑤", name="主体二 · 对餐饮单位", tag="内容分 · 反对浪费", wc=67, tone="a", style="",
+         html='<span class="mk-own">二、餐饮单位要做反对浪费的践行者。推行</span><span class="mk-copy">"光盘"</span><span class="mk-own">奖励，以</span><span class="mk-copy">代金券</span><span class="mk-own">、小礼品鼓励顾客餐后</span><span class="mk-copy">不剩菜</span><span class="mk-own">、减少厨余垃圾；单位</span><span class="mk-copy">食堂</span><span class="mk-own">要加强管理，让</span><span class="mk-copy">剩饭剩菜</span><span class="mk-own">有人过问。</span>',
+         note='前半句来自第 4 段的「光盘送券」，<b>「光盘」带引号，原样保留</b>。<br>后半句来自第 3 段的问题「单位食堂管理粗放，剩饭剩菜无人过问」—— 把「无人」改成「有人」，一条倡议就出来了。<b>这一条材料里没有现成答案，是考出来的。</b>'),
+    dict(no="⑥", name="主体三 · 对市民", tag="内容分 · 文明用餐", wc=62, tone="a", style="",
+         html='<span class="mk-own">三、广大市民要做文明用餐的示范者。</span><span class="mk-copy">按需点餐</span><span class="mk-own">、不够再加，餐后主动</span><span class="mk-copy">打包</span><span class="mk-own">；破除</span><span class="mk-copy">"菜点少了没面子"</span><span class="mk-own">的旧观念，不碍于情面，不讲排场、不比阔气。</span>',
+         note='对象换到市民，内容也要换 —— <b>这正是「写给谁」决定的</b>。<br>「菜点少了没面子」是第 3 段的原话，带了引号，<b>照抄不误</b>。'),
+    dict(no="⑦", name="主体四 · 对市民", tag="内容分 · 传播风尚", wc=47, tone="a", style="",
+         html='<span class="mk-own">四、广大市民要做节约风尚的传播者。从每个家庭、每一餐做起，带动家人和身边人共同珍惜粮食、拒绝浪费，让节俭理念在社区里传开。</span>',
+         note='这一条几乎全是自己写的骨架，作用是把个人行为往上抬一层（从「我节约」到「带动别人」）。<b>倡议书常见的一收尾式条目，可以套。</b>'),
+    dict(no="⑧", name="结尾（号召）", tag="内容分 1 分 · 硬上限 40 字", wc=36, tone="c", style="",
+         html='<span class="mk-copy">"一粥一饭，当思来处不易"</span><span class="mk-own">。让我们共同行动，让</span><span class="mk-copy">节约粮食成为全社会的自觉行动</span><span class="mk-own">！</span>',
+         note='首句直接用了第 2 段引号里的古语，末句把第 5 段专家的原话搬过来。<b>结尾就是「一句诗意＋一句号召」，不要写第三句。</b>'),
+    dict(no="⑨", name="落款", tag="格式分 2 分", wc=16, tone="c", style="text-align:right",
+         html='<span class="mk-own">H 市文明办<br>2026 年 10 月 15 日</span>',
+         note='<b>单位 ＋ 日期，两样都要</b>，缺一样扣分。单位就是题干给你的那个身份；日期靠右对齐。'),
+]
+
+GW_SENTS = [
+    dict(no="③ 开头", wc=50, src="jy1-1,jy2-2,jy2-3", src_label="← 第 1 段数据 ＋ 第 2 段意义",
+         kind="copy",
+         pi=2,
+         note='数据 = 抄，意义 = 概，「发出如下倡议」= 自（套话骨架）。'),
+    dict(no="④ 主体一", wc=78, src="jy4-3,jy4-2,jy3-1", src_label="← 第 4 段《办法》＋第 3 段问题",
+         kind="copy",
+         pi=3,
+         note='这一条抄得最狠 —— 因为它本来就全是《办法》里的现成话。中心句是自搭的。'),
+    dict(no="⑤ 主体二", wc=67, src="jy4-1,jy3-2", src_label="← 第 4 段光盘送券 ＋ 第 3 段食堂问题",
+         kind="copy",
+         pi=4,
+         note='一半抄现成做法，一半是从问题反推 —— 反推出来的那半句，仍然用材料的词（食堂、剩饭剩菜）。'),
+    dict(no="⑥ 主体三", wc=62, src="jy4-3,jy3-3", src_label="← 第 4 段按需取餐 ＋ 第 3 段面子问题",
+         kind="copy",
+         pi=5,
+         note='对象一换成市民，内容立刻跟着换。引号里的「菜点少了没面子」是白送的采分词。'),
+    dict(no="⑦ 主体四", wc=47, src="jy5-1", src_label="← 第 5 段专家观点",
+         kind="own",
+         pi=6,
+         note='四条里唯一以「自」为主的一条 —— 它的作用是把行为抬升成风尚。'),
+    dict(no="⑧ 结尾", wc=36, src="jy2-3,jy5-1", src_label="← 第 2 段古语 ＋ 第 5 段自觉行动",
+         kind="cond",
+         pi=7,
+         note='一句古语 ＋ 一句号召，20~40 字收口。多写一个字都是浪费。'),
+]
+
+GW_FORMULA = [
+    ("标题", "「主题（抄题干）」＋ 文种", "例：「厉行节约、反对浪费」倡议书"),
+    ("称谓", "广大的对象 ＋ 朋友们：", "两个对象都要点到，用「、」并列"),
+    ("开头", "现状/数据（抄）＋ 为……，我们发出如下倡议：", "硬上限 50 字"),
+    ("主体", "一、[对象]要做[角色]。动作（抄材料）＋ 动作（抄材料）＋ 动作", "每条 40~80 字，中心句自搭、动作抄材料"),
+    ("结尾", "一句诗意/古语 ＋ 让我们……！", "硬上限 40 字"),
+    ("落款", "单位 ＋ 日期", "单位＝题干身份，日期靠右"),
+]
+
+GW_CHECK = [
+    "称谓里，题干给的两个对象都点到了吗？",
+    "开头有没有超过 50 字？（数一遍）",
+    "主体有没有占正文的 70% 以上？",
+    "餐饮单位那几条，「提示适量点餐／小份菜半份菜／打包服务」都写了吗？",
+    "第 3 段那三个问题，有没有各变成一条倡议（正话反说）？",
+    "带引号的提法（“光盘”“菜点少了没面子”“一粥一饭，当思来处不易”）抄上了吗？",
+    "结尾有没有超过 40 字？",
+    "落款的单位和日期，两个都写了吗？",
+]
+
+
+def render_gongwen_page() -> str:
+    # 材料
+    paras = []
+    for p in JY:
+        sents = "".join(f'<span class="s" id="{sid}">{hl_quotes(txt)}</span>' for sid, txt in p["sents"])
+        paras.append(f"""        <div class="para para-{p['fn']}">
+          <div class="ph"><span class="pn">{p['no']}</span><span class="fn f-{p['fn']}">{p['fnlabel']}</span></div>
+          <div class="pt">{sents}</div>
+        </div>""")
+    material_html = "\n".join(paras)
+
+    # 审题四问
+    audit = "\n".join(f"""      <div class="frow">
+        <div class="fl" style="color:var(--c-{r['tone']})">{r['k']} {r['q']}</div>
+        <div class="fb fl-{r['tone']}"><b style="font-size:14.5px">{r['a']}</b><br>
+          <span style="font-size:12.5px;color:var(--ink2)">{r['why']}</span></div>
+      </div>""" for r in GW_AUDIT)
+
+    # 格式解剖台
+    def _wc(x):
+        return len(_text(x))
+    parts = "\n".join(f"""      <div class="frow">
+        <div class="fl" style="color:var(--c-{r['tone']})">{r['no']} {r['name']}<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">{r['tag']} · {_wc(r['html'])} 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style="{r['style']}">{r['html']}</div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">{r['note']}</div>
+        </div>
+      </div>""" for r in GW_PARTS)
+
+    # 正文逐句
+    sents = "\n".join(f"""        <div class="ans" data-kind="{r['kind']}" data-src="{r['src']}">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">{r['no']}</span>
+            <span class="asrc">{r['src_label']}</span></div>
+          <div class="at">{GW_PARTS[r['pi']]['html']}</div>
+          <div class="an"><b>成分：</b>{r['note']}</div>
+        </div>""" for r in GW_SENTS)
+
+    # 字数配比
+    head = _wc(GW_PARTS[2]["html"])
+    main = sum(_wc(GW_PARTS[i]["html"]) for i in (3, 4, 5, 6))
+    tail = _wc(GW_PARTS[7]["html"])
+    body = head + main + tail
+    ratio_rows = [("开头 · 发文目的", head, "硬上限 50 字", "#d97706"),
+                  ("主体 · 四条倡议", main, "应占正文 70% 以上", "#059669"),
+                  ("结尾 · 号召", tail, "硬上限 40 字", "#7c3aed")]
+    ratio = "\n".join(f"""      <div style="margin-bottom:12px">
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">{nm}　<b style="color:#2c3340">{wc} 字</b>　·　占正文 {wc/body*100:.1f}%　·　{lim}</div>
+        <div class="bar"><div style="background:{col};width:{wc/body*100:.1f}%;color:#fff;font-size:11.5px;display:flex;align-items:center;justify-content:center;min-width:44px">{wc} 字</div><div style="background:#eef1f5;width:{100-wc/body*100:.1f}%"></div></div>
+      </div>""" for nm, wc, lim, col in ratio_rows)
+
+    formula = "\n".join(f"""          <tr><td><b>{a}</b></td><td>{b}</td><td style="color:var(--ink3)">{c}</td></tr>""" for a, b, c in GW_FORMULA)
+    check = "\n".join(f"""      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 {i} 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">{t}</div>
+      </div>""" for i, t in enumerate(GW_CHECK, 1))
+
+    gw_total = sum(_wc(r["html"]) for r in GW_PARTS)
+    gw_body = "\n".join(f"      <p>{_plain(r['html'])}</p>" for r in GW_PARTS)
+
+    chips = (f"<span>范文 {gw_total} 字</span><span>450 字 / 25 分</span>"
+             "<span>第 4 课 · 贯彻执行</span>"
+             '<a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a>')
+
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>视觉识别 · 公文示范</title>
+<style>{CSS}</style>
+</head>
+<body class="plain-mk">
+
+<header>
+  <div class="in">
+    <span class="kicker">视觉识别 · 公文示范</span>
+    <h1>贯彻执行题示范：一份倡议书是怎么搭出来的</h1>
+    <p class="sub">第 4 课 · H 市文明办「厉行节约、反对浪费」倡议书 · 450 字 / 25 分</p>
+    <div class="meta">{chips}</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="legend">
+    <div class="lg-in">
+      <span class="t">段落功能</span>
+      <span class="chip d"><i></i>背景</span>
+      <span class="chip m"><i></i>意义</span>
+      <span class="chip p"><i></i>问题</span>
+      <span class="chip a"><i></i>做法</span>
+      <span class="chip c"><i></i>结论</span>
+      <span class="sep"></span>
+      <span class="t">每句话的成分</span>
+      <span class="chip"><i style="background:var(--mk-copy)"></i><b>抄</b>　材料原词</span>
+      <span class="chip"><i style="background:var(--mk-own)"></i><b>自</b>　自己搭的骨架</span>
+      <span class="chip"><i style="background:var(--mk-cond)"></i><b>概</b>　从材料概括上升</span>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2><span class="num">1</span>审题四问：20 秒定骨架</h2>
+    <p class="h2sub">拿到贯彻执行题，先把这四句话写在草稿纸上。答案全在题干里，不用猜。</p>
+{audit}
+    <div class="warn">题干里「你是 H 市文明办的一名工作人员」这半句，<b>不是废话，是命令</b> —— 它规定了你的口气：「我们倡议」可以，「必须执行」不可以。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>格式解剖台：9 个部件，一个部件一份分</h2>
+    <p class="h2sub">左边是部位，右边是原文。每个部件用不同颜色标出 —— 灰蓝＝抄材料，琥珀＝自己搭，绿＝概括。</p>
+{parts}
+    <div class="warn">数一数：<b>格式分只有 5 分，内容分有 20 分</b>。格式写全了就够，不必纠结字写得好不好看；<b>正文里的要点才是分数主体</b>。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>完整范文（考场版）</h2>
+    <p class="h2sub">这就是可以原样写上答题卡的东西。标题四件套、正文四条，一字不多。</p>
+    <div class="refbox">
+      <div class="rh">参考答案 · {gw_total} 字（题干限 450 字）　·　由本页数据实算，非手填</div>
+{gw_body}
+      <div class="warnline">这里是<b>教学示范</b>，不是官方评分标准。真实阅卷的采分点由命题方制定 —— 本页的作用是让你看清「一份合格的倡议书长什么样」。</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>正文逐句溯源：每句话从材料哪里来</h2>
+    <p class="h2sub">把鼠标移到右边任意一条上 —— 左边会亮出它对应的材料原句。这就是「抄」的路线图。</p>
+    <div class="bench2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-bottom:10px">给定资料（带功能色标）</div>
+        <div style="background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px 16px">
+{material_html}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-bottom:10px">范文正文（逐句成分 ＋ 溯源）</div>
+{sents}
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>字数配比实测</h2>
+    <p class="h2sub">下面数字由脚本逐字统计，不是估算。开头和结尾一旦超字，主体就被挤没了。</p>
+{ratio}
+    <div class="warn">把这组比例记住：<b>开头 1/7、主体 3/4、结尾 1/10</b>。<br>
+    这是贯彻执行题最大的失分口 —— 很多人开头写 150 字、结尾写 80 字，主体只剩 130 字，20 分的内容分全丢在这儿，考完还不知道为什么。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">6</span>可迁移的骨架（换任何主题都能套）</h2>
+    <p class="h2sub">「倡议书」这一类，骨架就这六行。主题换了，只有括号里的内容换。</p>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th style="width:88px">部件</th><th>公式</th><th style="width:230px">本例</th></tr></thead>
+        <tbody>
+{formula}
+        </tbody>
+      </table>
+    </div>
+    <div class="warn"><b>同一个骨架，换成「工作方案」就是：</b>标题 → 一、工作目标 → 二、主要任务 → 三、保障措施 → 落款（无称谓）。<br>
+    <b>换成「讲话稿」就是：</b>标题 → 同志们： → 开场（为什么开这个会）→ 一、二、三点意见 → 以上几点，请抓好落实（无落款）。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">7</span>交卷前八问</h2>
+    <p class="h2sub">写完逐条过一遍，每题花 5 秒，能捡回 5 分以上。</p>
+{check}
+  </section>
+
+</div>
+
+<a class="backbtn" href="练习档案.html">← 练习档案</a>
+
+<script>
+document.querySelectorAll('.ans[data-src]').forEach(function(a){{
+  var ids = a.dataset.src.split(',').filter(Boolean);
+  a.addEventListener('mouseenter', function(){{
+    document.querySelectorAll('.s.hl').forEach(function(s){{ s.classList.remove('hl'); }});
+    document.querySelectorAll('.ans.on').forEach(function(x){{ x.classList.remove('on'); }});
+    ids.forEach(function(id){{ var el = document.getElementById(id); if (el) el.classList.add('hl'); }});
+    a.classList.add('on');
+  }});
+  a.addEventListener('mouseleave', function(){{
+    ids.forEach(function(id){{ var el = document.getElementById(id); if (el) el.classList.remove('hl'); }});
+    a.classList.remove('on');
+  }});
+  a.addEventListener('click', function(){{
+    var was = a.classList.contains('pin'); a.classList.add('pin');
+    if (was) a.classList.remove('pin');
+  }});
+}});
+</script>
+</body>
+</html>
+"""
+
+
 
 ALL = [P1, P2, P3, P5, P6, P7]
 

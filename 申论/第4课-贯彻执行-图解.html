@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>视觉识别 · 公文示范</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --ink:#1f2430; --ink2:#5a6473; --ink3:#8b93a1; --line:#e3e7ee;
+  --c-bg:#64748b; --c-meaning:#2563eb; --c-problem:#dc2626; --c-action:#059669;
+  --c-conclusion:#7c3aed; --c-define:#d97706;
+  --mk-copy:#e2e9f4; --mk-copy-line:#4b5f7a;
+  --mk-own:#fdecc8;  --mk-own-line:#b45309;
+  --mk-cond:#d6f5e3; --mk-cond-line:#047857;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.85;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+a{color:#4338ca}
+header{background:linear-gradient(135deg,#1e293b 0%,#312e81 55%,#4c1d95 100%);color:#fff;padding:42px 20px 36px}
+header .in{max-width:1180px;margin:0 auto}
+.kicker{display:inline-block;font-size:11.5px;letter-spacing:.14em;background:rgba(255,255,255,.16);
+  padding:4px 12px;border-radius:99px;margin-bottom:15px}
+header h1{margin:0 0 10px;font-size:28px;line-height:1.35;letter-spacing:-.01em}
+header .sub{margin:0;color:#c7d2fe;font-size:14.5px}
+header .meta{margin-top:17px;display:flex;flex-wrap:wrap;gap:9px}
+header .meta span{font-size:12.5px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);padding:4px 11px;border-radius:99px}
+.backbtn{position:fixed;left:14px;bottom:14px;z-index:99;background:rgba(30,41,59,.9);color:#fff;
+  font-size:13px;padding:8px 15px;border-radius:99px;text-decoration:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.legend{position:sticky;top:0;z-index:50;background:rgba(246,247,249,.95);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  padding:11px 20px;margin:0 -20px 26px}
+.legend .lg-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.legend .t{font-size:12px;color:var(--ink3);letter-spacing:.05em;margin-right:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 11px;
+  border-radius:99px;background:#fff;border:1px solid var(--line)}
+.chip i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chip.d i{background:var(--c-bg)} .chip.m i{background:var(--c-meaning)} .chip.p i{background:var(--c-problem)}
+.chip.a i{background:var(--c-action)} .chip.c i{background:var(--c-conclusion)}
+.sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+section{margin-bottom:32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 28px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+h2{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:11px;letter-spacing:-.01em}
+h2 .num{flex:none;width:28px;height:28px;border-radius:9px;background:#eef2ff;color:#4338ca;
+  font-size:13px;display:grid;place-items:center;font-weight:700}
+.h2sub{color:var(--ink3);font-size:13px;margin:0 0 20px;padding-left:39px}
+h3{font-size:15px;margin:22px 0 10px}
+p{margin:0 0 12px}
+.mk-copy,.mk-own,.mk-cond{padding:1px 3px;border-radius:4px;font-weight:600}
+.mk-copy{background:var(--mk-copy);border-bottom:2px solid var(--mk-copy-line)}
+.mk-own{background:var(--mk-own);border-bottom:2px dashed var(--mk-own-line)}
+.mk-cond{background:var(--mk-cond);border-bottom:2px dotted var(--mk-cond-line)}
+.mk-copy::after,.mk-own::after,.mk-cond::after{font-size:9.5px;vertical-align:super;margin-left:1px;font-weight:700;opacity:.75}
+.mk-copy::after{content:"抄"} .mk-own::after{content:"自"} .mk-cond::after{content:"概"}
+.plain-mk .mk-copy::after,.plain-mk .mk-own::after,.plain-mk .mk-cond::after{content:""}
+.qlink{display:inline-flex;align-items:center;gap:5px;background:#4338ca!important;color:#fff!important;text-decoration:none;font-weight:600}
+.qlink:hover{background:#3730a3!important}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border:1px solid var(--line);border-radius:11px}
+.tw table{min-width:600px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f9fafb;color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.fn{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;font-weight:600;white-space:nowrap}
+.f-bg{background:#f1f5f9;color:#475569}.f-meaning{background:#eff6ff;color:var(--c-meaning)}
+.f-problem{background:#fef2f2;color:var(--c-problem)}.f-action{background:#ecfdf5;color:var(--c-action)}
+.f-conclusion{background:#f5f3ff;color:var(--c-conclusion)}.f-define{background:#fffbeb;color:var(--c-define)}
+.para{margin-bottom:14px;padding:11px 14px;border-left:3px solid var(--line);border-radius:0 8px 8px 0;background:#fff}
+.para-bg{border-left-color:var(--c-bg)}.para-meaning{border-left-color:var(--c-meaning)}
+.para-problem{border-left-color:var(--c-problem)}.para-action{border-left-color:var(--c-action)}
+.para-conclusion{border-left-color:var(--c-conclusion)}
+.para .ph{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.para .pn{font-size:11.5px;color:var(--ink3);font-weight:700}
+.para .pt{font-size:13.5px;line-height:1.9;color:#2c3340}
+.s{transition:background .18s,box-shadow .18s;border-radius:4px;padding:1px 0}
+.s.hl{background:#fff3c4;box-shadow:0 0 0 3px #fff3c4}
+.ans{background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:0 9px 9px 0;padding:13px 15px;margin-bottom:11px;cursor:pointer;transition:.2s}
+.ans:hover,.ans.on{background:#fffdf5;border-color:#fcd34d;box-shadow:0 2px 10px rgba(217,119,6,.1)}
+.ans[data-kind="own"]{border-left-color:var(--c-define)}
+.ans[data-kind="copy"]{border-left-color:var(--c-bg)}
+.ans[data-kind="cond"]{border-left-color:var(--c-action)}
+.ans.nosrc{cursor:default}
+.ans.nosrc:hover{background:#fff;border-color:var(--line);box-shadow:none}
+.ah{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.ab{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
+.asrc{font-size:11.5px;color:var(--ink3);margin-left:auto}
+.at{font-size:14px;line-height:2;color:#2c3340}
+.an{font-size:12.5px;color:var(--ink2);margin-top:9px;padding-top:9px;
+  border-top:1px dashed var(--line);line-height:1.7;display:none}
+.ans:hover .an,.ans.on .an,.ans.nosrc .an{display:block}
+.an b{color:#b45309}
+.flow{display:grid;gap:10px}
+.frow{display:grid;grid-template-columns:128px 1fr;gap:14px;align-items:center}
+.fl{font-size:12.5px;font-weight:700;text-align:right;padding-right:4px}
+.fb{border-radius:10px;padding:11px 15px;font-size:13.5px}
+.fl-d{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+
+.fl-m{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.fl-p{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.fl-a{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.fl-c{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6}
+.arrow{grid-column:1/-1;text-align:center;color:var(--ink3);font-size:15px;line-height:1}
+.bar{display:flex;height:30px;border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:12px 0 8px}
+.bar div{display:grid;place-items:center;font-size:12px;font-weight:700;color:#1f2937;white-space:nowrap}
+.b-copy{background:var(--mk-copy)}.b-own{background:var(--mk-own)}.b-cond{background:var(--mk-cond)}
+.barlg{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--ink2)}
+.tip{background:#f0fdf4;border-left:3px solid var(--c-action);border-radius:0 9px 9px 0;
+  padding:13px 17px;font-size:13.5px;color:#065f46;margin-top:14px}
+.warn{background:#fffbeb;border-left:3px solid var(--c-define);border-radius:0 9px 9px 0;
+  padding:13px 17px;font-size:13.5px;color:#92400e;margin-top:14px}
+.bad{border:1px solid #fecaca;background:#fff5f5;border-radius:12px;padding:16px 18px}
+.bad ul{margin:10px 0 0;padding-left:0;list-style:none}
+.bad li{font-size:13.5px;color:#991b1b;padding:7px 0 7px 26px;position:relative;border-top:1px dashed #fecaca}
+.bad li:before{content:"✕";position:absolute;left:4px;top:7px;color:#dc2626;font-weight:700}
+.prog{display:grid;gap:9px}
+.prow{display:grid;grid-template-columns:96px 1fr 64px;gap:12px;align-items:center;font-size:13px}
+.pname{font-weight:600;color:var(--ink2)}
+.pbar{height:22px;border-radius:6px;background:#eef1f5;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:6px}
+.pscore{text-align:right;font-weight:700;color:#4338ca;font-size:13px}
+/* 逐点对照 */
+.jd{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.jd-hit{background:#d1fae5;color:#065f46}
+.jd-part{background:#fef3c7;color:#92400e}
+.jd-err{background:#fee2e2;color:#991b1b}
+.jd-miss{background:#f1f5f9;color:#64748b}
+.cmp td.mine-miss{color:var(--ink3);font-style:italic}
+.cmp td.mine-err{color:#991b1b}
+.cmp td.mine-hit{color:#065f46}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:16px 0}
+.sum div{background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:12px 14px;text-align:center}
+.sum .n{font-size:23px;font-weight:700;line-height:1.25}
+.sum .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* 引号高亮 */
+.k-quote{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:4px;font-weight:600}
+.refbox{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:12px;padding:18px 20px;margin:14px 0}
+.refbox .rh{font-size:12.5px;letter-spacing:.08em;color:#4338ca;margin-bottom:10px;font-weight:700}
+.refbox p{font-size:14px;line-height:1.95;color:#2c3340;margin:0 0 10px}
+.refbox p:last-child{margin-bottom:0}
+.refbox .warnline{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:10px;border-top:1px dashed #c7d2fe}
+@media (max-width:900px){
+  .bench2{grid-template-columns:1fr!important}
+  .frow{grid-template-columns:1fr;gap:5px}
+  .fl{text-align:left}
+  .card{padding:20px 18px}
+  header h1{font-size:22px}
+  .bar{height:26px}.bar div{font-size:10.5px}
+  .prow{grid-template-columns:72px 1fr 56px}
+}
+</style>
+</head>
+<body class="plain-mk">
+
+<header>
+  <div class="in">
+    <span class="kicker">视觉识别 · 公文示范</span>
+    <h1>贯彻执行题示范：一份倡议书是怎么搭出来的</h1>
+    <p class="sub">第 4 课 · H 市文明办「厉行节约、反对浪费」倡议书 · 450 字 / 25 分</p>
+    <div class="meta"><span>范文 410 字</span><span>450 字 / 25 分</span><span>第 4 课 · 贯彻执行</span><a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="legend">
+    <div class="lg-in">
+      <span class="t">段落功能</span>
+      <span class="chip d"><i></i>背景</span>
+      <span class="chip m"><i></i>意义</span>
+      <span class="chip p"><i></i>问题</span>
+      <span class="chip a"><i></i>做法</span>
+      <span class="chip c"><i></i>结论</span>
+      <span class="sep"></span>
+      <span class="t">每句话的成分</span>
+      <span class="chip"><i style="background:var(--mk-copy)"></i><b>抄</b>　材料原词</span>
+      <span class="chip"><i style="background:var(--mk-own)"></i><b>自</b>　自己搭的骨架</span>
+      <span class="chip"><i style="background:var(--mk-cond)"></i><b>概</b>　从材料概括上升</span>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2><span class="num">1</span>审题四问：20 秒定骨架</h2>
+    <p class="h2sub">拿到贯彻执行题，先把这四句话写在草稿纸上。答案全在题干里，不用猜。</p>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-d)">① 我是谁</div>
+        <div class="fb fl-d"><b style="font-size:14.5px">H 市文明办的一名工作人员</b><br>
+          <span style="font-size:12.5px;color:var(--ink2)">决定<b>口气</b>。你代表市文明办，可以发号召，用「我们倡议」；不能代表市政府下命令。</span></div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-m)">② 写给谁</div>
+        <div class="fb fl-m"><b style="font-size:14.5px">全市餐饮服务单位 ＋ 广大市民</b><br>
+          <span style="font-size:12.5px;color:var(--ink2)">决定<b>称谓和语气</b>。题干给了两个对象，称谓里<b>两个都要点到</b>，正文也要分两组写。</span></div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-a)">③ 为什么写</div>
+        <div class="fb fl-a"><b style="font-size:14.5px">倡导厉行节约、反对餐饮浪费</b><br>
+          <span style="font-size:12.5px;color:var(--ink2)">决定<b>正文重点</b>。倡议书的正文 = 为什么做（现状＋意义）＋ 怎么做（分对象、分条）。</span></div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-c)">④ 什么场合</div>
+        <div class="fb fl-c"><b style="font-size:14.5px">倡议书（书面，面向社会）</b><br>
+          <span style="font-size:12.5px;color:var(--ink2)">决定<b>格式</b>。倡议书四件齐：标题 ＋ 称谓 ＋ 正文 ＋ 落款（单位＋日期）。</span></div>
+      </div>
+    <div class="warn">题干里「你是 H 市文明办的一名工作人员」这半句，<b>不是废话，是命令</b> —— 它规定了你的口气：「我们倡议」可以，「必须执行」不可以。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>格式解剖台：9 个部件，一个部件一份分</h2>
+    <p class="h2sub">左边是部位，右边是原文。每个部件用不同颜色标出 —— 灰蓝＝抄材料，琥珀＝自己搭，绿＝概括。</p>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-c)">① 标题<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">格式分 1 分 · 14 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style="font-size:15px;font-weight:700"><span class="mk-copy">「厉行节约、反对浪费」</span><span class="mk-own">倡议书</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">题干里给了主题词，直接搬进标题。<b>标准写法：「主题」＋文种</b>，或「关于……的倡议书」。别自己另起一个文艺标题。</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-m)">② 称谓<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">格式分 1 分 · 17 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style="font-weight:700"><span class="mk-own">全市餐饮服务单位、广大市民朋友们：</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">题干给了<b>两个对象，一个都不能少</b>。称谓顶格写、冒号结尾。漏掉一类对象，格式分直接少一半。</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-d)">③ 开头（发文目的）<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 2 分 · 硬上限 50 字 · 50 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-copy">我国餐饮业人均每餐浪费食物 93 克，浪费率 11.7%</span><span class="mk-own">。为守护</span><span class="mk-cond">粮食安全</span><span class="mk-own">、传承</span><span class="mk-cond">勤俭美德</span><span class="mk-own">，我们发出如下倡议：</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">只干两件事：<b>摆现状（把数据抄上）＋ 讲意义（材料原词）</b>，然后一句「发出如下倡议」收口。<br>数据是采分点，第 1 段那三个数字花 20 秒抄进来，就是分。</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-a)">④ 主体一 · 对餐饮单位<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 · 引导顾客 · 77 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-own">一、餐饮单位要做节约用餐的引导者。</span><span class="mk-own">主动</span><span class="mk-copy">提示顾客适量点餐、按需取餐</span><span class="mk-own">，</span><span class="mk-own">不</span><span class="mk-copy">诱导超量点餐</span><span class="mk-own">；提供</span><span class="mk-copy">小份菜、半份菜</span><span class="mk-own">，</span><span class="mk-copy">价格按量下调</span><span class="mk-own">；主动提供</span><span class="mk-copy">打包服务</span><span class="mk-own">，让顾客吃不完能带走。</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75"><b>「提示适量点餐」「小份菜半份菜」「打包服务」三件事全在第 4 段摆着，直接抄。</b>唯一的加工是「不诱导超量点餐」—— 材料第 3 段是问题（诱导超量点餐），加一个「不」字就变成倡议，<b>这叫正话反说，反推也要用材料原词</b>。</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-a)">⑤ 主体二 · 对餐饮单位<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 · 反对浪费 · 71 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-own">二、餐饮单位要做反对浪费的践行者。推行</span><span class="mk-copy">"光盘"</span><span class="mk-own">奖励，以</span><span class="mk-copy">代金券</span><span class="mk-own">、小礼品鼓励顾客餐后</span><span class="mk-copy">不剩菜</span><span class="mk-own">、减少厨余垃圾；单位</span><span class="mk-copy">食堂</span><span class="mk-own">要加强管理，让</span><span class="mk-copy">剩饭剩菜</span><span class="mk-own">有人过问。</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">前半句来自第 4 段的「光盘送券」，<b>「光盘」带引号，原样保留</b>。<br>后半句来自第 3 段的问题「单位食堂管理粗放，剩饭剩菜无人过问」—— 把「无人」改成「有人」，一条倡议就出来了。<b>这一条材料里没有现成答案，是考出来的。</b></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-a)">⑥ 主体三 · 对市民<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 · 文明用餐 · 66 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-own">三、广大市民要做文明用餐的示范者。</span><span class="mk-copy">按需点餐</span><span class="mk-own">、不够再加，餐后主动</span><span class="mk-copy">打包</span><span class="mk-own">；破除</span><span class="mk-copy">"菜点少了没面子"</span><span class="mk-own">的旧观念，不碍于情面，不讲排场、不比阔气。</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">对象换到市民，内容也要换 —— <b>这正是「写给谁」决定的</b>。<br>「菜点少了没面子」是第 3 段的原话，带了引号，<b>照抄不误</b>。</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-a)">⑦ 主体四 · 对市民<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 · 传播风尚 · 61 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-own">四、广大市民要做节约风尚的传播者。从每个家庭、每一餐做起，带动家人和身边人共同珍惜粮食、拒绝浪费，让节俭理念在社区里传开。</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">这一条几乎全是自己写的骨架，作用是把个人行为往上抬一层（从「我节约」到「带动别人」）。<b>倡议书常见的一收尾式条目，可以套。</b></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-c)">⑧ 结尾（号召）<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">内容分 1 分 · 硬上限 40 字 · 38 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style=""><span class="mk-copy">"一粥一饭，当思来处不易"</span><span class="mk-own">。让我们共同行动，让</span><span class="mk-copy">节约粮食成为全社会的自觉行动</span><span class="mk-own">！</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75">首句直接用了第 2 段引号里的古语，末句把第 5 段专家的原话搬过来。<b>结尾就是「一句诗意＋一句号召」，不要写第三句。</b></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-c)">⑨ 落款<br>
+          <span style="font-weight:400;font-size:11px;color:var(--ink3)">格式分 2 分 · 16 字</span></div>
+        <div class="fb" style="background:#fbfcfe;border:1px solid var(--line)">
+          <div style="text-align:right"><span class="mk-own">H 市文明办<br>2026 年 10 月 15 日</span></div>
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.75"><b>单位 ＋ 日期，两样都要</b>，缺一样扣分。单位就是题干给你的那个身份；日期靠右对齐。</div>
+        </div>
+      </div>
+    <div class="warn">数一数：<b>格式分只有 5 分，内容分有 20 分</b>。格式写全了就够，不必纠结字写得好不好看；<b>正文里的要点才是分数主体</b>。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>完整范文（考场版）</h2>
+    <p class="h2sub">这就是可以原样写上答题卡的东西。标题四件套、正文四条，一字不多。</p>
+    <div class="refbox">
+      <div class="rh">参考答案 · 410 字（题干限 450 字）　·　由本页数据实算，非手填</div>
+      <p>「厉行节约、反对浪费」倡议书</p>
+      <p>全市餐饮服务单位、广大市民朋友们：</p>
+      <p>我国餐饮业人均每餐浪费食物 93 克，浪费率 11.7%。为守护粮食安全、传承勤俭美德，我们发出如下倡议：</p>
+      <p>一、餐饮单位要做节约用餐的引导者。主动提示顾客适量点餐、按需取餐，不诱导超量点餐；提供小份菜、半份菜，价格按量下调；主动提供打包服务，让顾客吃不完能带走。</p>
+      <p>二、餐饮单位要做反对浪费的践行者。推行"光盘"奖励，以代金券、小礼品鼓励顾客餐后不剩菜、减少厨余垃圾；单位食堂要加强管理，让剩饭剩菜有人过问。</p>
+      <p>三、广大市民要做文明用餐的示范者。按需点餐、不够再加，餐后主动打包；破除"菜点少了没面子"的旧观念，不碍于情面，不讲排场、不比阔气。</p>
+      <p>四、广大市民要做节约风尚的传播者。从每个家庭、每一餐做起，带动家人和身边人共同珍惜粮食、拒绝浪费，让节俭理念在社区里传开。</p>
+      <p>"一粥一饭，当思来处不易"。让我们共同行动，让节约粮食成为全社会的自觉行动！</p>
+      <p>H 市文明办<br>2026 年 10 月 15 日</p>
+      <div class="warnline">这里是<b>教学示范</b>，不是官方评分标准。真实阅卷的采分点由命题方制定 —— 本页的作用是让你看清「一份合格的倡议书长什么样」。</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>正文逐句溯源：每句话从材料哪里来</h2>
+    <p class="h2sub">把鼠标移到右边任意一条上 —— 左边会亮出它对应的材料原句。这就是「抄」的路线图。</p>
+    <div class="bench2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-bottom:10px">给定资料（带功能色标）</div>
+        <div style="background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px 16px">
+        <div class="para para-bg">
+          <div class="ph"><span class="pn">第 1 段</span><span class="fn f-bg">背景</span></div>
+          <div class="pt"><span class="s" id="jy1-1">有关数据显示，我国餐饮业人均食物浪费量为每人每餐 93 克，浪费率 11.7%；大型聚会食物浪费率高达 38%。</span><span class="s" id="jy1-2">H 市一家酒店承办的婚宴上，20 桌饭菜有近三分之一被倒掉，餐后<span class="k-quote">"光盘"</span>的桌子寥寥无几。</span></div>
+        </div>
+        <div class="para para-meaning">
+          <div class="ph"><span class="pn">第 2 段</span><span class="fn f-meaning">意义</span></div>
+          <div class="pt"><span class="s" id="jy2-1">粮食浪费不仅消耗了大量耕地和水资源，还加重了城市生活垃圾处理负担。</span><span class="s" id="jy2-2">我国粮食供求长期处于紧平衡状态，节约粮食对保障国家粮食安全意义重大。</span><span class="s" id="jy2-3">同时，勤俭节约是中华民族的传统美德，<span class="k-quote">"一粥一饭，当思来处不易"</span>。</span></div>
+        </div>
+        <div class="para para-problem">
+          <div class="ph"><span class="pn">第 3 段</span><span class="fn f-problem">问题</span></div>
+          <div class="pt"><span class="s" id="jy3-1">记者走访发现，一些餐馆为追求营业额，用<span class="k-quote">"多点才够吃"</span><span class="k-quote">"这个菜量大"</span>等话术诱导顾客超量点餐；</span><span class="s" id="jy3-2">部分单位食堂管理粗放，剩饭剩菜无人过问；</span><span class="s" id="jy3-3">不少消费者碍于情面，觉得<span class="k-quote">"菜点少了没面子"</span>，也不习惯打包，餐后大量剩菜直接进了垃圾桶。</span></div>
+        </div>
+        <div class="para para-action">
+          <div class="ph"><span class="pn">第 4 段</span><span class="fn f-action">做法</span></div>
+          <div class="pt"><span class="s" id="jy4-1">H 市某餐饮企业推出<span class="k-quote">"光盘送券"</span>活动：顾客餐后不剩菜，可获 10 元代金券，活动开展半年来该店厨余垃圾减少六成。</span><span class="s" id="jy4-2">另一家餐厅推出小份菜、半份菜菜单，价格按量下调，很受欢迎。</span><span class="s" id="jy4-3">2025 年，H 市出台《反餐饮浪费实施办法》，明确餐饮服务经营者应当主动提示消费者适量点餐、按需取餐，并提供小份菜、半份菜和打包服务；对造成明显浪费的，可收取厨余垃圾处理费；鼓励行业协会将反浪费要求纳入行业规范。</span></div>
+        </div>
+        <div class="para para-conclusion">
+          <div class="ph"><span class="pn">第 5 段</span><span class="fn f-conclusion">结论</span></div>
+          <div class="pt"><span class="s" id="jy5-1">有专家指出，制止餐饮浪费，既要靠制度约束，也要靠习惯养成，需要政府、企业、社会组织和消费者共同努力，让节约粮食成为全社会的自觉行动。</span></div>
+        </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-bottom:10px">范文正文（逐句成分 ＋ 溯源）</div>
+        <div class="ans" data-kind="copy" data-src="jy1-1,jy2-2,jy2-3">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">③ 开头</span>
+            <span class="asrc">← 第 1 段数据 ＋ 第 2 段意义</span></div>
+          <div class="at"><span class="mk-copy">我国餐饮业人均每餐浪费食物 93 克，浪费率 11.7%</span><span class="mk-own">。为守护</span><span class="mk-cond">粮食安全</span><span class="mk-own">、传承</span><span class="mk-cond">勤俭美德</span><span class="mk-own">，我们发出如下倡议：</span></div>
+          <div class="an"><b>成分：</b>数据 = 抄，意义 = 概，「发出如下倡议」= 自（套话骨架）。</div>
+        </div>
+        <div class="ans" data-kind="copy" data-src="jy4-3,jy4-2,jy3-1">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">④ 主体一</span>
+            <span class="asrc">← 第 4 段《办法》＋第 3 段问题</span></div>
+          <div class="at"><span class="mk-own">一、餐饮单位要做节约用餐的引导者。</span><span class="mk-own">主动</span><span class="mk-copy">提示顾客适量点餐、按需取餐</span><span class="mk-own">，</span><span class="mk-own">不</span><span class="mk-copy">诱导超量点餐</span><span class="mk-own">；提供</span><span class="mk-copy">小份菜、半份菜</span><span class="mk-own">，</span><span class="mk-copy">价格按量下调</span><span class="mk-own">；主动提供</span><span class="mk-copy">打包服务</span><span class="mk-own">，让顾客吃不完能带走。</span></div>
+          <div class="an"><b>成分：</b>这一条抄得最狠 —— 因为它本来就全是《办法》里的现成话。中心句是自搭的。</div>
+        </div>
+        <div class="ans" data-kind="copy" data-src="jy4-1,jy3-2">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">⑤ 主体二</span>
+            <span class="asrc">← 第 4 段光盘送券 ＋ 第 3 段食堂问题</span></div>
+          <div class="at"><span class="mk-own">二、餐饮单位要做反对浪费的践行者。推行</span><span class="mk-copy">"光盘"</span><span class="mk-own">奖励，以</span><span class="mk-copy">代金券</span><span class="mk-own">、小礼品鼓励顾客餐后</span><span class="mk-copy">不剩菜</span><span class="mk-own">、减少厨余垃圾；单位</span><span class="mk-copy">食堂</span><span class="mk-own">要加强管理，让</span><span class="mk-copy">剩饭剩菜</span><span class="mk-own">有人过问。</span></div>
+          <div class="an"><b>成分：</b>一半抄现成做法，一半是从问题反推 —— 反推出来的那半句，仍然用材料的词（食堂、剩饭剩菜）。</div>
+        </div>
+        <div class="ans" data-kind="copy" data-src="jy4-3,jy3-3">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">⑥ 主体三</span>
+            <span class="asrc">← 第 4 段按需取餐 ＋ 第 3 段面子问题</span></div>
+          <div class="at"><span class="mk-own">三、广大市民要做文明用餐的示范者。</span><span class="mk-copy">按需点餐</span><span class="mk-own">、不够再加，餐后主动</span><span class="mk-copy">打包</span><span class="mk-own">；破除</span><span class="mk-copy">"菜点少了没面子"</span><span class="mk-own">的旧观念，不碍于情面，不讲排场、不比阔气。</span></div>
+          <div class="an"><b>成分：</b>对象一换成市民，内容立刻跟着换。引号里的「菜点少了没面子」是白送的采分词。</div>
+        </div>
+        <div class="ans" data-kind="own" data-src="jy5-1">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">⑦ 主体四</span>
+            <span class="asrc">← 第 5 段专家观点</span></div>
+          <div class="at"><span class="mk-own">四、广大市民要做节约风尚的传播者。从每个家庭、每一餐做起，带动家人和身边人共同珍惜粮食、拒绝浪费，让节俭理念在社区里传开。</span></div>
+          <div class="an"><b>成分：</b>四条里唯一以「自」为主的一条 —— 它的作用是把行为抬升成风尚。</div>
+        </div>
+        <div class="ans" data-kind="cond" data-src="jy2-3,jy5-1">
+          <div class="ah"><span class="ab" style="background:#eef2ff;color:#3730a3">⑧ 结尾</span>
+            <span class="asrc">← 第 2 段古语 ＋ 第 5 段自觉行动</span></div>
+          <div class="at"><span class="mk-copy">"一粥一饭，当思来处不易"</span><span class="mk-own">。让我们共同行动，让</span><span class="mk-copy">节约粮食成为全社会的自觉行动</span><span class="mk-own">！</span></div>
+          <div class="an"><b>成分：</b>一句古语 ＋ 一句号召，20~40 字收口。多写一个字都是浪费。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>字数配比实测</h2>
+    <p class="h2sub">下面数字由脚本逐字统计，不是估算。开头和结尾一旦超字，主体就被挤没了。</p>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">开头 · 发文目的　<b style="color:#2c3340">50 字</b>　·　占正文 13.8%　·　硬上限 50 字</div>
+        <div class="bar"><div style="background:#d97706;width:13.8%;color:#fff;font-size:11.5px;display:flex;align-items:center;justify-content:center;min-width:44px">50 字</div><div style="background:#eef1f5;width:86.2%"></div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">主体 · 四条倡议　<b style="color:#2c3340">275 字</b>　·　占正文 75.8%　·　应占正文 70% 以上</div>
+        <div class="bar"><div style="background:#059669;width:75.8%;color:#fff;font-size:11.5px;display:flex;align-items:center;justify-content:center;min-width:44px">275 字</div><div style="background:#eef1f5;width:24.2%"></div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">结尾 · 号召　<b style="color:#2c3340">38 字</b>　·　占正文 10.5%　·　硬上限 40 字</div>
+        <div class="bar"><div style="background:#7c3aed;width:10.5%;color:#fff;font-size:11.5px;display:flex;align-items:center;justify-content:center;min-width:44px">38 字</div><div style="background:#eef1f5;width:89.5%"></div></div>
+      </div>
+    <div class="warn">把这组比例记住：<b>开头 1/7、主体 3/4、结尾 1/10</b>。<br>
+    这是贯彻执行题最大的失分口 —— 很多人开头写 150 字、结尾写 80 字，主体只剩 130 字，20 分的内容分全丢在这儿，考完还不知道为什么。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">6</span>可迁移的骨架（换任何主题都能套）</h2>
+    <p class="h2sub">「倡议书」这一类，骨架就这六行。主题换了，只有括号里的内容换。</p>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th style="width:88px">部件</th><th>公式</th><th style="width:230px">本例</th></tr></thead>
+        <tbody>
+          <tr><td><b>标题</b></td><td>「主题（抄题干）」＋ 文种</td><td style="color:var(--ink3)">例：「厉行节约、反对浪费」倡议书</td></tr>
+          <tr><td><b>称谓</b></td><td>广大的对象 ＋ 朋友们：</td><td style="color:var(--ink3)">两个对象都要点到，用「、」并列</td></tr>
+          <tr><td><b>开头</b></td><td>现状/数据（抄）＋ 为……，我们发出如下倡议：</td><td style="color:var(--ink3)">硬上限 50 字</td></tr>
+          <tr><td><b>主体</b></td><td>一、[对象]要做[角色]。动作（抄材料）＋ 动作（抄材料）＋ 动作</td><td style="color:var(--ink3)">每条 40~80 字，中心句自搭、动作抄材料</td></tr>
+          <tr><td><b>结尾</b></td><td>一句诗意/古语 ＋ 让我们……！</td><td style="color:var(--ink3)">硬上限 40 字</td></tr>
+          <tr><td><b>落款</b></td><td>单位 ＋ 日期</td><td style="color:var(--ink3)">单位＝题干身份，日期靠右</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn"><b>同一个骨架，换成「工作方案」就是：</b>标题 → 一、工作目标 → 二、主要任务 → 三、保障措施 → 落款（无称谓）。<br>
+    <b>换成「讲话稿」就是：</b>标题 → 同志们： → 开场（为什么开这个会）→ 一、二、三点意见 → 以上几点，请抓好落实（无落款）。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">7</span>交卷前八问</h2>
+    <p class="h2sub">写完逐条过一遍，每题花 5 秒，能捡回 5 分以上。</p>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 1 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">称谓里，题干给的两个对象都点到了吗？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 2 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">开头有没有超过 50 字？（数一遍）</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 3 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">主体有没有占正文的 70% 以上？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 4 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">餐饮单位那几条，「提示适量点餐／小份菜半份菜／打包服务」都写了吗？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 5 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">第 3 段那三个问题，有没有各变成一条倡议（正话反说）？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 6 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">带引号的提法（“光盘”“菜点少了没面子”“一粥一饭，当思来处不易”）抄上了吗？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 7 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">结尾有没有超过 40 字？</div>
+      </div>
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">第 8 项</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)">落款的单位和日期，两个都写了吗？</div>
+      </div>
+  </section>
+
+</div>
+
+<a class="backbtn" href="练习档案.html">← 练习档案</a>
+
+<script>
+document.querySelectorAll('.ans[data-src]').forEach(function(a){
+  var ids = a.dataset.src.split(',').filter(Boolean);
+  a.addEventListener('mouseenter', function(){
+    document.querySelectorAll('.s.hl').forEach(function(s){ s.classList.remove('hl'); });
+    document.querySelectorAll('.ans.on').forEach(function(x){ x.classList.remove('on'); });
+    ids.forEach(function(id){ var el = document.getElementById(id); if (el) el.classList.add('hl'); });
+    a.classList.add('on');
+  });
+  a.addEventListener('mouseleave', function(){
+    ids.forEach(function(id){ var el = document.getElementById(id); if (el) el.classList.remove('hl'); });
+    a.classList.remove('on');
+  });
+  a.addEventListener('click', function(){
+    var was = a.classList.contains('pin'); a.classList.add('pin');
+    if (was) a.classList.remove('pin');
+  });
+});
+</script>
+</body>
+</html>

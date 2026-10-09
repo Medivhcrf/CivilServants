@@ -49,6 +49,7 @@ ALIAS = {
     "diagram-p6":       ("结果分析 06",  f"{BRAND} · 结果分析 06"),
     "diagram-p7":       ("结果分析 07",  f"{BRAND} · 结果分析 07"),
     "diagram-quote":    ("数据清洗规则", f"{BRAND} · 数据清洗规则"),
+    "diagram-gw":       ("公文示范",   f"{BRAND} · 公文示范"),
 }
 
 # 正文首行大标题的同名改写（只替换 <h1>…</h1>，不碰正文里的 申论 二字）
@@ -83,6 +84,7 @@ SUB_ALIAS = {
     "diagram-p6": "样本 06 · 15/20：三色解剖 + 10 个评分点逐点对照",
     "diagram-p7": "样本 07 · 21/25：三色解剖 + 12 个评分点逐点对照",
     "diagram-quote": "10 个引号提法 100% 是评分点 · 提法／引语／空词／修辞四种处理",
+    "diagram-gw": "倡议书全流程示范 · 410 字：九件格式解剖 + 逐句溯源 + 字数配比",
 }
 
 
@@ -154,6 +156,10 @@ DIAGRAMS = [
     dict(slug="diagram-p7", group="结果分析", title="练习 7 三色解剖（变式）",
          sub="同材料换问法 · 21/25：三色解剖 + 12 个评分点逐点对照",
          src="申论/练习7-提出对策-图解.html", preview=None, thumb=None),
+    dict(slug="diagram-gw", group="方法", title="公文示范：倡议书怎么写",
+         sub="第 4 课 · 贯彻执行题 · 410 字满分骨架：九件格式解剖 + 逐句溯源 + 字数配比",
+         src="申论/第4课-贯彻执行-图解.html",
+         preview="申论/第4课-贯彻执行-图解-效果预览.png", thumb="assets/preview-gw.png"),
     dict(slug="diagram-quote", group="方法", title="引号、抽象概念、比喻：抄不抄",
          sub="10 个引号提法 100% 是采分词 · 提法／引语／空词／修辞四种处理",
          src="申论/引号与抽象概念-图解.html",
@@ -164,6 +170,7 @@ DIAGRAMS = [
 # 图解源文件里的站内链接 → 站点 slug（源文件按本地文件名互链，发布时改写）
 LINK_FIX = {
     "引号与抽象概念-图解.html": "diagram-quote.html",
+    "第4课-贯彻执行-图解.html": "diagram-gw.html",
     "练习档案.html": "practice-archive.html",
     "练习1-归纳概括-图解.html": "diagram-p1.html",
     "练习2-归纳概括-图解.html": "diagram-p2.html",
