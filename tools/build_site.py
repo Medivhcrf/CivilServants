@@ -590,7 +590,7 @@ def build_index(mode: str) -> str:
     <span class="kicker">公务员考试 · 申论</span>
     <h1>申论学习库</h1>
     <p class="sub">要点抄材料，骨架自己搭 · 一句一勾 · 字数实测 · 正反两层对称</p>
-    <div class="meta"><span>8 份资料</span><span>桌面版 + 手机版</span><span>1 份图解课件</span></div>
+    <div class="meta"><span>NPAGES 份资料</span><span>桌面版 + 手机版</span><span>NDIAGRAMS 份图解课件</span></div>
   </div>
 </div>
 <div class="shell plain">
@@ -624,6 +624,8 @@ AUTODETECT
     )
     return (
         css_common.replace("SITEDESC", SITE_DESC)
+        .replace("NPAGES", str(len(PAGES)))
+        .replace("NDIAGRAMS", str(len(DIAGRAMS)))
         .replace("SITETITLE", SITE_TITLE + (" · 总目录（手机版）" if mode == "mobile" else " · 总目录"))
         .replace("MODE", "mode-mobile" if mode == "mobile" else "mode-desktop")
         .replace("NOTICE", notice)
