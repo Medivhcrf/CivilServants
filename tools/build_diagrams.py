@@ -723,6 +723,9 @@ RECORDS = [
     dict(no="练习 5", type="综合分析", topic="口袋公园 · 解释型", score=13, full=15,
          file="练习5-综合分析-图解.html", has_page=True,
          issue="漏「会客厅」社会功能；正反不对称", tone="#7c3aed"),
+    dict(no="练习 6", type="提出对策", topic="指尖上的形式主义 · 对策", score=15, full=20,
+         file="练习6-提出对策-图解.html", has_page=True,
+         issue="四成篇幅写了题目没问的问题概括", tone="#0891b2"),
 ]
 
 PATTERNS = [
@@ -736,6 +739,8 @@ PATTERNS = [
          fix="每条自检「动词 + 宾语」齐不齐", status="已改正"),
     dict(title="正反两层不对称", body="有反面总起就必须有正面总起。<b>练习 5 正面有、反面没有。</b>",
          fix="写完回头看两层总起是否对仗", status="新出现"),
+    dict(title="答非所问：写了题目没问的部分", body="题目只问「提出对策建议」，却花 119 字（39.7%）概括问题。<b>练习 6 因此在两条对策上没篇幅了。</b>",
+         fix="动笔前先数题目问了几个动作，问几个就写几块", status="新出现"),
 ]
 
 
@@ -1366,7 +1371,125 @@ def render_quote_page() -> str:
 """
 
 
-ALL = [P1, P2, P3, P5]
+ZJ = [  # 指尖上的形式主义
+    dict(no="第 1 段", fn="bg", fnlabel="背景", sents=[
+        ("zj1", '近年来，各地各部门积极推进政务信息化，各类政务 App、微信公众号、工作群大量涌现。据报道，某省一名乡镇干部手机里装了 20 多个工作类 App，加入了 30 多个工作群，每天光打卡、签到、上传照片就要花两个多小时。')]),
+    dict(no="第 2 段", fn="problem", fnlabel="问题 · 负担", sents=[
+        ("zj2a", '"上面千条线，下面一根针。"中部某镇党委书记说，很多 App 只重留痕不重实效，走访要拍照、开会要录视频、学习要截屏积分，干部被"绑"在手机上，真正下村入户的时间反而少了。')]),
+    dict(no="第 3 段", fn="problem", fnlabel="问题 · 重复建设", sents=[
+        ("zj3a", '记者调查发现，一些地方各部门各自建平台，数据不互通，同一份材料要反复填、重复报。'),
+        ("zj3b", '有的 App 上线后长期不更新，成了"僵尸应用"。基层干部反映："填表填到手软，报数据报到心累。"')]),
+    dict(no="第 4 段", fn="action", fnlabel="做法 · 白送分", sents=[
+        ("zj4a", '针对这些问题，东部某市开展了专项整治。该市成立由市委办牵头的工作专班，对全市政务 App 和工作群全面摸排，关停整合功能重复的 App 47 个，保留一个统一的"掌上政务"平台；'),
+        ("zj4b", '同时出台规定，除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容。')]),
+    dict(no="第 5 段", fn="conclusion", fnlabel="专家建议 · 白送分", sents=[
+        ("zj5", '有专家指出，整治形式主义不能只做"减法"，还要做"加法"：考核评价要从"看痕迹"转向"看实绩"，多听群众评价、多看工作成效；同时要畅通基层反映渠道，让干部敢于对不合理的要求说"不"。')]),
+]
+
+
+P6 = dict(
+    slug="p6", file="练习6-提出对策-图解.html",
+    kicker="视觉识别 · 结果分析 06",
+    title="练习 6 三色解剖", sub="指尖上的形式主义 · 提出对策",
+    h1="三色解剖：四成字数写在了不采分的地方",
+    chips=["得分 15 / 20", "第 3 课 · 提出对策"],
+    student_hint="这份答案的抄写配比是健康的（抄 63.0%），比升格版还高。问题不在比例，在位置。",
+    material=ZJ,
+    student=[
+        dict(kind="problem", label="问题概括 · 119 字 · 占 39.7%", bg="#fef2f2", fg="#b91c1c", wc="119 字 · 不采分",
+             html='<span class="mk-own">在</span><span class="mk-copy">政务信息化</span><span class="mk-own">的背景下，</span><span class="mk-copy">各类政务App、微信公众号、工作群大量涌现</span><span class="mk-own">，严重影响了干部的干活效率，</span><span class="mk-copy">打卡签到</span><span class="mk-own">占据了大量时间，而且这些</span><span class="mk-copy">App只重留痕不重实效</span><span class="mk-own">，</span><span class="mk-copy">干部被绑在手机上</span><span class="mk-own">，真正入户的时间反而减少了; </span><span class="mk-copy">数据不互通</span><span class="mk-own">，</span><span class="mk-cond">反复填写</span><span class="mk-own">、</span><span class="mk-cond">上线后不更新</span><span class="mk-own">等诸多问题。</span>',
+             note='题目只问「提出对策建议」，没问「存在什么问题」。这 119 字拿不到任何采分点 —— 而它占掉的篇幅，正好够写你漏掉的那条「成立专班、全面摸排」。'),
+        dict(kind="action", label="对策 · 181 字 · 占 60.3%", bg="#ecfdf5", fg="#047857", wc="181 字 · 采分都在这里",
+             html='<span class="mk-own">针对这些问题，</span><span class="mk-copy">东部某市开展了专项整治</span><span class="mk-own">，1. </span><span class="mk-copy">关停整合功能重复的App</span><span class="mk-own">，处理</span><span class="mk-copy">僵尸应用</span><span class="mk-own"> 2. </span><span class="mk-copy">保留一个统一的"掌上政务"平台</span><span class="mk-own">，做到</span><span class="mk-copy">数据互通</span><span class="mk-own">;3. </span><span class="mk-copy">除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项</span><span class="mk-own">，并将此项要求</span><span class="mk-copy">纳入年度督查内容</span><span class="mk-own">。此外还要整治形式主义，</span><span class="mk-copy">考核评价</span><span class="mk-own">应当</span><span class="mk-copy">从看痕迹转向看实绩，多听群众评价，多看工作成效</span><span class="mk-own">；要</span><span class="mk-copy">畅通基层反映渠道</span><span class="mk-own">，</span><span class="mk-copy">让干部敢于对不合理的要求说"不"</span><span class="mk-own">。</span>',
+             note='这一段 74% 是材料原词，十个采分点里你写到的八个全在这里 —— 抄写能力没有问题。真正的问题是：只分了三条，最后一条还散在散文里。'),
+    ],
+    upgrade=[
+        dict(kind="define", label="总起", bg="#eff6ff", fg="#1d4ed8", src="", src_label="← 全篇（自己搭的骨架）",
+             html='<span class="mk-own">整治"指尖上的形式主义"，要</span><span class="mk-copy">减负</span><span class="mk-own">与</span><span class="mk-copy">增效</span><span class="mk-own">并举、标本兼治。</span>',
+             note='"减负""增效"是材料里的词，其余是自己搭的框 —— 一句总起，阅卷人立刻知道你有几条。'),
+        dict(kind="action", label="一 · 清理整合平台", bg="#ecfdf5", fg="#047857", src="zj4a,zj3a,zj3b", src_label="← 第 4 段 + 第 3 段反推",
+             html='<span class="mk-own">一是清理整合平台。由党委办牵头</span><span class="mk-copy">成立工作专班</span><span class="mk-own">，</span><span class="mk-copy">全面摸排政务App和工作群</span><span class="mk-own">；</span><span class="mk-copy">关停整合功能重复的App</span><span class="mk-own">，</span><span class="mk-copy">清理长期不更新的"僵尸应用"</span><span class="mk-own">，</span><span class="mk-copy">保留一个统一的"掌上政务"平台</span><span class="mk-own">，推动</span><span class="mk-copy">数据互联互通</span><span class="mk-own">、避免</span><span class="mk-cond">重复填报</span><span class="mk-own">。</span>',
+             note='把第 4 段的做法句和第 3 段的问题反推拼成一条 —— 这就是对策题最标准的动作。'),
+        dict(kind="action", label="二 · 严控增量负担", bg="#ecfdf5", fg="#047857", src="zj4b,zj1,zj2a", src_label="← 第 4 段 + 第 1、2 段反推",
+             html='<span class="mk-own">二是严控增量负担。出台规定，</span><span class="mk-copy">除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项</span><span class="mk-own">，并将此项要求</span><span class="mk-copy">纳入年度督查内容</span><span class="mk-own">；</span><span class="mk-cond">精简合并工作群</span><span class="mk-own">，让干部有时间下基层。</span>',
+             note='"精简合并工作群"是反推 —— 材料用两段讲这个负担，对策里必须回应它，否则等于没听见前两段。'),
+        dict(kind="action", label="三 · 改进考核方式", bg="#ecfdf5", fg="#047857", src="zj5", src_label="← 第 5 段",
+             html='<span class="mk-own">三是改进考核方式。</span><span class="mk-copy">考核评价要从"看痕迹"转向"看实绩"</span><span class="mk-own">，</span><span class="mk-copy">多听群众评价、多看工作成效</span><span class="mk-own">。</span>',
+             note='整句搬运，两个引号全部保住 —— 白送的分，一个字都别改。'),
+        dict(kind="action", label="四 · 畅通反映渠道", bg="#ecfdf5", fg="#047857", src="zj5", src_label="← 第 5 段",
+             html='<span class="mk-own">四是畅通反映渠道。</span><span class="mk-copy">让干部敢于对不合理的要求说"不"</span><span class="mk-own">，从源头减少层层加码。</span>',
+             note='收束半句是自己加的，不采分，但让这一条站得住。'),
+    ],
+    ratio_note=('<b>你的「抄」占比 63.0%，比升格版的 55.6% 还高。单看这个数字，你的材料利用能力完全没问题 —— 前五道题练出来的抄写习惯还在。</b><br><br>'
+                '这一题丢分不在比例，在<b>位置</b>：189 字材料原词里，有 55 字抄进了不采分的问题概括段。'
+                '升格版把问题概括整段删掉，腾出的篇幅用来搭「一是……二是……三是……四是……」的骨架 —— '
+                '所以它的「自」从 33.7% 涨到 40.5%，<b>涨的全是结构，不是空话</b>。'),
+    structure_sub="对策题的结构比什么都简单：题目问几个动作，答案就分几块。",
+    structure=[
+        dict(tone="define", cls="d", label="① 题目只要一件事", body='<span class="mk-own">就「如何整治」</span><span class="mk-copy">提出对策建议</span> → 只写对策'),
+        dict(tone="problem", cls="p", label="② 你却先写了一件事（0 分）", body='<span class="mk-own">问题概括</span> <b>119 字</b>（39.7%）→ 不采分，还挤掉了篇幅'),
+        dict(tone="action", cls="a", label="③ 再写要对的事（采分）", body='<span class="mk-copy">关停整合 App</span>、<span class="mk-copy">保留统一平台</span>、<span class="mk-copy">严控打卡留痕</span>、<span class="mk-copy">考核转向实绩</span> → <b>7 个完整 + 1 个不完整</b>'),
+        dict(tone="conclusion", cls="c", label="④ 正确结构", body='<span class="mk-own">一句总起</span> + <span class="mk-own">四五条编号对策，每条一个中心句</span>'),
+    ],
+    structure_note=('<b>前半段是散文，后半段突然冒出 1./2./3. —— 阅卷人翻到中间才发现你在列对策。</b><br>'
+                    '正确做法：从第一句就进入「我建议……」，并把对策分条编号，每条第一句点明做什么。'),
+    gaps=[
+        dict(item='<b>成立工作专班、明确牵头部门</b>', src='第 4 段：该市成立由市委办牵头的工作专班', how='<b>对策公式第一格</b> —— "谁来做"，答不上来就是空话', value='2 分'),
+        dict(item='<b>全面摸排政务 App 和工作群</b>', src='第 4 段：对全市政务 App 和工作群全面摸排', how='<b>做法句直抄</b> —— 它排在"关停整合"前面，是前提', value='2 分'),
+        dict(item='「僵尸应用」的<b>引号</b>与「清理」二字', src='第 3 段：成了<b>"僵尸应用"</b>', how='<b>引号即采分词</b>；你写的"处理"太笼统，材料原词是"清理"', value='表述分'),
+        dict(item='（反推）精简工作群、减少打卡签到', src='第 1、2 段：30 多个工作群／干部被"绑"在手机上', how='<b>从问题反推</b> —— 材料花两段讲这个负担，对策必须回应', value='未列入本表采分点'),
+    ],
+    bad=[
+        '「<b>东部某市开展了专项整治</b>，1. 关停整合……」—— 你在<b>介绍某市做了什么</b>，题目要的是<b>你提出建议</b>。删掉"东部某市"，经验才能变成普适对策。',
+        '对策只有 3 条编号加一段散文，<b>条数太少</b>。十个采分点至少要摊到 4~5 条，一条讲清一件事。',
+        '<b>没有总起句</b>，也没有条内中心句，阅卷人得自己从你的句子里找采分点 —— 找漏了就是你没写。',
+        '问题概括占了 <b>40% 篇幅</b>，是这次最大的浪费。压成一句「当前基层 App 多、打卡多、数据不互通」就够。',
+    ],
+    takeaway_sub='这道题只需要带走一件事。',
+    takeaways=[
+        '<b>动笔前先数一遍：题目问了几个动作？问几个，答案就分几块。</b>'
+        '只问「提出对策建议」，就只写对策；问「概括问题并提出建议」，才写问题+对策两段。'
+        '这一题你花了 119 字写题目没问的东西 —— 那不是不会写，是没看清题。'
+    ],
+    verdict=('<b>成绩：15 / 20。</b>十个采分点，写全了七个、写残了一个（15 分）。<br>'
+             '漏掉的两条 —— 「成立专班、全面摸排」和「精简工作群」—— 都卡在同一个地方：'
+             '<b>119 字（39.7%）的篇幅去写了题目根本没问的问题概括</b>。<br>'
+             '这一题的失分和你的写作能力<b>完全无关</b>，全在「问什么答什么」上。'
+             '把问题概括压成一句话，你就能拿 18~19 分。'),
+    compare_sub='把 20 分拆成 10 个采分点，逐项对照。注意看两个「漏」—— 它们都来自同一个原因：篇幅被问题概括吃掉了。',
+    ref_warn=REF_WARN,
+    reference=[
+        '整治"指尖上的形式主义"，要减负与增效并举、标本兼治。',
+        '一是清理整合平台。由党委办牵头成立工作专班，全面摸排政务 App 和工作群；关停整合功能重复的 App，清理长期不更新的"僵尸应用"，保留一个统一的"掌上政务"平台，推动数据互联互通、避免重复填报。',
+        '二是严控增量负担。出台规定，除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容；精简合并工作群，让干部有时间下基层。',
+        '三是改进考核方式。考核评价要从"看痕迹"转向"看实绩"，多听群众评价、多看工作成效。',
+        '四是畅通反映渠道。让干部敢于对不合理的要求说"不"，从源头减少层层加码。',
+    ],
+    compare=[
+        dict(point='成立工作专班、明确牵头部门', ref='成立由市委办牵头的工作专班', mine='（完全没写）', j='miss',
+             note='第 4 段第 1 句 —— 对策公式的第一格"谁来做"，整条丢失'),
+        dict(point='全面摸排政务 App 和工作群', ref='对全市政务 App 和工作群全面摸排', mine='（完全没写）', j='miss',
+             note='第 4 段第 1 句 —— 排在"关停整合"之前，是它的前提条件'),
+        dict(point='关停整合功能重复的 App', ref='关停整合功能重复的 App 47 个', mine='关停整合功能重复的App', j='hit',
+             note='第 4 段 —— 一字不差，抄对了'),
+        dict(point='清理长期不更新的"僵尸应用"', ref='清理"僵尸应用"', mine='处理僵尸应用', j='part',
+             note='第 3 段 —— 意思到了，但引号丢了、"处理"太笼统，材料原词是"清理"'),
+        dict(point='保留一个统一的政务平台', ref='保留一个统一的"掌上政务"平台', mine='保留一个统一的"掌上政务"平台', j='hit',
+             note='第 4 段 —— 连引号带平台名一起搬，抄得很准'),
+        dict(point='推动数据互联互通、避免重复填报', ref='（第 3 段问题反推）推动数据互联互通、避免重复填报', mine='做到数据互通', j='hit',
+             note='第 4 段 + 第 3 段 —— 意思到位，但只写"数据互通"，漏了"避免重复填报"这半截'),
+        dict(point='严控新增打卡留痕、纳入年度督查', ref='一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容', mine='一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容', j='hit',
+             note='第 4 段 —— 完整搬运，一个"一律"、一个"将"都没漏'),
+        dict(point='考核评价从"看痕迹"转向"看实绩"', ref='考核评价要从"看痕迹"转向"看实绩"', mine='考核评价应当从看痕迹转向看实绩', j='hit',
+             note='第 5 段 —— 意思完全对，但两个引号都丢了；带引号的提法丢了引号就是丢了信号'),
+        dict(point='多听群众评价、多看工作成效', ref='多听群众评价、多看工作成效', mine='多听群众评价，多看工作成效', j='hit',
+             note='第 5 段 —— 抄对了，顿号换成逗号不影响采分'),
+        dict(point='畅通基层反映渠道、敢说"不"', ref='畅通基层反映渠道，让干部敢于对不合理的要求说"不"', mine='要畅通基层反映渠道，让干部敢于对不合理的要求说"不"', j='hit',
+             note='第 5 段 —— 抄对了，引号也保住了'),
+    ],
+)
+
+ALL = [P1, P2, P3, P5, P6]
 
 
 if __name__ == "__main__":

@@ -46,6 +46,7 @@ ALIAS = {
     "diagram-p1":       ("结果分析 01",  f"{BRAND} · 结果分析 01"),
     "diagram-p2":       ("结果分析 02",  f"{BRAND} · 结果分析 02"),
     "diagram-p3":       ("结果分析 03",  f"{BRAND} · 结果分析 03"),
+    "diagram-p6":       ("结果分析 06",  f"{BRAND} · 结果分析 06"),
     "diagram-quote":    ("数据清洗规则", f"{BRAND} · 数据清洗规则"),
 }
 
@@ -78,6 +79,7 @@ SUB_ALIAS = {
     "diagram-p1": "样本 01 · 4.5/15：三色解剖 + 8 个评分点逐点对照",
     "diagram-p2": "样本 02 · 7/10：三色解剖 + 7 个评分点逐点对照",
     "diagram-p3": "样本 03 · 11/15：三色解剖 + 13 个评分点逐点对照",
+    "diagram-p6": "样本 06 · 15/20：三色解剖 + 10 个评分点逐点对照",
     "diagram-quote": "10 个引号提法 100% 是评分点 · 提法／引语／空词／修辞四种处理",
 }
 
@@ -133,7 +135,7 @@ DIAGRAMS = [
          src="申论/练习5-综合分析-图解.html",
          preview="申论/练习5-图解-效果预览.png", thumb="assets/preview-05.png"),
     dict(slug="practice-archive", group="结果分析", title="练习档案",
-         sub="成长曲线 ·「抄」的占比变化 · 五份解析索引 · 复现的毛病",
+         sub="成长曲线 ·「抄」的占比变化 · 六份解析索引 · 复现的毛病",
          src="申论/练习档案.html", preview=None, thumb=None),
     dict(slug="diagram-p1", group="结果分析", title="练习 1 三色解剖",
          sub="老旧小区困难 · 4.5/15：三色解剖 + 8 个采分点逐点对照",
@@ -144,6 +146,9 @@ DIAGRAMS = [
     dict(slug="diagram-p3", group="结果分析", title="练习 3 三色解剖",
          sub="乡村民宿问题 · 11/15：三色解剖 + 13 个采分点逐点对照",
          src="申论/练习3-归纳概括-图解.html", preview=None, thumb=None),
+    dict(slug="diagram-p6", group="结果分析", title="练习 6 三色解剖",
+         sub="指尖上的形式主义 · 15/20：三色解剖 + 10 个评分点逐点对照",
+         src="申论/练习6-提出对策-图解.html", preview=None, thumb=None),
     dict(slug="diagram-quote", group="方法", title="引号、抽象概念、比喻：抄不抄",
          sub="10 个引号提法 100% 是采分词 · 提法／引语／空词／修辞四种处理",
          src="申论/引号与抽象概念-图解.html",
@@ -159,6 +164,7 @@ LINK_FIX = {
     "练习2-归纳概括-图解.html": "diagram-p2.html",
     "练习3-归纳概括-图解.html": "diagram-p3.html",
     "练习5-综合分析-图解.html": "diagram-05.html",
+    "练习6-提出对策-图解.html": "diagram-p6.html",
     "第2课-综合分析-图解.html": "diagram-02.html",
 }
 
