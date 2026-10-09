@@ -60,6 +60,8 @@ p{margin:0 0 12px}
 .mk-copy::after,.mk-own::after,.mk-cond::after{font-size:9.5px;vertical-align:super;margin-left:1px;font-weight:700;opacity:.75}
 .mk-copy::after{content:"抄"} .mk-own::after{content:"自"} .mk-cond::after{content:"概"}
 .plain-mk .mk-copy::after,.plain-mk .mk-own::after,.plain-mk .mk-cond::after{content:""}
+.qlink{display:inline-flex;align-items:center;gap:5px;background:#4338ca!important;color:#fff!important;text-decoration:none;font-weight:600}
+.qlink:hover{background:#3730a3!important}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border:1px solid var(--line);border-radius:11px}
 .tw table{min-width:600px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -122,6 +124,26 @@ tr:last-child td{border-bottom:none}
 .pbar{height:22px;border-radius:6px;background:#eef1f5;overflow:hidden}
 .pbar i{display:block;height:100%;border-radius:6px}
 .pscore{text-align:right;font-weight:700;color:#4338ca;font-size:13px}
+/* 逐点对照 */
+.jd{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.jd-hit{background:#d1fae5;color:#065f46}
+.jd-part{background:#fef3c7;color:#92400e}
+.jd-err{background:#fee2e2;color:#991b1b}
+.jd-miss{background:#f1f5f9;color:#64748b}
+.cmp td.mine-miss{color:var(--ink3);font-style:italic}
+.cmp td.mine-err{color:#991b1b}
+.cmp td.mine-hit{color:#065f46}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:16px 0}
+.sum div{background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:12px 14px;text-align:center}
+.sum .n{font-size:23px;font-weight:700;line-height:1.25}
+.sum .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* 引号高亮 */
+.k-quote{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:4px;font-weight:600}
+.refbox{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:12px;padding:18px 20px;margin:14px 0}
+.refbox .rh{font-size:12.5px;letter-spacing:.08em;color:#4338ca;margin-bottom:10px;font-weight:700}
+.refbox p{font-size:14px;line-height:1.95;color:#2c3340;margin:0 0 10px}
+.refbox p:last-child{margin-bottom:0}
+.refbox .warnline{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:10px;border-top:1px dashed #c7d2fe}
 @media (max-width:900px){
   .bench2{grid-template-columns:1fr!important}
   .frow{grid-template-columns:1fr;gap:5px}
@@ -140,7 +162,7 @@ tr:last-child td{border-bottom:none}
     <span class="kicker">申论 · 练习 2 批改</span>
     <h1>三色解剖：审题对了，输在一个词上</h1>
     <p class="sub">老旧小区改造 · 同材料换问法：概括三市做法</p>
-    <div class="meta"><span>你的答案 70 字</span><span>升格版 134 字</span><span>得分 7 / 10</span></div>
+    <div class="meta"><span>你的答案 70 字</span><span>升格版 134 字</span><span>得分 7 / 10</span><a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a></div>
   </div>
 </header>
 
@@ -204,7 +226,74 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">2</span>升格版 · 三色解剖 + 材料溯源（134 字）</h2>
+    <h2><span class="num">2</span>参考答案 × 你的答案 · 逐点对照</h2>
+    <p class="h2sub">把 10 分拆成 7 个采分点。你的问题集中在一处，但值得逐项看清。</p>
+    <div class="sum"><div><div class="n" style="color:#059669">1</div><div class="l">命中 14%</div></div><div><div class="n" style="color:#d97706">2</div><div class="l">不完整 29%</div></div><div><div class="n" style="color:#dc2626">1</div><div class="l">错误 14%</div></div><div><div class="n" style="color:#64748b">3</div><div class="l">漏 43%</div></div></div>
+    <div class="refbox">
+      <div class="rh">参考答案（教学用，非官方评分标准）</div>
+<p>一是 A 市推动改造与社区治理相结合，同步成立业主委员会，由居民协商确定改造项目清单和后续管理办法。</p><p>二是 B 市引入专业物业企业，采取"先服务、后收费"方式，让居民先感受服务变化再议价。</p><p>三是 C 市盘活闲置边角地和屋顶，改造成停车位、光伏电站，以收益补贴物业费，实现"自我造血"。</p>
+      <div class="warnline">评分点依据材料关键句拆分，供教学对照用。<b>不是官方评分标准</b> —— 真实阅卷的采分点由命题方制定，本表的作用是让你看清「标准答案会写什么」与「你写了什么」的逐项差距。</div>
+    </div>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th>采分点</th><th>参考答案的表述</th><th>你的答案</th><th>判定</th><th>差距在哪</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A 市：与社区治理相结合</td>
+            <td>把老旧小区改造与社区治理结合起来</td>
+            <td class="mine-miss">（未写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td>这一段的总起句，交代了 A 市做法的性质</td>
+          </tr>
+          <tr>
+            <td>A 市：成立业委会、协商定清单</td>
+            <td>同步成立业主委员会，由居民协商确定改造<b>项目</b>清单和<b>后续</b>管理办法</td>
+            <td class="">成立业主委员会，居民协商确定改造清单和管理办法</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>漏了「项目」和「后续」二字 —— 都是采分词</td>
+          </tr>
+          <tr>
+            <td>B 市：引入专业物业企业</td>
+            <td>B 市<b>引入专业物业企业</b></td>
+            <td class="mine-miss">（完全没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td>这是本条的核心动作。<b>只写方式不写动作，等于把脑袋砍了</b></td>
+          </tr>
+          <tr>
+            <td>B 市：先服务、后收费</td>
+            <td>采取"先服务、后收费"的方式</td>
+            <td class="mine-err">先改造，再进行议价</td>
+            <td><span class="jd jd-err">错误</span></td>
+            <td><b>读错了</b> —— 用生活经验替换了材料原词，材料里没有「改造」这个动作</td>
+          </tr>
+          <tr>
+            <td>C 市：盘活闲置边角地和屋顶</td>
+            <td>把小区闲置的<b>边角地、屋顶</b>改造成停车位和光伏电站</td>
+            <td class="">利用闲置区域</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>「闲置区域」太笼统 —— 具体名词比笼统名词值钱</td>
+          </tr>
+          <tr>
+            <td>C 市：收益补贴物业费</td>
+            <td>产生的收益用于补贴物业费</td>
+            <td class="mine-hit">收益补贴物业费</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中</td>
+          </tr>
+          <tr>
+            <td>C 市：自我造血</td>
+            <td>实现了"自我造血"</td>
+            <td class="mine-miss">（完全没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td><b>带引号的提法，必抄</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>升格版 · 三色解剖 + 材料溯源（134 字）</h2>
     <p class="h2sub">把鼠标移到右边任意一句上 —— 左边材料会亮出它对应的原句，并展开这句的成分说明。</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start" class="bench2">
       <div>
@@ -217,19 +306,19 @@ tr:last-child td{border-bottom:none}
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 2 段</span><span class="fn f-problem">问题</span></div>
-          <div class="pt"><span class="s" id="lj2">"最头疼的是物业。"居民李女士说，"我们小区物业费每平方米只有三毛钱，收不上来，物业公司换了好几家，都是干几个月就走了。"记者了解到，该小区没有成立业主委员会，居民对小区事务参与热情不高，遇到问题往往各扫门前雪。社区居委会人手有限，一名工作人员要负责三个小区，日常事务应接不暇。</span></div>
+          <div class="pt"><span class="s" id="lj2"><span class="k-quote">"最头疼的是物业。"</span>居民李女士说，"我们小区物业费每平方米只有三毛钱，收不上来，物业公司换了好几家，都是干几个月就走了。"记者了解到，该小区没有成立业主委员会，居民对小区事务参与热情不高，遇到问题往往各扫门前雪。社区居委会人手有限，一名工作人员要负责三个小区，日常事务应接不暇。</span></div>
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 3 段</span><span class="fn f-problem">问题</span></div>
-          <div class="pt"><span class="s" id="lj3">改造资金从哪里来，是绕不过去的难题。市住建局相关负责人介绍，老旧小区改造主要依靠财政投入，但财政资金有限，只能"撒胡椒面"，很难一次性彻底解决。社会资本参与意愿不强，因为改造项目利润薄、回收周期长，缺乏可持续的盈利模式。此外，部分居民对改造方案存在分歧，有的希望加装电梯，有的担心影响采光；有的要求增加车位，有的不愿意挪走自家门前的绿化带，协商往往久拖不决。</span></div>
+          <div class="pt"><span class="s" id="lj3">改造资金从哪里来，是绕不过去的难题。市住建局相关负责人介绍，老旧小区改造主要依靠财政投入，但财政资金有限，只能<span class="k-quote">"撒胡椒面"</span>，很难一次性彻底解决。社会资本参与意愿不强，因为改造项目利润薄、回收周期长，缺乏可持续的盈利模式。此外，部分居民对改造方案存在分歧，有的希望加装电梯，有的担心影响采光；有的要求增加车位，有的不愿意挪走自家门前的绿化带，协商往往久拖不决。</span></div>
         </div>
         <div class="para para-action">
           <div class="ph"><span class="pn">第 4 段</span><span class="fn f-action">做法（本题干扰段）</span></div>
-          <div class="pt"><span class="s" id="lj4">一些地方已经在探索。A 市把老旧小区改造与社区治理结合起来，在改造中同步成立业主委员会，由居民协商确定改造项目清单和后续管理办法。B 市引入专业物业企业，采取"先服务、后收费"的方式，让居民先感受服务变化再议价。C 市则把小区闲置的边角地、屋顶改造成停车位和光伏电站，产生的收益用于补贴物业费，实现了"自我造血"。</span></div>
+          <div class="pt"><span class="s" id="lj4">一些地方已经在探索。A 市把老旧小区改造与社区治理结合起来，在改造中同步成立业主委员会，由居民协商确定改造项目清单和后续管理办法。B 市引入专业物业企业，采取<span class="k-quote">"先服务、后收费"</span>的方式，让居民先感受服务变化再议价。C 市则把小区闲置的边角地、屋顶改造成停车位和光伏电站，产生的收益用于补贴物业费，实现了<span class="k-quote">"自我造血"</span>。</span></div>
         </div>
         <div class="para para-conclusion">
           <div class="ph"><span class="pn">第 5 段</span><span class="fn f-conclusion">观点</span></div>
-          <div class="pt"><span class="s" id="lj5">专家指出，老旧小区改造不能只算经济账，更要算民生账。改造不是简单刷墙铺路，而是对基层治理能力的一次检验。要避免"政府干、群众看"，关键是把居民从旁观者变成参与者。</span></div>
+          <div class="pt"><span class="s" id="lj5">专家指出，老旧小区改造不能只算经济账，更要算民生账。改造不是简单刷墙铺路，而是对基层治理能力的一次检验。要避免<span class="k-quote">"政府干、群众看"</span>，关键是把居民从旁观者变成参与者。</span></div>
         </div>
       </div>
       <div>
@@ -259,7 +348,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">3</span>整体结构</h2>
+    <h2><span class="num">4</span>整体结构</h2>
     <p class="h2sub">做法题的骨架只有一个公式，三市三遍。</p>
     <div class="flow">
       <div class="frow">
@@ -281,7 +370,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">4</span>漏点清单</h2>
+    <h2><span class="num">5</span>漏点清单</h2>
     <p class="h2sub">每个漏点都标出材料出处、抓取方法、分值。</p>
     <div class="tw">
       <table>
@@ -307,7 +396,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">5</span>带走的一个动作</h2>
+    <h2><span class="num">6</span>带走的一个动作</h2>
     <p class="h2sub">这道题只需要带走两件事。</p>
     <div class="flow">
       <div class="frow">

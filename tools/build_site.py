@@ -61,25 +61,31 @@ DIAGRAMS = [
          src="申论/第2课-综合分析-图解.html",
          preview="申论/第2课-图解-效果预览.png", thumb="assets/preview-02.png"),
     dict(slug="diagram-05", group="核心资料", title="练习 5 三色解剖",
-         sub="哪些是抄的、哪些是自己写的 · 成分实测对比 · 正反对称",
+         sub="哪些是抄的、哪些是自己写的 · 成分实测 · 13 个采分点逐点对照",
          src="申论/练习5-综合分析-图解.html",
          preview="申论/练习5-图解-效果预览.png", thumb="assets/preview-05.png"),
     dict(slug="practice-archive", group="练习解析", title="练习档案",
          sub="成长曲线 ·「抄」的占比变化 · 五份解析索引 · 复现的毛病",
          src="申论/练习档案.html", preview=None, thumb=None),
     dict(slug="diagram-p1", group="练习解析", title="练习 1 三色解剖",
-         sub="老旧小区困难 · 4.5/15：把一整段压成了一句话",
+         sub="老旧小区困难 · 4.5/15：三色解剖 + 8 个采分点逐点对照",
          src="申论/练习1-归纳概括-图解.html", preview=None, thumb=None),
     dict(slug="diagram-p2", group="练习解析", title="练习 2 三色解剖",
-         sub="三市做法 · 7/10：审题对了，输在一个词上",
+         sub="三市做法 · 7/10：三色解剖 + 7 个采分点逐点对照",
          src="申论/练习2-归纳概括-图解.html", preview=None, thumb=None),
     dict(slug="diagram-p3", group="练习解析", title="练习 3 三色解剖",
-         sub="乡村民宿问题 · 11/15：结构对了，差在段落后半截",
+         sub="乡村民宿问题 · 11/15：三色解剖 + 13 个采分点逐点对照",
          src="申论/练习3-归纳概括-图解.html", preview=None, thumb=None),
+    dict(slug="diagram-quote", group="方法", title="引号、抽象概念、比喻：抄不抄",
+         sub="10 个引号提法 100% 是采分词 · 提法／引语／空词／修辞四种处理",
+         src="申论/引号与抽象概念-图解.html",
+         preview="申论/引号与抽象概念-图解-效果预览.png",
+         thumb="assets/preview-quote.png"),
 ]
 
 # 图解源文件里的站内链接 → 站点 slug（源文件按本地文件名互链，发布时改写）
 LINK_FIX = {
+    "引号与抽象概念-图解.html": "diagram-quote.html",
     "练习档案.html": "practice-archive.html",
     "练习1-归纳概括-图解.html": "diagram-p1.html",
     "练习2-归纳概括-图解.html": "diagram-p2.html",
@@ -658,6 +664,9 @@ def main() -> int:
                 body=b, toc=toc_html, mode=mode, slug=p["slug"], toc_count=len(toc),
                 meta=[f"{len(body)} 字符", "桌面版" if mode == "desktop" else "手机版"],
             )
+            # 站内互链改写：正文里按本地文件名写的链接，发布时换成站点 slug
+            for local, slug in LINK_FIX.items():
+                out = out.replace(f'href="{local}"', f'href="{slug}"')
             (DOCS / f"{p['slug']}{suffix}.html").write_text(out, encoding="utf-8")
         built.append((p["slug"], len(toc)))
         print(f"  ✓ {p['title']:<14} 桌面版 + 手机版　（{len(toc)} 个目录项）")

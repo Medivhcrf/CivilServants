@@ -81,6 +81,8 @@ p{margin:0 0 12px}
 .mk-copy::after,.mk-own::after,.mk-cond::after{font-size:9.5px;vertical-align:super;margin-left:1px;font-weight:700;opacity:.75}
 .mk-copy::after{content:"抄"} .mk-own::after{content:"自"} .mk-cond::after{content:"概"}
 .plain-mk .mk-copy::after,.plain-mk .mk-own::after,.plain-mk .mk-cond::after{content:""}
+.qlink{display:inline-flex;align-items:center;gap:5px;background:#4338ca!important;color:#fff!important;text-decoration:none;font-weight:600}
+.qlink:hover{background:#3730a3!important}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border:1px solid var(--line);border-radius:11px}
 .tw table{min-width:600px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -143,6 +145,26 @@ tr:last-child td{border-bottom:none}
 .pbar{height:22px;border-radius:6px;background:#eef1f5;overflow:hidden}
 .pbar i{display:block;height:100%;border-radius:6px}
 .pscore{text-align:right;font-weight:700;color:#4338ca;font-size:13px}
+/* 逐点对照 */
+.jd{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.jd-hit{background:#d1fae5;color:#065f46}
+.jd-part{background:#fef3c7;color:#92400e}
+.jd-err{background:#fee2e2;color:#991b1b}
+.jd-miss{background:#f1f5f9;color:#64748b}
+.cmp td.mine-miss{color:var(--ink3);font-style:italic}
+.cmp td.mine-err{color:#991b1b}
+.cmp td.mine-hit{color:#065f46}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:16px 0}
+.sum div{background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:12px 14px;text-align:center}
+.sum .n{font-size:23px;font-weight:700;line-height:1.25}
+.sum .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* 引号高亮 */
+.k-quote{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:4px;font-weight:600}
+.refbox{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:12px;padding:18px 20px;margin:14px 0}
+.refbox .rh{font-size:12.5px;letter-spacing:.08em;color:#4338ca;margin-bottom:10px;font-weight:700}
+.refbox p{font-size:14px;line-height:1.95;color:#2c3340;margin:0 0 10px}
+.refbox p:last-child{margin-bottom:0}
+.refbox .warnline{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:10px;border-top:1px dashed #c7d2fe}
 @media (max-width:900px){
   .bench2{grid-template-columns:1fr!important}
   .frow{grid-template-columns:1fr;gap:5px}
@@ -153,6 +175,11 @@ tr:last-child td{border-bottom:none}
   .prow{grid-template-columns:72px 1fr 56px}
 }
 """
+
+def hl_quotes(t: str) -> str:
+    """把材料里带引号的提法高亮 —— 引号即采分词信号。"""
+    return re.sub(r'"([^"]{2,40})"', r'<span class="k-quote">"\1"</span>', t)
+
 
 MARK_RE = re.compile(r'<span class="(mk-copy|mk-own|mk-cond)">(.*?)</span>', re.S)
 
@@ -197,7 +224,7 @@ def render(d: dict) -> str:
     # 材料
     paras = []
     for p in d["material"]:
-        sents = "".join(f'<span class="s" id="{sid}">{txt}</span>' for sid, txt in p["sents"])
+        sents = "".join(f'<span class="s" id="{sid}">{hl_quotes(txt)}</span>' for sid, txt in p["sents"])
         paras.append(f"""        <div class="para para-{p['fn']}">
           <div class="ph"><span class="pn">{p['no']}</span><span class="fn f-{p['fn']}">{p['fnlabel']}</span></div>
           <div class="pt">{sents}</div>
@@ -252,10 +279,35 @@ def render(d: dict) -> str:
         for i, t in enumerate(d["takeaways"], 1)
     )
 
+    # 逐点对照
+    JD = {"hit": ("命中", "jd-hit"), "part": ("不完整", "jd-part"),
+          "err": ("错误", "jd-err"), "miss": ("漏", "jd-miss")}
+    cnt = {k: 0 for k in JD}
+    crow = []
+    for c in d.get("compare", []):
+        cnt[c["j"]] += 1
+        lb, cl = JD[c["j"]]
+        cls = {"hit": "mine-hit", "part": "", "err": "mine-err", "miss": "mine-miss"}[c["j"]]
+        crow.append(f"""          <tr>
+            <td>{c['point']}</td>
+            <td>{c['ref']}</td>
+            <td class="{cls}">{c['mine']}</td>
+            <td><span class="jd {cl}">{lb}</span></td>
+            <td>{c['note']}</td>
+          </tr>""")
+    compare_rows = "\n".join(crow)
+    ctot = sum(cnt.values()) or 1
+    summary = "".join(
+        f'<div><div class="n" style="color:{col}">{cnt[k]}</div>'
+        f'<div class="l">{JD[k][0]} {cnt[k]/ctot*100:.0f}%</div></div>'
+        for k, col in [("hit", "#059669"), ("part", "#d97706"), ("err", "#dc2626"), ("miss", "#64748b")]
+    )
+    reference_html = "".join(f"<p>{x}</p>" for x in d.get("reference", []))
+
     chips = "".join(
         f"<span>{c}</span>" for c in
         [f"你的答案 {st_student['total']} 字", f"升格版 {st_upgrade['total']} 字"] + d["chips"]
-    )
+    ) + '<a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a>' 
 
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -307,7 +359,26 @@ def render(d: dict) -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">2</span>升格版 · 三色解剖 + 材料溯源（{st_upgrade['total']} 字）</h2>
+    <h2><span class="num">2</span>参考答案 × 你的答案 · 逐点对照</h2>
+    <p class="h2sub">{d['compare_sub']}</p>
+    <div class="sum">{summary}</div>
+    <div class="refbox">
+      <div class="rh">参考答案（教学用，非官方评分标准）</div>
+{reference_html}
+      <div class="warnline">{d['ref_warn']}</div>
+    </div>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th>采分点</th><th>参考答案的表述</th><th>你的答案</th><th>判定</th><th>差距在哪</th></tr></thead>
+        <tbody>
+{compare_rows}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>升格版 · 三色解剖 + 材料溯源（{st_upgrade['total']} 字）</h2>
     <p class="h2sub">把鼠标移到右边任意一句上 —— 左边材料会亮出它对应的原句，并展开这句的成分说明。</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start" class="bench2">
       <div>
@@ -326,7 +397,7 @@ def render(d: dict) -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">3</span>整体结构</h2>
+    <h2><span class="num">4</span>整体结构</h2>
     <p class="h2sub">{d['structure_sub']}</p>
     <div class="flow">
 {structure_html}
@@ -335,7 +406,7 @@ def render(d: dict) -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">4</span>漏点清单</h2>
+    <h2><span class="num">5</span>漏点清单</h2>
     <p class="h2sub">每个漏点都标出材料出处、抓取方法、分值。</p>
     <div class="tw">
       <table>
@@ -354,7 +425,7 @@ def render(d: dict) -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">5</span>带走的一个动作</h2>
+    <h2><span class="num">6</span>带走的一个动作</h2>
     <p class="h2sub">{d['takeaway_sub']}</p>
     <div class="flow">
 {takeaways}
@@ -615,6 +686,9 @@ def main() -> int:
     if not want or "archive" in want:
         (OUT / "练习档案.html").write_text(render_archive(), encoding="utf-8")
         print("  ✓ 练习档案  →  练习档案.html")
+    if not want or "quote" in want:
+        (OUT / "引号与抽象概念-图解.html").write_text(render_quote_page(), encoding="utf-8")
+        print("  ✓ 引号与抽象概念  →  引号与抽象概念-图解.html")
     for d in ALL:
         if want and d["slug"] not in want:
             continue
@@ -677,6 +751,35 @@ def render_archive() -> str:
         <div class="pscore">{txt}</div>
       </div>""")
     curve = "\n".join(rows)
+
+    # 逐题对照统计（脚本实算）
+    by_file = {d["file"]: d for d in ALL}
+    cmp_rows = []
+    tot = {"hit": 0, "part": 0, "err": 0, "miss": 0}
+    for r in RECORDS:
+        d = by_file.get(r["file"])
+        if not d or not d.get("compare"):
+            cmp_rows.append(
+                f'<tr><td><b>{r["no"]}</b></td><td colspan="5" style="color:var(--ink3)">'
+                f'示范题，未拆采分点对照</td><td>—</td></tr>')
+            continue
+        c = {"hit": 0, "part": 0, "err": 0, "miss": 0}
+        for x in d["compare"]:
+            c[x["j"]] += 1
+        n = len(d["compare"])
+        for k in tot:
+            tot[k] += c[k]
+        cmp_rows.append(f"""          <tr>
+            <td><b>{r['no']}</b></td>
+            <td>{n}</td>
+            <td style="color:#059669;font-weight:700">{c['hit']}</td>
+            <td style="color:#d97706;font-weight:700">{c['part']}</td>
+            <td style="color:#dc2626;font-weight:700">{c['err']}</td>
+            <td style="color:#64748b;font-weight:700">{c['miss']}</td>
+            <td><b>{c['hit'] / n * 100:.0f}%</b></td>
+          </tr>""")
+    cmp_html = "\n".join(cmp_rows)
+    grand = sum(tot.values()) or 1
 
     cards = []
     for r in RECORDS:
@@ -767,7 +870,33 @@ def render_archive() -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">3</span>逐题三色解剖</h2>
+    <h2><span class="num">3</span>逐点对照统计</h2>
+    <p class="h2sub">把每道题的参考答案拆成采分点，逐项核对你的答案落在哪一类。数字由脚本实算。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>练习</th><th>采分点</th><th>命中</th><th>不完整</th><th>错误</th><th>漏</th><th>命中率</th></tr></thead>
+        <tbody>
+{cmp_html}
+          <tr style="background:#f8f9ff">
+            <td><b>合计</b></td><td><b>{grand}</b></td>
+            <td style="color:#059669"><b>{tot['hit']}</b></td>
+            <td style="color:#d97706"><b>{tot['part']}</b></td>
+            <td style="color:#dc2626"><b>{tot['err']}</b></td>
+            <td style="color:#64748b"><b>{tot['miss']}</b></td>
+            <td><b>{tot['hit'] / grand * 100:.0f}%</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn">
+      <b>看两件事</b>：<br>
+      ① <b>命中率在涨</b> —— 这是最直接的进步指标，比总分更稳定，因为它排除了题目难度。<br>
+      ② <b>「错误」只有 {tot['err']} 项，全部是同一个毛病</b> —— 用生活经验替换了材料原词。
+      这类错最亏：点了找不到，因为你亲手把采分词擦掉了。<br>
+      剩下的 {tot['miss']} 项「漏」几乎都能被三个机械动作抓到：<b>数段落、标点切分、见引号就画圈</b>。
+    </div>
+
+    <h2 style="margin-top:34px"><span class="num">4</span>逐题三色解剖</h2>
     <p class="h2sub">点进去看每一份答案的逐句成分、升格版、悬停溯源与漏点清单。</p>
     <div class="rec">
 {cards_html}
@@ -775,7 +904,7 @@ def render_archive() -> str:
   </section>
 
   <section class="card">
-    <h2><span class="num">4</span>反复出现的失分模式</h2>
+    <h2><span class="num">5</span>反复出现的失分模式</h2>
     <p class="h2sub">按严重程度排序。下次出错时先翻这里，看是不是老毛病又犯了。</p>
     <div class="tw">
       <table>
@@ -793,6 +922,449 @@ def render_archive() -> str:
 </body>
 </html>
 """
+
+# ══════════════════════════════════════════════════════════ 参考答案与逐点对照
+
+REF_WARN = ('评分点依据材料关键句拆分，供教学对照用。<b>不是官方评分标准</b> —— '
+            '真实阅卷的采分点由命题方制定，本表的作用是让你看清「标准答案会写什么」与「你写了什么」的逐项差距。')
+
+P1.update(dict(
+    compare_sub='把 15 分拆成 8 个采分点，逐项对照。这是本页最该反复看的部分。',
+    ref_warn=REF_WARN,
+    reference=[
+        '当前老旧小区改造主要面临四方面困难：',
+        '一是基础设施老化，管网老化、道路坑洼不平、停车位不足，缺乏电梯等适老化设施，居民生活不便。',
+        '二是物业管理缺位，物业费标准低、收缴困难，物业公司频繁退出；业主委员会缺失，居民参与热情不高；社区居委会人手有限。',
+        '三是资金保障不足，改造主要依靠财政投入且总量有限，社会资本参与意愿不强，项目利润薄、回收周期长。',
+        '四是居民意见难统一，改造方案存在分歧，利益诉求多元，协商久拖不决。',
+    ],
+    compare=[
+        dict(point='基础设施老化', ref='管网老化、道路坑洼不平、停车位不足、缺乏电梯等适老化设施', mine='（完全没写）', j='miss', note='<b>第 1 段整段漏答</b> —— 用「数段落」就能发现'),
+        dict(point='物业管理缺位', ref='物业费标准低、收缴困难，物业公司频繁退出', mine='物业费难以收取', j='part', note='只写了收费难，漏了「<b>公司频繁退出</b>」'),
+        dict(point='业委会缺失、居民参与低', ref='业主委员会缺失，居民参与热情不高', mine='（完全没写）', j='miss', note='第 2 段第 3 句，一句一勾就能抓到'),
+        dict(point='居委会人手有限', ref='社区居委会人手有限', mine='（完全没写）', j='miss', note='第 2 段最后一句'),
+        dict(point='资金保障不足', ref='改造主要依靠财政投入且总量有限', mine='改造资金筹集困难', j='part', note='只写了总括，没回答「<b>难在哪</b>」'),
+        dict(point='社会资本意愿低', ref='社会资本参与意愿不强，项目利润薄、回收周期长', mine='（完全没写）', j='miss', note='第 3 段第 3 句'),
+        dict(point='居民意见难统一', ref='改造方案存在分歧，协商久拖不决', mine='居民痛点不同，难以协调一致', j='err', note='<b>「痛点不同」是你自己造的词</b>，材料原词是「存在分歧」'),
+        dict(point='政府干、群众看', ref='要避免"政府干、群众看"', mine='（完全没写）', j='miss', note='第 5 段<b>带引号的提法</b>，必抄'),
+    ],
+))
+
+P2.update(dict(
+    compare_sub='把 10 分拆成 7 个采分点。你的问题集中在一处，但值得逐项看清。',
+    ref_warn=REF_WARN,
+    reference=[
+        '一是 A 市推动改造与社区治理相结合，同步成立业主委员会，由居民协商确定改造项目清单和后续管理办法。',
+        '二是 B 市引入专业物业企业，采取"先服务、后收费"方式，让居民先感受服务变化再议价。',
+        '三是 C 市盘活闲置边角地和屋顶，改造成停车位、光伏电站，以收益补贴物业费，实现"自我造血"。',
+    ],
+    compare=[
+        dict(point='A 市：与社区治理相结合', ref='把老旧小区改造与社区治理结合起来', mine='（未写）', j='miss', note='这一段的总起句，交代了 A 市做法的性质'),
+        dict(point='A 市：成立业委会、协商定清单', ref='同步成立业主委员会，由居民协商确定改造<b>项目</b>清单和<b>后续</b>管理办法', mine='成立业主委员会，居民协商确定改造清单和管理办法', j='part', note='漏了「项目」和「后续」二字 —— 都是采分词'),
+        dict(point='B 市：引入专业物业企业', ref='B 市<b>引入专业物业企业</b>', mine='（完全没写）', j='miss', note='这是本条的核心动作。<b>只写方式不写动作，等于把脑袋砍了</b>'),
+        dict(point='B 市：先服务、后收费', ref='采取"先服务、后收费"的方式', mine='先改造，再进行议价', j='err', note='<b>读错了</b> —— 用生活经验替换了材料原词，材料里没有「改造」这个动作'),
+        dict(point='C 市：盘活闲置边角地和屋顶', ref='把小区闲置的<b>边角地、屋顶</b>改造成停车位和光伏电站', mine='利用闲置区域', j='part', note='「闲置区域」太笼统 —— 具体名词比笼统名词值钱'),
+        dict(point='C 市：收益补贴物业费', ref='产生的收益用于补贴物业费', mine='收益补贴物业费', j='hit', note='✓ 命中'),
+        dict(point='C 市：自我造血', ref='实现了"自我造血"', mine='（完全没写）', j='miss', note='<b>带引号的提法，必抄</b>'),
+    ],
+))
+
+P3.update(dict(
+    compare_sub='把 15 分拆成 13 个采分点。命中率已经不低，差距全在"段落后半截"。',
+    ref_warn=REF_WARN,
+    reference=[
+        '当前乡村民宿发展面临四方面问题：',
+        '一是缺乏规划、盲目跟风，未评估资源禀赋、未做市场调研，民宿同质化严重。',
+        '二是专业人才短缺，管家、客房、策划岗位缺人；年轻人外流，留守人员年龄偏大、服务意识不足；培训偏理论，效果不佳。',
+        '三是资金筹措困难，前期投入大，农房抵押贷款受限；村集体缺少经营主体，难申请项目资金；土地产权不清晰，工商资本中途撤资。',
+        '四是配套设施滞后，道路狭窄大巴难进，停车位不足，污水管网未覆盖。',
+    ],
+    compare=[
+        dict(point='缺乏规划、盲目跟风', ref='一些地方一哄而上，盲目跟风', mine='盲目跟风', j='hit', note='✓ 命中'),
+        dict(point='未评估资源禀赋、未做市场调研', ref='既没有评估本地资源禀赋，也没有做过市场调研', mine='没有做市场调研', j='part', note='漏了「<b>资源禀赋</b>」这个材料原词'),
+        dict(point='民宿同质化', ref='风格雷同、菜品相似，"千店一面"', mine='风格雷同、菜品相似', j='hit', note='✓ 命中（补一个概括词「同质化」更佳）'),
+        dict(point='专业岗位缺人', ref='民宿管家、客房服务、活动策划都需要专业人员', mine='服务人才短缺', j='part', note='没写出具体岗位 —— 具体名词更值钱'),
+        dict(point='年轻人外流、留守人员素质不足', ref='年轻人大多外出务工，留守人员年龄偏大、缺乏服务意识', mine='年轻人外出打工，剩下年级较大的人缺乏服务意识', j='hit', note='✓ 命中；注意「年<b>级</b>」应为「年<b>龄</b>」'),
+        dict(point='培训偏理论、效果不佳', ref='课程偏理论，听完就忘', mine='（完全没写）', j='miss', note='<b>第 2 段第 5 句</b> —— 标点切分法就能抓到'),
+        dict(point='前期投入大', ref='装修、消防、卫生、网络都要花钱，至少要投入三十多万元', mine='前期成本高，装修、消防、卫生、网络都需要花钱', j='hit', note='✓ 命中'),
+        dict(point='农房抵押贷款受限', ref='银行对农房抵押贷款限制较多', mine='（完全没写）', j='miss', note='<b>第 3 段第 3 句</b> —— 段落后半截'),
+        dict(point='村集体缺少经营主体', ref='村里没有集体经营主体，想申请项目资金也无从下手', mine='（完全没写）', j='miss', note='<b>第 3 段第 4 句</b> —— 段落后半截'),
+        dict(point='土地产权不清晰、资本撤资', ref='因为土地、产权不清晰，中途撤资', mine='工商资本也因为农村土地产权不清晰而中途撤资', j='hit', note='✓ 命中，归类判断也对'),
+        dict(point='道路狭窄、大巴进不来', ref='通往村里的路只有三米宽，旅游大巴进不来', mine='道路窄，旅游大巴进不来', j='hit', note='✓ 命中'),
+        dict(point='停车位不足', ref='<b>停车位不足</b>，旺季车辆沿路停放', mine='车位不够', j='part', note='口语化了 —— 应用材料原词「停车位不足」'),
+        dict(point='污水管网未覆盖', ref='<b>污水管网没有覆盖</b>，生活污水直排', mine='污水处理设施没有覆盖全', j='part', note='应用材料原词「污水管网未覆盖」'),
+    ],
+))
+
+# ══════════════════════════════════════════════════════════ 练习 5（综合分析·口袋公园）
+
+GY = [
+    dict(no="第 1 段", fn="bg", fnlabel="背景", sents=[("gy1", '近年来，不少城市利用街头边角地、废弃地、闲置地建设口袋公园，见缝插绿，让居民推窗见绿、出门入园。某市两年间建成口袋公园 120 个，新增绿地面积近 30 万平方米。')]),
+    dict(no="第 2 段", fn="meaning", fnlabel="意义", sents=[("gy2", '"以前这块地堆着建筑垃圾，现在成了小花园。"居民张大爷说。口袋公园面积虽小，却成了周边老人的"会客厅"——下棋、聊天、晒太阳，孩子们也有地方跑动。有的公园还设置了健身器材和儿童滑梯。')]),
+    dict(no="第 3 段", fn="problem", fnlabel="问题 · 反面", sents=[
+        ("gy3a", '但一些口袋公园建成后问题不少。有的公园建而不管，座椅破损、灯具不亮，绿化带里杂草丛生；'),
+        ("gy3b", '有的设计千篇一律，照搬图纸，缺少座椅和遮阴，一到夏天暴晒，老人不愿意去；'),
+        ("gy3c", '还有的重建设、轻维护，建设资金一次性投入，后续管护却无人负责、无钱可用。')]),
+    dict(no="第 4 段", fn="action", fnlabel="做法 · 正面", sents=[
+        ("gy4a", '一些地方已经开始改进。A 市聘请周边居民担任"市民园长"，参与公园日常巡查和管理；'),
+        ("gy4b", 'B 市在建设前征求周边居民意见，根据老人、儿童的实际需要配置座椅、遮阴棚和活动场地；'),
+        ("gy4c", 'C 市把公园维护纳入社区共治，发动企业、居民认养绿地。')]),
+    dict(no="第 5 段", fn="conclusion", fnlabel="观点 · 结论", sents=[("gy5", '专家指出，口袋公园建设不能只算增量账，更要算质量账。只有建管并重、共建共治，才能让这些小公园真正成为居民的"幸福角"。')]),
+]
+
+P5 = dict(
+    slug="p5", file="练习5-综合分析-图解.html",
+    kicker="申论 · 练习 5 批改",
+    title="练习 5 三色解剖", sub="口袋公园 · 综合分析（解释型）",
+    h1="答案三色解剖：哪些是抄的，哪些是你写的",
+    chips=["得分 13 / 15", "第 2 课结业"],
+    student_hint="这份答案的三种成分大致各占三分之一 —— 配比是健康的，问题在漏了一个引号词和一句总起。",
+    material=GY,
+    student=[
+        dict(kind="own", label="段 1 · 释义", bg="#fffbeb", fg="#b45309", wc="49 字",
+             html='<span class="mk-copy">口袋公园建设</span><span class="mk-cond">不能只追求公园数量、绿地面积等增量指标</span>，<span class="mk-own">更要重视建设品质与长效管护</span>，<span class="mk-cond">兼顾群众实际需求</span>。',
+             note='1 抄 + 2 概 + 1 自。<b>「增量指标」这个概括是全篇最亮的一笔</b> —— 你把数据句（120 个／30 万平方米）提了上来，而不是当废字跳过。'),
+        dict(kind="cond", label="段 2 · 意义 + 反面", bg="#ecfdf5", fg="#047857", wc="68 字",
+             html='<span class="mk-cond">建设口袋公园盘活闲置土地，方便居民就近休闲，改善人居环境</span>。<span class="mk-own">但部分口袋公园存在</span><span class="mk-cond">重建设轻管护、设计同质化、配套不足</span><span class="mk-own">等问题，难以持续发挥作用</span>。',
+             note='2 概 + 3 自。<b>三个概括词全部踩在材料上。</b>但本段<b>没有总起句</b>，直接开始罗列问题 —— 对照段 3 有「因此，要坚持……」，两层不对称。<br><b>漏：</b>「方便居民就近休闲」太笼统，把最值钱的「<b>会客厅</b>」丢了。'),
+        dict(kind="copy", label="段 3 · 正面 + 结论", bg="#f1f5f9", fg="#475569", wc="90 字",
+             html='<span class="mk-own">因此，要坚持</span><span class="mk-copy">建管并重、共建共治</span>。<span class="mk-copy">建设前广泛征集居民意见，按需配置休闲设施</span>；<span class="mk-own">创新管护模式，引入</span><span class="mk-copy">市民园长</span>、<span class="mk-copy">绿地认养</span>、<span class="mk-copy">社区共治</span><span class="mk-own">等机制，落实管护资金与责任</span>，<span class="mk-copy">让口袋公园持续成为群众的幸福角</span>。',
+             note='6 抄 + 3 自。<b>三市做法一个不落</b>；「落实管护资金与责任」是你自己补的，对应材料「无人负责、无钱可用」，属于合理加工。<br>「<b>幸福角</b>」这个带引号的词你抄上了 —— 带引号的基本都是采分词。'),
+    ],
+    upgrade=[
+        dict(kind="own", label="释义", bg="#fffbeb", fg="#b45309", src="gy1,gy5", src_label="← 第 1 段 + 第 5 段",
+             html='<span class="mk-own">这句话指出，</span><span class="mk-copy">口袋公园建设</span><span class="mk-cond">不能只追求公园数量、绿地面积等增量指标</span>，<span class="mk-own">更要重视建设品质与长效管护</span>，<span class="mk-cond">真正满足群众需求</span>。',
+             note='1 抄 + 2 概 + 2 自。释义层。<b>看材料里带引号的词</b>：本段无，靠概括。'),
+        dict(kind="copy", label="意义（补回来了）", bg="#f1f5f9", fg="#475569", src="gy2,gy1", src_label="← 第 2 段",
+             html='<span class="mk-copy">口袋公园</span><span class="mk-cond">盘活边角地、废弃地</span>，<span class="mk-copy">让居民推窗见绿、出门入园</span>，<span class="mk-copy">也成了老人的"会客厅"和孩子的活动场</span>。',
+             note='3 抄 + 1 概。<b>这一句把你丢掉的 1 分捡回来了。</b>「<b>会客厅</b>」带引号，是必须原样抄的采分词。'),
+        dict(kind="own", label="反面 · 总起 + 展开", bg="#fef2f2", fg="#b91c1c", src="gy3a,gy3b,gy3c", src_label="← 第 3 段",
+             html='<span class="mk-own">但只算增量账，就会</span><span class="mk-copy">建而不管</span>、<span class="mk-cond">设计同质化</span>、<span class="mk-cond">配套不足</span>：<span class="mk-copy">座椅破损无人修</span>，<span class="mk-copy">缺少遮阴老人不愿去</span>，<span class="mk-copy">管护无人无钱</span><span class="mk-own">，难以持续</span>。',
+             note='4 抄 + 2 概 + 2 自。开头加了总起「<span class="mk-own">但只算增量账，就会</span>」，<b>与正面层形成对仗</b>；冒号后面把三个问题的具体表现补上，字数也就填满了。'),
+        dict(kind="own", label="正面 · 总起 + 对策", bg="#ecfdf5", fg="#047857", src="gy4a,gy4b,gy4c", src_label="← 第 4 段",
+             html='<span class="mk-own">算质量账，需要</span><span class="mk-copy">建管并重、共建共治</span>。<span class="mk-copy">建设前广泛征求居民意见，按老人、儿童需要配置设施</span>；<span class="mk-copy">引入"市民园长"</span>、<span class="mk-copy">绿地认养</span>、<span class="mk-copy">社区共治</span>，<span class="mk-own">落实管护资金与责任</span>。',
+             note='5 抄 + 2 自。<b>这一层几乎全抄是对的</b> —— 对策本来就该用材料原词。「<span class="mk-own">算质量账，需要</span>」是补的正面总起。'),
+        dict(kind="copy", label="结论", bg="#f5f3ff", fg="#6d28d9", src="gy5", src_label="← 第 5 段",
+             html='<span class="mk-own">才能</span><span class="mk-copy">让这些小公园真正成为居民的"幸福角"</span>。',
+             note='1 抄 + 1 自。结论直接搬材料的现成句。注意「<b>幸福角</b>」带引号。'),
+    ],
+    ratio_note='<b>你的三种成分大致各占三分之一（抄 30.0%／概 34.8%／自 30.0%），配比是健康的。</b><br><br>'
+               '但和升格版一比就看出来了：升格版的「抄」是 <b>53.6%</b>。'
+               '字数从 207 补到 248，多出来的 41 字几乎全部来自增加的<b>材料原词</b>（62 → 133 字）—— '
+               '也就是把「建而不管」「座椅破损无人修」「缺少遮阴老人不愿去」这些具体表现铺开。<br><br>'
+               '<b>升格不是加内容，是把「自己的话」换成「材料的话」。</b>你以为要自己发挥，其实要回去割肉。',
+    structure_sub='解释型综合分析的骨架：释义 → 反面（总起 + 问题）→ 正面（总起 + 对策）→ 结论。<b>正反两层必须对称。</b>',
+    structure=[
+        dict(tone="define", cls="d", label="① 是什么", body='既要……<span class="mk-cond">数量、面积等增量指标</span>，更要……<span class="mk-own">品质与长效管护</span>'),
+        dict(tone="problem", cls="p", label="② 只算增量账会怎样", body='<b>总起</b>：<span class="mk-own">但只算增量账，就会</span> → <span class="mk-copy">建而不管</span>、<span class="mk-cond">同质化</span>、<span class="mk-cond">配套不足</span>'),
+        dict(tone="action", cls="a", label="③ 算质量账要怎么做", body='<b>总起</b>：<span class="mk-own">算质量账，需要</span> → <span class="mk-copy">市民园长</span>、<span class="mk-copy">认养绿地</span>、<span class="mk-copy">社区共治</span>'),
+        dict(tone="conclusion", cls="c", label="④ 结论", body='<span class="mk-own">唯有……才能</span><span class="mk-copy">让这些小公园真正成为居民的"幸福角"</span>'),
+    ],
+    structure_note='<b>②③ 两句总起必须成对出现。</b>只写一边，骨架就是斜的。<br>'
+                   '第 2 课示范里是「<b>只算眼前账，食堂难以为继</b>」对应「<b>算长远账，需多方发力</b>」—— 同一个动作，换道题你就漏了。',
+    gaps=[
+        dict(item='口袋公园的<b>社会功能</b>', src='第 2 段：却成了周边老人的<b>"会客厅"</b>', how='<b>引号即采分词</b> —— 带引号的地方命题人在跟你打招呼', value='1 分'),
+        dict(item='<b>反面层总起句</b>', src='结构问题，不来自材料', how='<b>正反对称自检</b> —— 写完回头看两层有没有对仗的总起', value='0.5 分'),
+        dict(item='问题的具体表现（座椅破损、缺遮阴、管护无钱）', src='第 3 段各分句', how='<b>标点切分法</b> —— 一句一勾，勾完再合并', value='0.5 分'),
+    ],
+    bad=[
+        '<b>该抄的没抄</b>：带引号的「会客厅」漏了 —— 这是最不该丢的分',
+        '<b>骨架偏斜</b>：正面有总起、反面没有，两层不对称',
+        '<b>层次偏薄</b>：207 / 250 字。空格就是分数，材料里的具体表现没铺开',
+    ],
+    takeaway_sub='这道题只需要带走一件事。',
+    takeaways=['<b>写完回头看：反面层和正面层，各有一句总起吗？两句是不是对仗的？</b>'
+               '「只算增量账，就会……」对应「算质量账，需要……」。'],
+    verdict='<b>成绩：13 / 15　第 2 课结业。</b>首次独立完成综合分析题即拿 13 分，'
+            '且「增量指标」这种概括是你自己想到的。剩下的 2 分不在能力上，'
+            '在<b>两个可以养成的习惯</b>上：正反对称自检、引号词必抄。',
+    compare_sub='把 15 分拆成 13 个采分点。注意看「漏」的两项 —— 一个是引号词，一个是结构。',
+    ref_warn=REF_WARN,
+    reference=[
+        '这句话指出，口袋公园建设不能只追求公园数量、绿地面积等增量指标，更要重视建设品质与长效管护，真正满足群众需求。',
+        '口袋公园盘活边角地、废弃地，让居民推窗见绿、出门入园，也成了老人的"会客厅"和孩子的活动场。但只算增量账，就会建而不管、设计同质化、配套不足：座椅破损无人修，缺少遮阴老人不愿去，管护无人无钱，难以持续。',
+        '算质量账，需要建管并重、共建共治。建设前广泛征求居民意见，按老人、儿童需要配置设施；引入"市民园长"、绿地认养、社区共治，落实管护资金与责任，才能让这些小公园真正成为居民的"幸福角"。',
+    ],
+    compare=[
+        dict(point='释义：数量面积 vs 品质管护', ref='不能只追求公园数量、绿地面积等增量指标，更要重视建设品质与长效管护', mine='不能只追求公园数量、绿地面积等增量指标，更要重视建设品质与长效管护', j='hit', note='✓ 命中，而且是全篇最亮的一笔'),
+        dict(point='释义：递进关系', ref='用「不能只……更要……」复现原句的递进', mine='不能只……更要……', j='hit', note='✓ 命中'),
+        dict(point='意义：社会功能', ref='也成了老人的"会客厅"和孩子的活动场', mine='方便居民就近休闲，改善人居环境', j='part', note='<b>太笼统</b> —— 丢了带引号的「会客厅」'),
+        dict(point='问题：重建设轻管护', ref='建而不管，座椅破损、灯具不亮；重建设、轻维护', mine='重建设轻管护', j='hit', note='✓ 命中，概括准确'),
+        dict(point='问题：设计同质化、配套不足', ref='设计千篇一律，照搬图纸，缺少座椅和遮阴', mine='设计同质化、配套不足', j='hit', note='✓ 命中，概括词自己提炼的'),
+        dict(point='问题的具体表现', ref='座椅破损无人修；缺少遮阴老人不愿去；管护无人无钱', mine='（未展开）', j='part', note='用概括词代替了具体表现 —— 字数因此只有 207'),
+        dict(point='反面层总起句', ref='但只算增量账，就会……', mine='但部分口袋公园存在……', j='miss', note='<b>结构缺失</b> —— 正面有总起、反面没有，两层不对称'),
+        dict(point='对策：征求居民意见、按需配置', ref='建设前广泛征求居民意见，按老人、儿童需要配置设施', mine='建设前广泛征集居民意见，按需配置休闲设施', j='hit', note='✓ 命中'),
+        dict(point='对策：市民园长', ref='引入"市民园长"，参与日常巡查和管理', mine='引入市民园长', j='hit', note='✓ 命中，引号词抄对了'),
+        dict(point='对策：认养绿地、社区共治', ref='纳入社区共治，发动企业、居民认养绿地', mine='绿地认养、社区共治', j='hit', note='✓ 命中'),
+        dict(point='对策：管护资金与责任', ref='（材料强调"无人负责、无钱可用"，需反推）', mine='落实管护资金与责任', j='hit', note='✓ 命中，<b>这是你自己补的合理加工</b>'),
+        dict(point='结论：建管并重、共建共治', ref='只有建管并重、共建共治', mine='因此，要坚持建管并重、共建共治', j='hit', note='✓ 命中'),
+        dict(point='结论：幸福角', ref='真正成为居民的"幸福角"', mine='让口袋公园持续成为群众的幸福角', j='hit', note='✓ 命中，引号词抄对了'),
+    ],
+)
+
+# ══════════════════════ 专题页：引号与抽象概念 ══════════════════════
+
+# 材料里带引号的「提法」（名词性概括语）—— 全是采分词
+QUOTE_YES = [
+    ("撒胡椒面", "练习 1／2 第 4 段", "概括早期改造资金分散"),
+    ("先服务、后收费", "练习 1／2 第 4 段", "B 市的物业引入方式"),
+    ("自我造血", "练习 1／2 第 4 段", "C 市盘活资源形成收益"),
+    ("政府干、群众看", "练习 1／2 第 5 段", "要避免的治理困境"),
+    ("千店一面", "练习 3 第 2 段", "民宿同质化"),
+    ("太老年化", "第 2 课 第 3 段", "食堂客源结构单一的原因"),
+    ("社交场", "第 2 课 第 2 段", "社区食堂的社会价值"),
+    ("会客厅", "练习 5 第 2 段", "口袋公园的社会功能"),
+    ("市民园长", "练习 5 第 4 段", "A 市的管护机制"),
+    ("幸福角", "练习 5 第 5 段", "口袋公园的最终定位"),
+]
+# 你在这几道题里对它们的处理
+QUOTE_USE = {"政府干、群众看": "miss", "自我造血": "miss", "会客厅": "part"}
+QUOTE_USE_LABEL = {"hit": ("抄到了", "jd-hit"), "part": ("只沾了一半", "jd-part"),
+                   "miss": ("漏了", "jd-miss"), "err": ("写错了", "jd-err")}
+
+# 材料里带引号的「引语」（人物说的整句）—— 不抄整句，挖关键词
+QUOTE_SAY = [
+    ("最头疼的是物业。", "练习 1／2 第 2 段", "物业管理缺位"),
+    ("最大的难题是缺人。", "练习 3 第 2 段", "专业人才短缺"),
+    ("风景不错，就是住着不方便。", "练习 3 第 4 段", "配套设施滞后"),
+    ("以前这块地堆着建筑垃圾，现在成了小花园。", "练习 5 第 1 段", "盘活闲置边角地、废弃地"),
+]
+
+
+def quote_evidence():
+    """从真实数据里算：漏点总数、其中引号词几个。"""
+    tot, qmiss = 0, []
+    for d in ALL:
+        for c in d.get("compare", []):
+            if c["j"] != "miss":
+                continue
+            tot += 1
+            for k, _, _ in QUOTE_YES:
+                if k in c["point"] or k in c["ref"] or k in c["note"]:
+                    qmiss.append((d["slug"], k))
+                    break
+    return tot, qmiss
+
+
+def render_quote_page() -> str:
+    tot_miss, qmiss = quote_evidence()
+    qmiss_names = {k for _, k in qmiss}
+
+    rows = []
+    for name, src, mean in QUOTE_YES:
+        st = QUOTE_USE.get(name, "hit")
+        lb, cl = QUOTE_USE_LABEL[st]
+        rows.append(
+            f"<tr><td><span class=\"k-quote\">\"{name}\"</span></td><td>{src}</td>"
+            f"<td>{mean}</td><td><span class=\"jd {cl}\">{lb}</span></td></tr>"
+        )
+    quote_rows = "\n".join(rows)
+
+    say_rows = "\n".join(
+        f"<tr><td><span class=\"k-quote\">\"{a}\"</span></td><td>{b}</td>"
+        f"<td><b>{c}</b></td><td class=\"mine-miss\">{a}</td></tr>"
+        for a, b, c in QUOTE_SAY
+    )
+
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>引号、抽象概念、比喻 ｜ 抄还是不抄</title>
+<style>{CSS}</style>
+</head>
+<body class="plain-mk">
+
+<header>
+  <div class="in">
+    <span class="kicker">申论 · 方法补丁</span>
+    <h1>引号、抽象概念、比喻：到底抄不抄？</h1>
+    <p class="sub">材料里那些「加了引号的话」和「说得很文雅的话」，哪些是采分词</p>
+    <div class="meta">
+      <span>10 个引号提法</span>
+      <span>100% 命中</span>
+      <span>{tot_miss} 个漏点里 {len(qmiss)} 个是引号词</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="legend">
+    <div class="lg-in">
+      <span class="t">引号怎么处理</span>
+      <span class="chip d"><i></i>提法 → 原样抄</span>
+      <span class="chip m"><i></i>引语 → 挖关键词</span>
+      <span class="chip p"><i></i>空词 → 不写</span>
+      <span class="chip a"><i></i>修辞 → 还原文</span>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2><span class="num">1</span>先给结论：引号是命题人画的重点线</h2>
+    <p class="h2sub">这一条比任何技巧都值钱，先记住它。</p>
+    <div class="refbox">
+      <div class="rh">一句话</div>
+      <p style="font-size:17px;font-weight:600;line-height:1.8">
+        材料里凡是<b>带引号的、名词性的提法</b>，十有八九就是采分词 —— <b>原样抄进答案，一个字不改。</b>
+      </p>
+      <p>
+        原因很简单：引号是作者在告诉你「这是我概括出来、要你记住的说法」。采分清单就是照着这些说法列的。
+        你把它换一个词，阅卷人就找不到那个点了。
+      </p>
+      <div class="warnline">反过来：<b>考生自己绝对不要造比喻</b>。你写的修辞越多，越不像政府话语，越丢分。</div>
+    </div>
+    <div class="warn">
+      <b>为什么要单独讲这一节</b>：你四道题的 {tot_miss} 个漏点里，有 {len(qmiss)} 个是<b>材料里已经替你概括好的引号词</b> ——
+      也就是说，这些分是<b>不用动脑、白送的分</b>，你只是没看见。
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>四种情况，四种处理</h2>
+    <p class="h2sub">不能一刀切。先分类，再决定抄还是改。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>类型</th><th>长什么样</th><th>怎么处理</th><th>本课例子的做法</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>① 提法</b><br><span style="color:var(--ink3);font-size:12px">名词性引号</span></td>
+            <td>加引号的短语、口号、经验名、专有说法</td>
+            <td><b style="color:#065f46">原样抄</b>，一个字不改</td>
+            <td><span class="k-quote">"自我造血"</span><span class="k-quote">"会客厅"</span><span class="k-quote">"市民园长"</span><span class="k-quote">"先服务、后收费"</span> —— 全抄</td>
+          </tr>
+          <tr>
+            <td><b>② 引语</b><br><span style="color:var(--ink3);font-size:12px">人物说的话</span></td>
+            <td>加引号的一整句话，通常带「我／我们」和口语</td>
+            <td><b style="color:#92400e">不抄整句</b>，把里面的关键词挖出来</td>
+            <td>"最头疼的是物业" → 写成 <b>物业管理缺位</b>（不是抄那句话）</td>
+          </tr>
+          <tr>
+            <td><b>③ 抽象概念</b><br><span style="color:var(--ink3);font-size:12px">上位词／概括词</span></td>
+            <td>"基层治理能力""同质化""全龄段"这类</td>
+            <td>问一句：<b>材料里有支撑吗？</b>有 → 可抄可概括；没有 → 空词，不写</td>
+            <td>"同质化"有材料支撑（千店一面）→ 可抄；"提高认识""加强重视"没支撑 → 不写</td>
+          </tr>
+          <tr>
+            <td><b>④ 修辞比喻</b><br><span style="color:var(--ink3);font-size:12px">抒情／口号</span></td>
+            <td>比喻、排比、文学化表达、宣传标语</td>
+            <td><b style="color:#991b1b">不抄</b>，还原成实务语言</td>
+            <td>"改造不是简单刷墙铺路" → 写成 <b>重建设轻管护</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn">
+      <b>最快的一句话判断法</b>：看引号里是不是一个<b>名词短语</b>。<br>
+      是 → 提法，抄。<br>
+      是一整句人话（有我、有口语、有语气）→ 引语，只挖关键词。
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>证据一：你这几份材料里，带引号的提法全中了</h2>
+    <p class="h2sub">从你做过和看过的材料里，把所有带引号的名词性提法全部挑出来，逐个核对是不是采分词。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>带引号的提法</th><th>出处</th><th>它概括的是什么</th><th>你的处理</th></tr></thead>
+        <tbody>
+{quote_rows}
+        </tbody>
+      </table>
+    </div>
+    <div class="refbox" style="margin-top:16px">
+      <div class="rh">结论</div>
+      <p><b>10 个提法，10 个都是采分词，命中率 100%。</b>这不是巧合 —— 命题人写材料时就拿这些说法当得分点。</p>
+      <p>而你在这几道题里的处理是：<b>抄对 7 个，漏 2 个，只沾一半 1 个</b>。
+      漏掉的那 {len(qmiss)} 个（{'、'.join('「' + k + '」' for k in sorted(qmiss_names))}）就是白送的分。</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>证据二：带引号的「引语」不能整句抄</h2>
+    <p class="h2sub">这些引号里是一句完整的人话。它不是答案，它是路标 —— 指向旁边那个答案。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>材料原话（引语）</th><th>出处</th><th>该在答案里写什么</th><th>抄整句会怎样</th></tr></thead>
+        <tbody>
+{say_rows}
+        </tbody>
+      </table>
+    </div>
+    <div class="warn">
+      <b>区别就一句话</b>：引语是<b>证据</b>，提法是<b>答案</b>。<br>
+      引语告诉你「老百姓在抱怨什么」，你要做的是把抱怨翻译成<b>政府语言的规范表述</b>；
+      提法本身就是规范表述，直接搬。
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>反向警告：你自己一个字都别造比喻</h2>
+    <p class="h2sub">这是零基础最容易犯的错 —— 以为写得漂亮能加分。申论阅卷不认文采。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>别这么写</th><th>为什么不行</th><th>改成</th></tr></thead>
+        <tbody>
+          <tr><td style="color:#991b1b">打通任督二脉</td><td>武侠比喻，不是政府话语</td><td><b>畅通体制机制</b></td></tr>
+          <tr><td style="color:#991b1b">让政策落地生根、开花结果</td><td>排比抒情，没有信息量</td><td><b>推动政策落实见效</b></td></tr>
+          <tr><td style="color:#991b1b">为发展注入源头活水</td><td>口号式表达，阅卷人划不到点</td><td><b>加大财政投入力度</b></td></tr>
+          <tr><td style="color:#991b1b">让幸福在家门口升级</td><td>宣传标语，不是分析</td><td><b>完善社区服务设施</b></td></tr>
+          <tr><td style="color:#991b1b">擦亮城市名片</td><td>空转的宏大词</td><td><b>提升城市形象和知名度</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bad" style="margin-top:16px">
+      <b style="color:#991b1b">一句话记法</b>
+      <ul>
+        <li><b>抄命题人写的话，不抄作者写的修辞。</b></li>
+        <li>材料里的比喻（"刷墙铺路""千店一面"）→ 翻译成实务语言再写。</li>
+        <li>你自己脑子里的比喻 → 一个都别写。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">6</span>动笔清单（下次读材料就按这个走）</h2>
+    <p class="h2sub">六步，全部是机械动作，不需要灵感。</p>
+    <div class="prog">
+      <div class="frow"><div class="fl" style="color:#4338ca">1</div><div class="fb"><b>见引号就画圈。</b>读材料时手不停，所有 " " 里的内容先用荧光笔圈出来。</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">2</div><div class="fb"><b>分类。</b>名词短语 → 提法；完整人话 → 引语。</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">3</div><div class="fb"><b>提法原样搬。</b>一个字不改地抄进答案。</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">4</div><div class="fb"><b>引语挖词。</b>问一句「他到底在抱怨哪件事」，把这个<em>事</em>写成规范表述。</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">5</div><div class="fb"><b>抽象概念过一道筛。</b>材料里找得到支撑 → 留；找不到 → 是空词，删。</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">6</div><div class="fb"><b>交卷前数引号。</b>材料里有几个引号？我抄进去几个？对不上就回去补。</div></div>
+    </div>
+    <div class="warn" style="margin-top:16px">
+      第 6 步是这一节最该带走的动作 —— 它和「数段落」「标点切分」是同一类东西：<b>把看不见的漏点变成数得出来的数字。</b>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">7</span>自测：这三题答完，这一节才算过</h2>
+    <p class="h2sub">不看上面，自己先答，再回去对。</p>
+    <div class="prog">
+      <div class="frow"><div class="fl" style="color:#4338ca">1</div><div class="fb">练习 3 的材料里出现 <span class="k-quote">"千店一面"</span>，你写答案时该怎么处理？</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">2</div><div class="fb">材料写「最大的难题是缺人」，你的答案里应该出现哪几个字？为什么不是直接抄那句话？</div></div>
+      <div class="frow"><div class="fl" style="color:#4338ca">3</div><div class="fb">下面三项，哪些可以直接抄进答案？<br>
+        <span class="k-quote">"风景不错，就是住着不方便"</span>　
+        <span class="k-quote">"市民园长"</span>　
+        <span class="k-quote">"以前这块地堆着建筑垃圾"</span></div></div>
+    </div>
+    <div class="warn" style="margin-top:16px">
+      答完发给我，我按标准答案给你对一遍。这一节的目标不是「知道」，是<b>读材料时手会自己画圈</b>。
+    </div>
+  </section>
+
+  <p style="text-align:center;color:var(--ink3);font-size:12.5px;margin:34px 0 0">
+    申论学习库 ｜ <a href="练习档案.html" style="color:#4338ca">← 练习档案</a>
+  </p>
+</div>
+</body>
+</html>
+"""
+
+
+ALL = [P1, P2, P3, P5]
 
 
 if __name__ == "__main__":
