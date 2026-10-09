@@ -60,6 +60,8 @@ p{margin:0 0 12px}
 .mk-copy::after,.mk-own::after,.mk-cond::after{font-size:9.5px;vertical-align:super;margin-left:1px;font-weight:700;opacity:.75}
 .mk-copy::after{content:"抄"} .mk-own::after{content:"自"} .mk-cond::after{content:"概"}
 .plain-mk .mk-copy::after,.plain-mk .mk-own::after,.plain-mk .mk-cond::after{content:""}
+.qlink{display:inline-flex;align-items:center;gap:5px;background:#4338ca!important;color:#fff!important;text-decoration:none;font-weight:600}
+.qlink:hover{background:#3730a3!important}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border:1px solid var(--line);border-radius:11px}
 .tw table{min-width:600px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -122,6 +124,26 @@ tr:last-child td{border-bottom:none}
 .pbar{height:22px;border-radius:6px;background:#eef1f5;overflow:hidden}
 .pbar i{display:block;height:100%;border-radius:6px}
 .pscore{text-align:right;font-weight:700;color:#4338ca;font-size:13px}
+/* 逐点对照 */
+.jd{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.jd-hit{background:#d1fae5;color:#065f46}
+.jd-part{background:#fef3c7;color:#92400e}
+.jd-err{background:#fee2e2;color:#991b1b}
+.jd-miss{background:#f1f5f9;color:#64748b}
+.cmp td.mine-miss{color:var(--ink3);font-style:italic}
+.cmp td.mine-err{color:#991b1b}
+.cmp td.mine-hit{color:#065f46}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:16px 0}
+.sum div{background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:12px 14px;text-align:center}
+.sum .n{font-size:23px;font-weight:700;line-height:1.25}
+.sum .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* 引号高亮 */
+.k-quote{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:4px;font-weight:600}
+.refbox{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:12px;padding:18px 20px;margin:14px 0}
+.refbox .rh{font-size:12.5px;letter-spacing:.08em;color:#4338ca;margin-bottom:10px;font-weight:700}
+.refbox p{font-size:14px;line-height:1.95;color:#2c3340;margin:0 0 10px}
+.refbox p:last-child{margin-bottom:0}
+.refbox .warnline{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:10px;border-top:1px dashed #c7d2fe}
 @media (max-width:900px){
   .bench2{grid-template-columns:1fr!important}
   .frow{grid-template-columns:1fr;gap:5px}
@@ -140,7 +162,7 @@ tr:last-child td{border-bottom:none}
     <span class="kicker">申论 · 练习 3 批改</span>
     <h1>三色解剖：结构对了，差在段落后半截</h1>
     <p class="sub">乡村民宿 · 归纳概括：概括主要问题</p>
-    <div class="meta"><span>你的答案 154 字</span><span>升格版 197 字</span><span>得分 11 / 15</span><span>第 1 课结业</span></div>
+    <div class="meta"><span>你的答案 154 字</span><span>升格版 197 字</span><span>得分 11 / 15</span><span>第 1 课结业</span><a class="qlink" href="diagram-quote.html">引号规则 →</a></div>
   </div>
 </header>
 
@@ -210,7 +232,116 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">2</span>升格版 · 三色解剖 + 材料溯源（197 字）</h2>
+    <h2><span class="num">2</span>参考答案 × 你的答案 · 逐点对照</h2>
+    <p class="h2sub">把 15 分拆成 13 个采分点。命中率已经不低，差距全在"段落后半截"。</p>
+    <div class="sum"><div><div class="n" style="color:#059669">6</div><div class="l">命中 46%</div></div><div><div class="n" style="color:#d97706">4</div><div class="l">不完整 31%</div></div><div><div class="n" style="color:#dc2626">0</div><div class="l">错误 0%</div></div><div><div class="n" style="color:#64748b">3</div><div class="l">漏 23%</div></div></div>
+    <div class="refbox">
+      <div class="rh">参考答案（教学用，非官方评分标准）</div>
+<p>当前乡村民宿发展面临四方面问题：</p><p>一是缺乏规划、盲目跟风，未评估资源禀赋、未做市场调研，民宿同质化严重。</p><p>二是专业人才短缺，管家、客房、策划岗位缺人；年轻人外流，留守人员年龄偏大、服务意识不足；培训偏理论，效果不佳。</p><p>三是资金筹措困难，前期投入大，农房抵押贷款受限；村集体缺少经营主体，难申请项目资金；土地产权不清晰，工商资本中途撤资。</p><p>四是配套设施滞后，道路狭窄大巴难进，停车位不足，污水管网未覆盖。</p>
+      <div class="warnline">评分点依据材料关键句拆分，供教学对照用。<b>不是官方评分标准</b> —— 真实阅卷的采分点由命题方制定，本表的作用是让你看清「标准答案会写什么」与「你写了什么」的逐项差距。</div>
+    </div>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th>采分点</th><th>参考答案的表述</th><th>你的答案</th><th>判定</th><th>差距在哪</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>缺乏规划、盲目跟风</td>
+            <td>一些地方一哄而上，盲目跟风</td>
+            <td class="mine-hit">盲目跟风</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中</td>
+          </tr>
+          <tr>
+            <td>未评估资源禀赋、未做市场调研</td>
+            <td>既没有评估本地资源禀赋，也没有做过市场调研</td>
+            <td class="">没有做市场调研</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>漏了「<b>资源禀赋</b>」这个材料原词</td>
+          </tr>
+          <tr>
+            <td>民宿同质化</td>
+            <td>风格雷同、菜品相似，"千店一面"</td>
+            <td class="mine-hit">风格雷同、菜品相似</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中（补一个概括词「同质化」更佳）</td>
+          </tr>
+          <tr>
+            <td>专业岗位缺人</td>
+            <td>民宿管家、客房服务、活动策划都需要专业人员</td>
+            <td class="">服务人才短缺</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>没写出具体岗位 —— 具体名词更值钱</td>
+          </tr>
+          <tr>
+            <td>年轻人外流、留守人员素质不足</td>
+            <td>年轻人大多外出务工，留守人员年龄偏大、缺乏服务意识</td>
+            <td class="mine-hit">年轻人外出打工，剩下年级较大的人缺乏服务意识</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中；注意「年<b>级</b>」应为「年<b>龄</b>」</td>
+          </tr>
+          <tr>
+            <td>培训偏理论、效果不佳</td>
+            <td>课程偏理论，听完就忘</td>
+            <td class="mine-miss">（完全没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td><b>第 2 段第 5 句</b> —— 标点切分法就能抓到</td>
+          </tr>
+          <tr>
+            <td>前期投入大</td>
+            <td>装修、消防、卫生、网络都要花钱，至少要投入三十多万元</td>
+            <td class="mine-hit">前期成本高，装修、消防、卫生、网络都需要花钱</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中</td>
+          </tr>
+          <tr>
+            <td>农房抵押贷款受限</td>
+            <td>银行对农房抵押贷款限制较多</td>
+            <td class="mine-miss">（完全没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td><b>第 3 段第 3 句</b> —— 段落后半截</td>
+          </tr>
+          <tr>
+            <td>村集体缺少经营主体</td>
+            <td>村里没有集体经营主体，想申请项目资金也无从下手</td>
+            <td class="mine-miss">（完全没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td><b>第 3 段第 4 句</b> —— 段落后半截</td>
+          </tr>
+          <tr>
+            <td>土地产权不清晰、资本撤资</td>
+            <td>因为土地、产权不清晰，中途撤资</td>
+            <td class="mine-hit">工商资本也因为农村土地产权不清晰而中途撤资</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中，归类判断也对</td>
+          </tr>
+          <tr>
+            <td>道路狭窄、大巴进不来</td>
+            <td>通往村里的路只有三米宽，旅游大巴进不来</td>
+            <td class="mine-hit">道路窄，旅游大巴进不来</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>✓ 命中</td>
+          </tr>
+          <tr>
+            <td>停车位不足</td>
+            <td><b>停车位不足</b>，旺季车辆沿路停放</td>
+            <td class="">车位不够</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>口语化了 —— 应用材料原词「停车位不足」</td>
+          </tr>
+          <tr>
+            <td>污水管网未覆盖</td>
+            <td><b>污水管网没有覆盖</b>，生活污水直排</td>
+            <td class="">污水处理设施没有覆盖全</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>应用材料原词「污水管网未覆盖」</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>升格版 · 三色解剖 + 材料溯源（197 字）</h2>
     <p class="h2sub">把鼠标移到右边任意一句上 —— 左边材料会亮出它对应的原句，并展开这句的成分说明。</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start" class="bench2">
       <div>
@@ -219,11 +350,11 @@ tr:last-child td{border-bottom:none}
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 1 段</span><span class="fn f-problem">问题</span></div>
-          <div class="pt"><span class="s" id="ms1">近年来，乡村民宿成为乡村旅游的新热点。但一些地方一哄而上，看到别处办民宿赚钱就盲目跟风，既没有评估本地资源禀赋，也没有做过市场调研。有的村短短两年办起四十多家民宿，风格雷同、菜品相似，游客来了"千店一面"，转身就走。</span></div>
+          <div class="pt"><span class="s" id="ms1">近年来，乡村民宿成为乡村旅游的新热点。但一些地方一哄而上，看到别处办民宿赚钱就盲目跟风，既没有评估本地资源禀赋，也没有做过市场调研。有的村短短两年办起四十多家民宿，风格雷同、菜品相似，游客来了<span class="k-quote">"千店一面"</span>，转身就走。</span></div>
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 2 段</span><span class="fn f-problem">问题</span></div>
-          <div class="pt"><span class="s" id="ms2">"最大的难题是缺人。"县文旅局工作人员说。民宿管家、客房服务、活动策划都需要专业人员，但村里年轻人大多外出务工，留下来的人员年龄偏大、缺乏服务意识。县里曾组织过几期培训，可课程偏理论，听完就忘，学员回去还是按老办法干。</span></div>
+          <div class="pt"><span class="s" id="ms2"><span class="k-quote">"最大的难题是缺人。"</span>县文旅局工作人员说。民宿管家、客房服务、活动策划都需要专业人员，但村里年轻人大多外出务工，留下来的人员年龄偏大、缺乏服务意识。县里曾组织过几期培训，可课程偏理论，听完就忘，学员回去还是按老办法干。</span></div>
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 3 段</span><span class="fn f-problem">问题</span></div>
@@ -231,7 +362,7 @@ tr:last-child td{border-bottom:none}
         </div>
         <div class="para para-problem">
           <div class="ph"><span class="pn">第 4 段</span><span class="fn f-problem">问题</span></div>
-          <div class="pt"><span class="s" id="ms4">配套设施跟不上。通往村里的路只有三米宽，旅游大巴进不来；停车位不足，旺季车辆沿路停放；污水管网没有覆盖，生活污水直排。游客普遍反映"风景不错，就是住着不方便"。</span></div>
+          <div class="pt"><span class="s" id="ms4">配套设施跟不上。通往村里的路只有三米宽，旅游大巴进不来；停车位不足，旺季车辆沿路停放；污水管网没有覆盖，生活污水直排。游客普遍反映<span class="k-quote">"风景不错，就是住着不方便"</span>。</span></div>
         </div>
         <div class="para para-action">
           <div class="ph"><span class="pn">第 5 段</span><span class="fn f-action">做法（本题干扰段）</span></div>
@@ -277,7 +408,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">3</span>整体结构</h2>
+    <h2><span class="num">4</span>整体结构</h2>
     <p class="h2sub">归纳概括题的骨架：一句总括 + 四条，每条「概括词打头 + 材料原词铺开」。</p>
     <div class="flow">
       <div class="frow">
@@ -309,7 +440,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">4</span>漏点清单</h2>
+    <h2><span class="num">5</span>漏点清单</h2>
     <p class="h2sub">每个漏点都标出材料出处、抓取方法、分值。</p>
     <div class="tw">
       <table>
@@ -336,7 +467,7 @@ tr:last-child td{border-bottom:none}
   </section>
 
   <section class="card">
-    <h2><span class="num">5</span>带走的一个动作</h2>
+    <h2><span class="num">6</span>带走的一个动作</h2>
     <p class="h2sub">这道题只需要带走一个动作。</p>
     <div class="flow">
       <div class="frow">
