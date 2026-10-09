@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>视觉识别 · 结果分析 07</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --ink:#1f2430; --ink2:#5a6473; --ink3:#8b93a1; --line:#e3e7ee;
+  --c-bg:#64748b; --c-meaning:#2563eb; --c-problem:#dc2626; --c-action:#059669;
+  --c-conclusion:#7c3aed; --c-define:#d97706;
+  --mk-copy:#e2e9f4; --mk-copy-line:#4b5f7a;
+  --mk-own:#fdecc8;  --mk-own-line:#b45309;
+  --mk-cond:#d6f5e3; --mk-cond-line:#047857;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.85;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+a{color:#4338ca}
+header{background:linear-gradient(135deg,#1e293b 0%,#312e81 55%,#4c1d95 100%);color:#fff;padding:42px 20px 36px}
+header .in{max-width:1180px;margin:0 auto}
+.kicker{display:inline-block;font-size:11.5px;letter-spacing:.14em;background:rgba(255,255,255,.16);
+  padding:4px 12px;border-radius:99px;margin-bottom:15px}
+header h1{margin:0 0 10px;font-size:28px;line-height:1.35;letter-spacing:-.01em}
+header .sub{margin:0;color:#c7d2fe;font-size:14.5px}
+header .meta{margin-top:17px;display:flex;flex-wrap:wrap;gap:9px}
+header .meta span{font-size:12.5px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);padding:4px 11px;border-radius:99px}
+.backbtn{position:fixed;left:14px;bottom:14px;z-index:99;background:rgba(30,41,59,.9);color:#fff;
+  font-size:13px;padding:8px 15px;border-radius:99px;text-decoration:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.legend{position:sticky;top:0;z-index:50;background:rgba(246,247,249,.95);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  padding:11px 20px;margin:0 -20px 26px}
+.legend .lg-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.legend .t{font-size:12px;color:var(--ink3);letter-spacing:.05em;margin-right:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 11px;
+  border-radius:99px;background:#fff;border:1px solid var(--line)}
+.chip i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chip.d i{background:var(--c-bg)} .chip.m i{background:var(--c-meaning)} .chip.p i{background:var(--c-problem)}
+.chip.a i{background:var(--c-action)} .chip.c i{background:var(--c-conclusion)}
+.sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+section{margin-bottom:32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 28px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+h2{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:11px;letter-spacing:-.01em}
+h2 .num{flex:none;width:28px;height:28px;border-radius:9px;background:#eef2ff;color:#4338ca;
+  font-size:13px;display:grid;place-items:center;font-weight:700}
+.h2sub{color:var(--ink3);font-size:13px;margin:0 0 20px;padding-left:39px}
+h3{font-size:15px;margin:22px 0 10px}
+p{margin:0 0 12px}
+.mk-copy,.mk-own,.mk-cond{padding:1px 3px;border-radius:4px;font-weight:600}
+.mk-copy{background:var(--mk-copy);border-bottom:2px solid var(--mk-copy-line)}
+.mk-own{background:var(--mk-own);border-bottom:2px dashed var(--mk-own-line)}
+.mk-cond{background:var(--mk-cond);border-bottom:2px dotted var(--mk-cond-line)}
+.mk-copy::after,.mk-own::after,.mk-cond::after{font-size:9.5px;vertical-align:super;margin-left:1px;font-weight:700;opacity:.75}
+.mk-copy::after{content:"抄"} .mk-own::after{content:"自"} .mk-cond::after{content:"概"}
+.plain-mk .mk-copy::after,.plain-mk .mk-own::after,.plain-mk .mk-cond::after{content:""}
+.qlink{display:inline-flex;align-items:center;gap:5px;background:#4338ca!important;color:#fff!important;text-decoration:none;font-weight:600}
+.qlink:hover{background:#3730a3!important}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border:1px solid var(--line);border-radius:11px}
+.tw table{min-width:600px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f9fafb;color:var(--ink2);font-weight:600;font-size:12.5px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.fn{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;font-weight:600;white-space:nowrap}
+.f-bg{background:#f1f5f9;color:#475569}.f-meaning{background:#eff6ff;color:var(--c-meaning)}
+.f-problem{background:#fef2f2;color:var(--c-problem)}.f-action{background:#ecfdf5;color:var(--c-action)}
+.f-conclusion{background:#f5f3ff;color:var(--c-conclusion)}.f-define{background:#fffbeb;color:var(--c-define)}
+.para{margin-bottom:14px;padding:11px 14px;border-left:3px solid var(--line);border-radius:0 8px 8px 0;background:#fff}
+.para-bg{border-left-color:var(--c-bg)}.para-meaning{border-left-color:var(--c-meaning)}
+.para-problem{border-left-color:var(--c-problem)}.para-action{border-left-color:var(--c-action)}
+.para-conclusion{border-left-color:var(--c-conclusion)}
+.para .ph{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.para .pn{font-size:11.5px;color:var(--ink3);font-weight:700}
+.para .pt{font-size:13.5px;line-height:1.9;color:#2c3340}
+.s{transition:background .18s,box-shadow .18s;border-radius:4px;padding:1px 0}
+.s.hl{background:#fff3c4;box-shadow:0 0 0 3px #fff3c4}
+.ans{background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:0 9px 9px 0;padding:13px 15px;margin-bottom:11px;cursor:pointer;transition:.2s}
+.ans:hover,.ans.on{background:#fffdf5;border-color:#fcd34d;box-shadow:0 2px 10px rgba(217,119,6,.1)}
+.ans[data-kind="own"]{border-left-color:var(--c-define)}
+.ans[data-kind="copy"]{border-left-color:var(--c-bg)}
+.ans[data-kind="cond"]{border-left-color:var(--c-action)}
+.ans.nosrc{cursor:default}
+.ans.nosrc:hover{background:#fff;border-color:var(--line);box-shadow:none}
+.ah{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.ab{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
+.asrc{font-size:11.5px;color:var(--ink3);margin-left:auto}
+.at{font-size:14px;line-height:2;color:#2c3340}
+.an{font-size:12.5px;color:var(--ink2);margin-top:9px;padding-top:9px;
+  border-top:1px dashed var(--line);line-height:1.7;display:none}
+.ans:hover .an,.ans.on .an,.ans.nosrc .an{display:block}
+.an b{color:#b45309}
+.flow{display:grid;gap:10px}
+.frow{display:grid;grid-template-columns:128px 1fr;gap:14px;align-items:center}
+.fl{font-size:12.5px;font-weight:700;text-align:right;padding-right:4px}
+.fb{border-radius:10px;padding:11px 15px;font-size:13.5px}
+.fl-d{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.fl-p{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.fl-a{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.fl-c{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6}
+.arrow{grid-column:1/-1;text-align:center;color:var(--ink3);font-size:15px;line-height:1}
+.bar{display:flex;height:30px;border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:12px 0 8px}
+.bar div{display:grid;place-items:center;font-size:12px;font-weight:700;color:#1f2937;white-space:nowrap}
+.b-copy{background:var(--mk-copy)}.b-own{background:var(--mk-own)}.b-cond{background:var(--mk-cond)}
+.barlg{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--ink2)}
+.tip{background:#f0fdf4;border-left:3px solid var(--c-action);border-radius:0 9px 9px 0;
+  padding:13px 17px;font-size:13.5px;color:#065f46;margin-top:14px}
+.warn{background:#fffbeb;border-left:3px solid var(--c-define);border-radius:0 9px 9px 0;
+  padding:13px 17px;font-size:13.5px;color:#92400e;margin-top:14px}
+.bad{border:1px solid #fecaca;background:#fff5f5;border-radius:12px;padding:16px 18px}
+.bad ul{margin:10px 0 0;padding-left:0;list-style:none}
+.bad li{font-size:13.5px;color:#991b1b;padding:7px 0 7px 26px;position:relative;border-top:1px dashed #fecaca}
+.bad li:before{content:"✕";position:absolute;left:4px;top:7px;color:#dc2626;font-weight:700}
+.prog{display:grid;gap:9px}
+.prow{display:grid;grid-template-columns:96px 1fr 64px;gap:12px;align-items:center;font-size:13px}
+.pname{font-weight:600;color:var(--ink2)}
+.pbar{height:22px;border-radius:6px;background:#eef1f5;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:6px}
+.pscore{text-align:right;font-weight:700;color:#4338ca;font-size:13px}
+/* 逐点对照 */
+.jd{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.jd-hit{background:#d1fae5;color:#065f46}
+.jd-part{background:#fef3c7;color:#92400e}
+.jd-err{background:#fee2e2;color:#991b1b}
+.jd-miss{background:#f1f5f9;color:#64748b}
+.cmp td.mine-miss{color:var(--ink3);font-style:italic}
+.cmp td.mine-err{color:#991b1b}
+.cmp td.mine-hit{color:#065f46}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:16px 0}
+.sum div{background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:12px 14px;text-align:center}
+.sum .n{font-size:23px;font-weight:700;line-height:1.25}
+.sum .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* 引号高亮 */
+.k-quote{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:4px;font-weight:600}
+.refbox{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:12px;padding:18px 20px;margin:14px 0}
+.refbox .rh{font-size:12.5px;letter-spacing:.08em;color:#4338ca;margin-bottom:10px;font-weight:700}
+.refbox p{font-size:14px;line-height:1.95;color:#2c3340;margin:0 0 10px}
+.refbox p:last-child{margin-bottom:0}
+.refbox .warnline{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:10px;border-top:1px dashed #c7d2fe}
+@media (max-width:900px){
+  .bench2{grid-template-columns:1fr!important}
+  .frow{grid-template-columns:1fr;gap:5px}
+  .fl{text-align:left}
+  .card{padding:20px 18px}
+  header h1{font-size:22px}
+  .bar{height:26px}.bar div{font-size:10.5px}
+  .prow{grid-template-columns:72px 1fr 56px}
+}
+</style>
+</head>
+<body class="plain-mk">
+
+<header>
+  <div class="in">
+    <span class="kicker">视觉识别 · 结果分析 07</span>
+    <h1>三色解剖：审题对了，但「概括」把采分词吃掉了</h1>
+    <p class="sub">指尖上的形式主义 · 概括表现 + 提出建议（变式）</p>
+    <div class="meta"><span>你的答案 385 字</span><span>升格版 388 字</span><span>得分 21 / 25</span><span>第 3 课 · 变式题</span><a class="qlink" href="diagram-quote.html">引号规则 →</a></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="legend">
+    <div class="lg-in">
+      <span class="t">段落功能</span>
+      <span class="chip d"><i></i>背景</span>
+      <span class="chip m"><i></i>意义</span>
+      <span class="chip p"><i></i>问题</span>
+      <span class="chip a"><i></i>做法</span>
+      <span class="chip c"><i></i>结论</span>
+      <span class="sep"></span>
+      <span class="t">每句话的成分</span>
+      <span class="chip"><i style="background:var(--mk-copy)"></i><b>抄</b>　材料原词</span>
+      <span class="chip"><i style="background:var(--mk-own)"></i><b>自</b>　自己写的骨架</span>
+      <span class="chip"><i style="background:var(--mk-cond)"></i><b>概</b>　从材料概括上升</span>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2><span class="num">1</span>你的答案 · 三色解剖（385 字）</h2>
+    <p class="h2sub">底色即标记：<b>抄</b>（灰蓝实线）／<b>自</b>（琥珀虚线）／<b>概</b>（绿点线）。材料一个字没变，只换了题目。结构这次完全正确 —— 但篇幅配比和「概括掉原词」两个问题露出来了。</p>
+        <div class="ans nosrc" data-kind="meaning">
+          <div class="ah"><span class="ab" style="background:#eff6ff;color:#1d4ed8">表现 · 190 字 · 占 49.4%</span>
+            <span class="asrc">190 字 · 该占 1/3</span></div>
+          <div class="at"><span class="mk-own">当前基层</span><span class="mk-copy">"指尖上的形式主义"</span><span class="mk-own">问题突出，主要表现为：一是</span><span class="mk-cond">政务线上平台泛滥</span><span class="mk-own">，</span><span class="mk-copy">各类政务APP、工作群</span><span class="mk-cond">数量过多</span><span class="mk-own">，基层干部需耗费</span><span class="mk-cond">大量时间</span><span class="mk-copy">打卡签到</span><span class="mk-own">、</span><span class="mk-cond">上传素材</span><span class="mk-own">，挤占一线工作时间。二是</span><span class="mk-copy">重留痕轻实效</span><span class="mk-own">，工作过度依赖</span><span class="mk-copy">拍照、录视频、截屏积分</span><span class="mk-own">等</span><span class="mk-cond">留痕操作</span><span class="mk-own">，脱离实际工作需求，弱化工作实效。三是</span><span class="mk-cond">平台建设混乱</span><span class="mk-own">，各部门</span><span class="mk-copy">自建平台</span><span class="mk-own">、</span><span class="mk-copy">数据不互通</span><span class="mk-own">，</span><span class="mk-cond">报表材料重复上报</span><span class="mk-own">，且部分APP长期不更新，沦为</span><span class="mk-copy">"僵尸应用"</span><span class="mk-own">，加重基层负担。</span></div>
+          <div class="an"><b>点评：</b>四个表现点<b>全部写到了</b>，而且「打卡签到」「重留痕轻实效」「数据不互通」「僵尸应用」都是材料原词 —— 这一段可以拿满分。<br>唯一的问题：<b>它写得太长了。</b>190 字占了全文 49.4%，而表现只该占 1/3。</div>
+        </div>
+        <div class="ans nosrc" data-kind="action">
+          <div class="ah"><span class="ab" style="background:#ecfdf5;color:#047857">建议 · 195 字 · 占 50.6%</span>
+            <span class="asrc">195 字 · 该占 2/3</span></div>
+          <div class="at"><span class="mk-own">对此，提出如下整治建议：一是开展专项摸排整治，</span><span class="mk-cond">组建专项工作专班</span><span class="mk-own">，</span><span class="mk-cond">全面梳理排查</span><span class="mk-own">各类政务平台，</span><span class="mk-copy">整合关停</span><span class="mk-own">功能重复、</span><span class="mk-cond">低效闲置的APP</span><span class="mk-own">，搭建统一规范的政务平台。二是规范线上工作要求，</span><span class="mk-copy">严控新增基层打卡、留痕事项</span><span class="mk-own">，将减负工作</span><span class="mk-copy">纳入年度督查</span><span class="mk-own">，杜绝随意加码。三是优化考核评价机制，</span><span class="mk-cond">摒弃唯痕迹的考核模式</span><span class="mk-own">，以</span><span class="mk-copy">工作实绩</span><span class="mk-own">、</span><span class="mk-copy">群众评价</span><span class="mk-own">作为核心考核标准。四是</span><span class="mk-copy">畅通基层反馈渠道</span><span class="mk-own">，保障基层干部话语权，</span><span class="mk-cond">允许基层抵制不合理工作要求。</span></div>
+          <div class="an"><b>点评：</b>结构对、条数够、有编号 —— 比练习 6 进步很大。<br>但<b>「抄」只有 20%</b>：材料里明明写着「对全市政务App和<b>工作群</b>全面摸排」，你概括成「各类政务平台」，<b>「工作群」三个字就没了</b>；材料写「保留一个统一的<b>"掌上政务"平台</b>」，你换成「搭建统一规范的政务平台」，<b>引号提法也丢了</b>。</div>
+        </div>
+
+    <h3 style="margin-top:26px">成分实测对比</h3>
+    <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">下面数字由脚本逐字统计，不是估算。</p>
+      <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">你的答案（385 字）</div>
+      <div class="bar">
+        <div class="b-copy" style="width:24.9%">抄 25%</div>
+        <div class="b-cond" style="width:21.8%">概 22%</div>
+        <div class="b-own" style="width:53.2%">自 53%</div>
+        <div style="background:#eef1f5;width:0.0%"></div>
+      </div>
+      <div style="font-size:12.5px;color:var(--ink3);margin-bottom:5px">升格版（388 字）</div>
+      <div class="bar">
+        <div class="b-copy" style="width:64.7%">抄 65%</div>
+        <div class="b-cond" style="width:6.2%">概 6%</div>
+        <div class="b-own" style="width:29.1%">自 29%</div>
+        <div style="background:#eef1f5;width:0.0%"></div>
+      </div>
+    <div class="warn" style="margin-top:18px"><b>这道题最值得看的数字是篇幅比：表现 190 字（49.4%）／建议 195 字（50.6%）—— 几乎一比一。</b><br><br>而题目两个动作的<b>分值不相等</b>：表现 4 个点约占 10 分，建议 8 个点约占 15 分。分数多的地方，篇幅就该多。黄金比是<b>表现 1/3、建议 2/3</b>。<br><br>你多写的这 60 字表现，正好是一条完整建议的篇幅 —— 而你漏掉的那两条（推动数据互联互通、精简工作群），加起来也就 60 字。<b>不是没时间写，是篇幅被表现吃掉了。</b></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>参考答案 × 你的答案 · 逐点对照</h2>
+    <p class="h2sub">25 分拆成 12 个采分点（表现 4 + 建议 8），逐项对照。注意两个「漏／残」的共同点：材料原词在概括中蒸发了。</p>
+    <div class="sum"><div><div class="n" style="color:#059669">9</div><div class="l">命中 75%</div></div><div><div class="n" style="color:#d97706">2</div><div class="l">不完整 17%</div></div><div><div class="n" style="color:#dc2626">0</div><div class="l">错误 0%</div></div><div><div class="n" style="color:#64748b">1</div><div class="l">漏 8%</div></div></div>
+    <div class="refbox">
+      <div class="rh">参考答案（教学用，非官方评分标准）</div>
+<p>整治"指尖上的形式主义"，要减负与增效并举、标本兼治。</p><p>当前基层"指尖上的形式主义"主要表现为：一是政务App、微信公众号、工作群泛滥，干部打卡签到、上传照片耗时多，挤占下基层时间；二是只重留痕不重实效，走访拍照、开会录像、学习截屏积分，干部被"绑"在手机上；三是各部门自建平台、数据不互通，同一份材料反复填、重复报，部分App上线后长期不更新，成了"僵尸应用"。</p><p>一是清理整合平台。由市委办牵头成立工作专班，对全市政务App和工作群全面摸排；关停整合功能重复的App，精简合并工作群，清理长期不更新的"僵尸应用"，保留一个统一的"掌上政务"平台，推动数据互联互通、避免重复填报。</p><p>二是严控增量负担。除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容，让干部有时间下基层。</p><p>三是改进考核方式。考核评价要从"看痕迹"转向"看实绩"，多听群众评价、多看工作成效。</p><p>四是畅通反映渠道。畅通基层反映渠道，让干部敢于对不合理的要求说"不"。</p>
+      <div class="warnline">评分点依据材料关键句拆分，供教学对照用。<b>不是官方评分标准</b> —— 真实阅卷的采分点由命题方制定，本表的作用是让你看清「标准答案会写什么」与「你写了什么」的逐项差距。</div>
+    </div>
+    <div class="tw">
+      <table class="cmp">
+        <thead><tr><th>采分点</th><th>参考答案的表述</th><th>你的答案</th><th>判定</th><th>差距在哪</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>平台泛滥、打卡占时间</td>
+            <td>各类政务App、微信公众号、工作群大量涌现；每天光打卡、签到、上传照片就要花两个多小时</td>
+            <td class="mine-hit">政务线上平台泛滥…耗费大量时间打卡签到、上传素材，挤占一线工作时间</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 1 段。两个事实都写到了，还补了「挤占一线工作时间」——这就是把材料读到心里去了</td>
+          </tr>
+          <tr>
+            <td>重留痕轻实效</td>
+            <td>很多App只重留痕不重实效；干部被"绑"在手机上，下村入户的时间反而少了</td>
+            <td class="mine-hit">重留痕轻实效…依赖拍照、录视频、截屏积分…弱化工作实效</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 2 段。材料原词基本全在，这一段写得漂亮</td>
+          </tr>
+          <tr>
+            <td>数据不互通、重复填报</td>
+            <td>各部门各自建平台，数据不互通，同一份材料要反复填、重复报</td>
+            <td class="mine-hit">各部门自建平台、数据不互通，报表材料重复上报</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 3 段前半。「自建平台」「数据不互通」都是原词</td>
+          </tr>
+          <tr>
+            <td>App 长期不更新成"僵尸应用"</td>
+            <td>有的App上线后长期不更新，成了"僵尸应用"</td>
+            <td class="mine-hit">部分APP长期不更新，沦为"僵尸应用"</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 3 段后半。<b>带引号的提法守住了</b> —— 练习 6 丢的就是这个引号，这次记住了</td>
+          </tr>
+          <tr>
+            <td>组建专班、明确牵头</td>
+            <td>成立了由市委办牵头的工作专班</td>
+            <td class="mine-hit">组建专项工作专班</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 4 段。<b>练习 6 漏掉的就是这一条，这次补上了</b> —— 上一题的批改你真的吸收了</td>
+          </tr>
+          <tr>
+            <td>全面摸排（含工作群）</td>
+            <td>对全市政务App和工作群全面摸排</td>
+            <td class="">全面梳理排查各类政务平台</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>摸排这个动作写到了，但把「政务App和<b>工作群</b>」概括成「各类政务平台」——<b>「工作群」三个字在概括中蒸发了</b></td>
+          </tr>
+          <tr>
+            <td>关停整合功能重复的 App</td>
+            <td>关停整合功能重复的App 47个</td>
+            <td class="mine-hit">整合关停功能重复、低效闲置的APP</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 4 段。动作词和对象词都在，还主动加了「低效闲置」去覆盖僵尸应用</td>
+          </tr>
+          <tr>
+            <td>保留统一平台（"掌上政务"）</td>
+            <td>保留一个统一的"掌上政务"平台</td>
+            <td class="">搭建统一规范的政务平台</td>
+            <td><span class="jd jd-part">不完整</span></td>
+            <td>意思摸到了，但两处走样：<b>带引号的「掌上政务」丢了</b>；材料是「保留」现有平台，你写「搭建」——方向反了</td>
+          </tr>
+          <tr>
+            <td>推动数据互联互通</td>
+            <td>（第 3 段反推）数据不互通，材料反复填重复报</td>
+            <td class="mine-miss">（没写）</td>
+            <td><span class="jd jd-miss">漏</span></td>
+            <td><b>表现段里写了「数据不互通」，建议段却没有回响</b>。问题和对策要一一咬合：你写问题不是为了写问题，是为了给对策铺路</td>
+          </tr>
+          <tr>
+            <td>严控新增打卡、留痕 + 纳入督查</td>
+            <td>一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容</td>
+            <td class="mine-hit">严控新增基层打卡、留痕事项，将减负工作纳入年度督查</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 4 段。两个点压成一条，动作准确</td>
+          </tr>
+          <tr>
+            <td>考核转向实绩、多听群众评价</td>
+            <td>考核评价要从"看痕迹"转向"看实绩"，多听群众评价、多看工作成效</td>
+            <td class="mine-hit">摒弃唯痕迹的考核模式，以工作实绩、群众评价作为核心考核标准</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 5 段。整句换了说法，但「工作实绩」「群众评价」两个采分词都保住了</td>
+          </tr>
+          <tr>
+            <td>畅通渠道、敢说"不"</td>
+            <td>畅通基层反映渠道，让干部敢于对不合理的要求说"不"</td>
+            <td class="mine-hit">畅通基层反馈渠道，保障基层干部话语权，允许基层抵制不合理工作要求</td>
+            <td><span class="jd jd-hit">命中</span></td>
+            <td>第 5 段。「反映」写成「反馈」是一字之差，阅卷人仍认得出；「抵制不合理要求」是「敢于说不」的转述，意思到位</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>升格版 · 三色解剖 + 材料溯源（388 字）</h2>
+    <p class="h2sub">把鼠标移到右边任意一句上 —— 左边材料会亮出它对应的原句，并展开这句的成分说明。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start" class="bench2">
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);padding-bottom:10px;margin-bottom:14px;border-bottom:1px dashed var(--line)">
+          <b style="color:var(--ink);letter-spacing:0;font-size:13.5px">给定资料（功能色标）</b>
+        </div>
+        <div class="para para-bg">
+          <div class="ph"><span class="pn">第 1 段</span><span class="fn f-bg">背景</span></div>
+          <div class="pt"><span class="s" id="zj1">近年来，各地各部门积极推进政务信息化，各类政务 App、微信公众号、工作群大量涌现。据报道，某省一名乡镇干部手机里装了 20 多个工作类 App，加入了 30 多个工作群，每天光打卡、签到、上传照片就要花两个多小时。</span></div>
+        </div>
+        <div class="para para-problem">
+          <div class="ph"><span class="pn">第 2 段</span><span class="fn f-problem">问题 · 负担</span></div>
+          <div class="pt"><span class="s" id="zj2a"><span class="k-quote">"上面千条线，下面一根针。"</span>中部某镇党委书记说，很多 App 只重留痕不重实效，走访要拍照、开会要录视频、学习要截屏积分，干部被"绑"在手机上，真正下村入户的时间反而少了。</span></div>
+        </div>
+        <div class="para para-problem">
+          <div class="ph"><span class="pn">第 3 段</span><span class="fn f-problem">问题 · 重复建设</span></div>
+          <div class="pt"><span class="s" id="zj3a">记者调查发现，一些地方各部门各自建平台，数据不互通，同一份材料要反复填、重复报。</span><span class="s" id="zj3b">有的 App 上线后长期不更新，成了<span class="k-quote">"僵尸应用"</span>。基层干部反映：<span class="k-quote">"填表填到手软，报数据报到心累。"</span></span></div>
+        </div>
+        <div class="para para-action">
+          <div class="ph"><span class="pn">第 4 段</span><span class="fn f-action">做法 · 白送分</span></div>
+          <div class="pt"><span class="s" id="zj4a">针对这些问题，东部某市开展了专项整治。该市成立由市委办牵头的工作专班，对全市政务 App 和工作群全面摸排，关停整合功能重复的 App 47 个，保留一个统一的<span class="k-quote">"掌上政务"</span>平台；</span><span class="s" id="zj4b">同时出台规定，除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项，并将此项要求纳入年度督查内容。</span></div>
+        </div>
+        <div class="para para-conclusion">
+          <div class="ph"><span class="pn">第 5 段</span><span class="fn f-conclusion">专家建议 · 白送分</span></div>
+          <div class="pt"><span class="s" id="zj5">有专家指出，整治形式主义不能只做<span class="k-quote">"减法"</span>，还要做<span class="k-quote">"加法"</span>：考核评价要从<span class="k-quote">"看痕迹"</span>转向<span class="k-quote">"看实绩"</span>，多听群众评价、多看工作成效；同时要畅通基层反映渠道，让干部敢于对不合理的要求说"不"。</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;letter-spacing:.08em;color:var(--ink3);padding-bottom:10px;margin-bottom:14px;border-bottom:1px dashed var(--line)">
+          <b style="color:var(--ink);letter-spacing:0;font-size:13.5px">升格版（逐句成分 + 溯源）</b>
+        </div>
+        <div class="ans" data-kind="define" data-src="">
+          <div class="ah"><span class="ab" style="background:#eff6ff;color:#1d4ed8">总起</span>
+            <span class="asrc">← 全篇（自己搭的骨架）</span></div>
+          <div class="at"><span class="mk-own">整治"指尖上的形式主义"，要</span><span class="mk-copy">减负</span><span class="mk-own">与</span><span class="mk-copy">增效</span><span class="mk-own">并举。</span></div>
+          <div class="an"><b>成分：</b>一句总起，阅卷人立刻知道你要分几条。</div>
+        </div>
+        <div class="ans" data-kind="meaning" data-src="zj1,zj2a,zj3a,zj3b">
+          <div class="ah"><span class="ab" style="background:#eff6ff;color:#1d4ed8">一 · 表现（压到 1/3）</span>
+            <span class="asrc">← 第 1、2、3 段</span></div>
+          <div class="at"><span class="mk-own">当前基层</span><span class="mk-copy">"指尖上的形式主义"</span><span class="mk-own">主要表现为：一是</span><span class="mk-copy">政务App、微信公众号、工作群</span><span class="mk-cond">泛滥</span><span class="mk-own">，干部</span><span class="mk-copy">打卡签到、上传照片</span><span class="mk-cond">耗时多，挤占下基层时间</span><span class="mk-own">；二是</span><span class="mk-copy">只重留痕不重实效</span><span class="mk-own">，</span><span class="mk-copy">走访拍照、开会录像、学习截屏积分</span><span class="mk-own">；三是各部门</span><span class="mk-copy">自建平台、数据不互通</span><span class="mk-own">，</span><span class="mk-copy">同一份材料反复填、重复报</span><span class="mk-own">，部分App</span><span class="mk-copy">长期不更新</span><span class="mk-own">，成了</span><span class="mk-copy">"僵尸应用"</span><span class="mk-own">。</span></div>
+          <div class="an"><b>成分：</b>同样四个点，压到 125 字 —— 每个点只留「材料原词 + 一个短判断」，不解释、不铺陈。省下的 60 字正好够补一条建议。</div>
+        </div>
+        <div class="ans" data-kind="action" data-src="zj4a,zj3a,zj3b">
+          <div class="ah"><span class="ab" style="background:#ecfdf5;color:#047857">二 · 清理整合平台</span>
+            <span class="asrc">← 第 4 段 + 第 3 段反推</span></div>
+          <div class="at"><span class="mk-own">一是清理整合平台。由市委办牵头</span><span class="mk-copy">成立工作专班</span><span class="mk-own">，</span><span class="mk-copy">对全市政务App和工作群全面摸排</span><span class="mk-own">；</span><span class="mk-copy">关停整合功能重复的App</span><span class="mk-own">，</span><span class="mk-cond">精简合并工作群</span><span class="mk-own">，</span><span class="mk-copy">清理"僵尸应用"</span><span class="mk-own">，</span><span class="mk-copy">保留一个统一的"掌上政务"平台</span><span class="mk-own">，推动</span><span class="mk-copy">数据互联互通</span><span class="mk-own">、避免</span><span class="mk-cond">重复填报</span><span class="mk-own">。</span></div>
+          <div class="an"><b>成分：</b>材料里的「政务App<b>和工作群</b>」原样搬进来，「工作群」就不会丢；「掌上政务」「僵尸应用」两个引号提法也一个不落。</div>
+        </div>
+        <div class="ans" data-kind="action" data-src="zj4b,zj1,zj2a">
+          <div class="ah"><span class="ab" style="background:#ecfdf5;color:#047857">三 · 严控增量负担</span>
+            <span class="asrc">← 第 4 段 + 第 1、2 段反推</span></div>
+          <div class="at"><span class="mk-own">二是严控增量负担。</span><span class="mk-copy">除中央和省级明确要求外，一律不得新增面向基层的打卡、留痕事项</span><span class="mk-own">，并</span><span class="mk-copy">纳入年度督查内容</span><span class="mk-own">。</span></div>
+          <div class="an"><b>成分：</b>整句搬运，一个字不改 —— 这是白送的分。</div>
+        </div>
+        <div class="ans" data-kind="action" data-src="zj5">
+          <div class="ah"><span class="ab" style="background:#ecfdf5;color:#047857">四 · 改进考核方式</span>
+            <span class="asrc">← 第 5 段</span></div>
+          <div class="at"><span class="mk-own">三是改进考核方式。</span><span class="mk-copy">考核评价要从"看痕迹"转向"看实绩"</span><span class="mk-own">，</span><span class="mk-copy">多听群众评价、多看工作成效</span><span class="mk-own">。</span></div>
+          <div class="an"><b>成分：</b>专家建议句就是标准答案 —— 两个引号全保住。</div>
+        </div>
+        <div class="ans" data-kind="action" data-src="zj5">
+          <div class="ah"><span class="ab" style="background:#ecfdf5;color:#047857">五 · 畅通渠道</span>
+            <span class="asrc">← 第 5 段</span></div>
+          <div class="at"><span class="mk-own">四是畅通渠道。</span><span class="mk-copy">畅通基层反映渠道</span><span class="mk-own">，</span><span class="mk-copy">让干部敢于对不合理的要求说"不"</span><span class="mk-own">。</span></div>
+          <div class="an"><b>成分：</b>也是整句搬运。你写的是「畅通基层<b>反馈</b>渠道」，材料是「<b>反映</b>渠道」—— 一字之差，阅卷人扫的时候仍然认得出。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>整体结构</h2>
+    <p class="h2sub">审题这一关你过了。这次的结构问题只剩「配比」。</p>
+    <div class="flow">
+      <div class="frow">
+        <div class="fl" style="color:var(--c-define)">① 题目两个动作</div>
+        <div class="fb fl-d"><span class="mk-copy">概括</span>主要表现 ＋ <span class="mk-copy">就如何整治提出建议</span> → <b>两段，你都写了 ✓</b></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-problem)">② 但两段一样长</div>
+        <div class="fb fl-p">表现 <b>190 字</b>（49.4%）／建议 <b>195 字</b>（50.6%）→ <b>配比错了</b></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-action)">③ 正确的配比</div>
+        <div class="fb fl-a">表现 <b>约 130 字</b>（1/3）／建议 <b>约 260 字</b>（2/3）→ 25 分里 15 分在建议上</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="frow">
+        <div class="fl" style="color:var(--c-conclusion)">④ 自检动作</div>
+        <div class="fb fl-c"><span class="mk-own">写完两段，数字数：建议段的字数应该是表现段的两倍</span></div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:18px"><b>练习 6 你把功夫花在了题目没问的地方；练习 7 你写对了地方，但配比反了。</b><br>这是同一件事的两个层次 —— 先解决「写不写」，再解决「写多少」。审题那关你已经过了。</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>漏点清单</h2>
+    <p class="h2sub">每个漏点都标出材料出处、抓取方法、分值。</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>漏掉的内容</th><th>出自哪一句</th><th>用什么方法能抓到</th><th>值多少</th></tr></thead>
+        <tbody>
+          <tr><td><b>推动数据互联互通、避免重复填报</b></td><td>第 3 段：数据不互通，同一份材料要反复填、重复报</td><td><b>问题与对策必须一一咬合</b> —— 表现里写了「数据不互通」，建议里就得有回响</td><td>约 2 分</td></tr>
+          <tr><td><b>精简合并工作群</b></td><td>第 1 段：加入了 30 多个工作群</td><td>你把「政务App和工作群」<b>概括成「各类政务平台」</b>，「工作群」三个字被概括掉了</td><td>约 2 分</td></tr>
+          <tr><td>「掌上政务」的<b>引号</b>，以及「保留」≠「搭建」</td><td>第 4 段：<b>保留一个统一的"掌上政务"平台</b></td><td><b>带引号的提法原样抄</b>；材料说的是保留已有的，不是新建</td><td>表述分</td></tr>
+          <tr><td>「僵尸应用」<b>用「清理」而不是「低效闲置」</b></td><td>第 3 段：成了<b>"僵尸应用"</b></td><td>带引号的提法要连着<b>材料原词的动作</b>一起搬</td><td>表述分</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bad" style="margin-top:16px">
+      <b style="color:#991b1b;font-size:14px">这份答案还差在哪</b>
+      <ul>
+        <li>表现段写成了 190 字，比升格版多出 60 字 —— <b>这 60 字正好是你漏掉的那两条建议</b>。表现是铺垫，不是主角。</li>
+        <li>把「政务App和<b>工作群</b>」概括成「各类政务平台」，<b>采分词在概括的过程中蒸发了</b>。这是第 1 课「概括层级过高」的老毛病，换了个题型又冒出来。</li>
+        <li><b>建议段「抄」只有 20%</b>（练习 6 是 74%）。材料已经把动作句、对象句都写好了，你却在用自己的话重说一遍 —— 每重说一次，就多一次丢词的风险。</li>
+        <li>「搭建统一规范的政务平台」—— 材料是<b>保留</b>现有平台，不是新建。「搭建」会把你自己推到与材料相反的方向。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">6</span>带走的一个动作</h2>
+    <p class="h2sub">这一道题只需要带走一件事。</p>
+    <div class="flow">
+      <div class="frow">
+        <div class="fl" style="color:var(--ink2)">动作 1</div>
+        <div class="fb" style="background:#f8fafc;border:1px solid var(--line)"><b>写建议时，材料里的「动作词 + 对象词」原样抄进你的句子，不要概括。</b>你把「政务 App 和<b>工作群</b>」概括成「各类政务平台」，三个字一没，后面的「精简工作群」也就跟着没了；你把「保留一个统一的<b>"掌上政务"</b>平台」说成「搭建统一规范的政务平台」，引号提法又丢一个。<b>概括是给「问题」用的，不是给「对策」用的 —— 对策要的是精确，不是简洁。</b></div>
+      </div>
+    </div>
+    <div class="tip" style="margin-top:20px"><b>成绩：21 / 25。</b>表现 4 个点全部写全写准（10 分），建议 8 个点里 5 个完整、2 个不完整、1 个漏（11 分）。<br><b>和练习 6 相比，审题的问题彻底解决了</b> —— 题目问两个动作，你就写了两块，一个字都没跑偏。这是这一课最重要的收获。<br>剩下的两个毛病都在建议段：<b>篇幅只给了 50%（该给 2/3）</b>，<b>而且材料原词被自己的概括吃掉了</b>。改掉这两点，这题能拿 24~25 分。</div>
+  </section>
+
+</div>
+
+<a class="backbtn" href="practice-archive.html">← 练习档案</a>
+
+<script>
+(function(){
+  var ans=document.querySelectorAll('.ans[data-src]');
+  ans.forEach(function(a){
+    var ids=(a.getAttribute('data-src')||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+    if(!ids.length)return;
+    function on(){ids.forEach(function(id){var e=document.getElementById(id);if(e)e.classList.add('hl');});}
+    function off(){ids.forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('hl');});}
+    a.addEventListener('mouseenter',on);
+    a.addEventListener('mouseleave',function(){if(!a.classList.contains('on'))off();});
+    a.addEventListener('click',function(){
+      var was=a.classList.contains('on');
+      ans.forEach(function(b){if(b!==a)b.classList.remove('on');});
+      if(was){a.classList.remove('on');off();}else{a.classList.add('on');on();}
+    });
+  });
+})();
+</script>
+<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:99;background:rgba(30,41,59,.9);color:#fff;font-size:13px;padding:8px 15px;border-radius:99px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(6px)">← 总目录</a>
+</body>
+</html>
