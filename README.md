@@ -15,6 +15,7 @@
 | 总目录（桌面版） | <https://medivhcrf.github.io/CivilServants/> | 电脑、iPad 横屏 |
 | 总目录（手机版） | <https://medivhcrf.github.io/CivilServants/index-m.html> | iPhone、安卓手机 |
 | 图解课件 | <https://medivhcrf.github.io/CivilServants/diagram-02.html> | 两端通用（悬停／点按联动） |
+| 公文示范 | <https://medivhcrf.github.io/CivilServants/diagram-gw.html> | 第 4 课倡议书全流程标注 |
 
 - **手机版**：单栏大字号、目录可折叠、宽表格可左右滑动、适配 iPhone 刘海安全区
 - **桌面版**：左侧目录吸附在滚动位置，正文卡片排版
@@ -28,53 +29,53 @@
 申论/                            学员用书与学习产出
 ├── 学习手册.md                  12 周路线图、方法速查、进度与成绩表
 ├── 练习记录.md                  每次作答的存档、诊断结论与考场版参考答案
-├── 练习档案.html                练习总览：成长曲线 ·「抄」占比变化 · 失分模式
-├── 第2课-综合分析-图解.html      第 2 课示范课件（悬停联动）
-├── 练习5-综合分析-图解.html      练习 5 三色解剖（综合分析）
-├── 练习1-归纳概括-图解.html      练习 1 三色解剖
-├── 练习2-归纳概括-图解.html      练习 2 三色解剖
-├── 练习3-归纳概括-图解.html      练习 3 三色解剖
-├── 第2课-图解-效果预览.png      课件效果预览
-├── 练习5-图解-效果预览.png      练习 5 课件效果预览
+├── 练习档案.html                练习总览：成长曲线 · 分数 · 逐点对照统计 · 失分模式
+├── 第2课-综合分析-图解.html      第 2 课示范课件（手写模板，悬停联动）
+├── 第4课-贯彻执行-图解.html      第 4 课公文示范：410 字倡议书 + 九件格式解剖 + 逐句溯源
+├── 引号与抽象概念-图解.html      方法补丁：材料里的引号到底抄不抄
+├── 练习1-归纳概括-图解.html      练习 1 三色解剖 + 8 个采分点逐点对照
+├── 练习2-归纳概括-图解.html      练习 2 三色解剖 + 7 个采分点逐点对照
+├── 练习3-归纳概括-图解.html      练习 3 三色解剖 + 13 个采分点逐点对照
+├── 练习5-综合分析-图解.html      练习 5 三色解剖 + 13 个采分点逐点对照
+├── 练习6-提出对策-图解.html      练习 6 三色解剖 + 10 个采分点逐点对照
+├── 练习7-提出对策-图解.html      练习 7（变式）三色解剖 + 12 个采分点逐点对照
+├── *-效果预览.png               课件首屏预览（总目录缩略图用）
 └── 素材/
     └── 00-素材卡模板.md         每日积累用，一篇文章一张卡
 
-skill/                           教学系统（AI 助教 Skill）
+skill/                           教学系统（AI 助教 Skill 的完整镜像）
 ├── SKILL.md                     教学立场、教学循环、详解标准、图解规范
-├── references/                  8 份方法论文档
-│   ├── 00-学习路线与进度.md
+├── references/                  11 份文档
+│   ├── 00-学习路线与进度.md      ★ 学生档案 · 进度 · 分数 · 失分模式 · 换机续学
 │   ├── 01-找点方法论.md
 │   ├── 02-五大题型公式.md
 │   ├── 03-批改评分标准.md
 │   ├── 04-文章拆解模式.md
 │   ├── 05-表达与素材库.md
 │   ├── 06-详解标准-示范课九步法.md
-│   └── 07-图解课件规范.md
+│   ├── 07-图解课件规范.md
+│   ├── 08-引号与抽象概念.md
+│   ├── 09-第3课-提出对策.md
+│   └── 10-第4课-贯彻执行.md
 └── scripts/
     └── check_diagram.py         图解课件结构校验脚本
 
 tools/                           站点构建与发布
 ├── build_site.py                Markdown → 静态站点（自带 Markdown 解析器）
-├── build_diagrams.py            练习解析图解生成器（三色占比由脚本实算）
+├── build_diagrams.py            图解生成器（三色占比与字数由脚本实算，不手填）
 └── publish.sh                   一键构建 + 推送 main + 同步 gh-pages
 
-docs/                            构建产物（GitHub Pages 从 gh-pages 分支发布）
+docs/                            构建产物（GitHub Pages 从 gh-pages 分支发布，勿手工改）
 ├── index.html / index-m.html    总目录（桌面版 / 手机版）
-├── handbook.html / -m.html      学习手册
-├── practice.html / -m.html      练习记录
-├── points.html / -m.html        找点方法论
-├── types.html / -m.html         五大题型公式
-├── vocab.html / -m.html         表达与素材库
-├── cards.html / -m.html         素材卡模板
-├── rubric.html / -m.html        批改评分标准
-├── nine-steps.html / -m.html    示范课九步法
-├── practice-archive.html        练习档案（总览，响应式）
+├── handbook / practice / points / types / vocab / cards / rubric / nine-steps
+│                                （各含桌面版与 -m.html 手机版）
+├── practice-archive.html        练习档案（响应式）
 ├── diagram-02.html              第 2 课图解课件
 ├── diagram-05.html              练习 5 三色解剖
-├── diagram-p1.html              练习 1 三色解剖
-├── diagram-p2.html              练习 2 三色解剖
-├── diagram-p3.html              练习 3 三色解剖
-└── assets/                      共用样式与预览图
+├── diagram-p1 / p2 / p3 / p6 / p7.html
+├── diagram-quote.html           引号与抽象概念专题
+├── diagram-gw.html              第 4 课公文示范
+└── assets/                      共用样式与预览缩略图
 ```
 
 ---
@@ -87,6 +88,40 @@ docs/                            构建产物（GitHub Pages 从 gh-pages 分支
 
 2. **读学习手册** —— `申论/学习手册.md`
 3. **看练习记录** —— `申论/练习记录.md`
+
+---
+
+## 🔄 换一台机器继续学习
+
+**结论：可以。** 所有材料、图解、方法论、进度与分数都已经在 GitHub 上；**只读学习的话，新机器打开站点就够了，什么都不用装。**
+
+| | 在哪里 | 换机后 |
+| --- | --- | --- |
+| 全部材料与图解 | 站点 <https://medivhcrf.github.io/CivilServants/> | 直接打开，无需安装 |
+| 方法论与讲义 | 仓库 `skill/references/00~10` | clone 即可读 |
+| **进度、分数、逐题诊断** | `skill/references/00-学习路线与进度.md` ＋ `申论/练习记录.md` | 已提交，新机器 clone 后就能接上 |
+| `~/.dsh/skills/shenlun-tutor/` | **本机安装位置，不随仓库走** | 需在新机器上从仓库 `skill/` 复制一次 |
+| 对话历史 | 只在本机 | 不随行；但接续所需状态都在上面两个文件里 |
+
+**新机器上的一次性动作（只有想让 AI 助教保持同一套教学标准时才需要）：**
+
+```bash
+git clone git@github.com:Medivhcrf/CivilServants.git
+cd CivilServants
+mkdir -p ~/.dsh/skills && rm -rf ~/.dsh/skills/shenlun-tutor
+cp -r skill ~/.dsh/skills/shenlun-tutor
+```
+
+然后对新会话说一句：
+
+> 读 `~/.dsh/skills/shenlun-tutor/references/00-学习路线与进度.md`，我们继续上第 4 课，练习 8 等批改。
+
+**本机改完 skill 后一定要同步，否则仓库副本会过期：**
+
+```bash
+cd /home/crf/single_cat && rm -rf skill && cp -r ~/.dsh/skills/shenlun-tutor skill
+./tools/publish.sh "同步 skill 与进度"
+```
 
 ---
 
@@ -167,7 +202,7 @@ python3 tools/build_site.py     # 产物在 docs/
 
 ## 关于 `skill/`
 
-`skill/` 是一份 AI 助教 Skill（DeepSeek Harness 格式）的镜像，放在 `~/.dsh/skills/shenlun-tutor/` 时生效，用于让助手跨会话保持一致的教学标准。
+`skill/` 是一份 AI 助教 Skill（DeepSeek Harness 格式）的**完整镜像**，放在 `~/.dsh/skills/shenlun-tutor/` 时生效，用于让助手跨会话、**跨机器**保持一致的教学标准。改完本机的那份，记得复制回来再发布（见上一节）。
 
 其中的文档含有本机绝对路径，属于工作配置的备份，供参考阅读。
 
