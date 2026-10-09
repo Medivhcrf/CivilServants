@@ -22,8 +22,76 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 ASSETS = DOCS / "assets"
 
-SITE_TITLE = "申论学习库"
-SITE_DESC = "申论系统学习资料 · 方法 · 练习 · 图解课件"
+# ---------------------------------------------------------------- 伪装层
+# 浏览器标签标题、总目录品牌、各页页眉统一用「视觉识别」技术文档的口径。
+# 只改外壳（标题／页眉／卡片名／分组名／正文首行大标题），讲义正文与材料原文一概不动。
+
+BRAND = "视觉识别"
+SITE_TITLE = BRAND
+SITE_DESC = "视觉识别项目 · 算法说明 · 数据处理 · 评估记录"
+
+# slug → (页面上显示的名字, 浏览器标签标题)
+ALIAS = {
+    "handbook":         ("算法说明",     f"{BRAND} · 算法说明"),
+    "practice":         ("测试记录",     f"{BRAND} · 测试记录"),
+    "points":           ("数据处理规范", f"{BRAND} · 数据处理规范"),
+    "types":            ("模型配置",     f"{BRAND} · 模型配置"),
+    "vocab":            ("术语表",       f"{BRAND} · 术语表"),
+    "cards":            ("标注模板",     f"{BRAND} · 标注模板"),
+    "rubric":           ("评估指标",     f"{BRAND} · 评估指标"),
+    "nine-steps":       ("训练流程",     f"{BRAND} · 训练流程"),
+    "diagram-02":       ("流程可视化",   f"{BRAND} · 流程可视化"),
+    "diagram-05":       ("结果分析 05",  f"{BRAND} · 结果分析 05"),
+    "practice-archive": ("评估汇总",     f"{BRAND} · 评估汇总"),
+    "diagram-p1":       ("结果分析 01",  f"{BRAND} · 结果分析 01"),
+    "diagram-p2":       ("结果分析 02",  f"{BRAND} · 结果分析 02"),
+    "diagram-p3":       ("结果分析 03",  f"{BRAND} · 结果分析 03"),
+    "diagram-quote":    ("数据清洗规则", f"{BRAND} · 数据清洗规则"),
+}
+
+# 正文首行大标题的同名改写（只替换 <h1>…</h1>，不碰正文里的 申论 二字）
+BODY_FIX = {
+    "申论学习手册": "算法说明",
+    "练习记录": "测试记录",
+    "找点方法论（第 1 课内核）": "数据处理规范",
+    "五大题型公式": "模型配置",
+    "表达与素材库": "术语表",
+    "批改评分标准": "评估指标",
+    "详解标准 · 示范课九步法": "训练流程",
+    "素材卡模板": "标注模板",
+}
+
+
+# 卡片副标题的伪装名（总目录上那行灰色小字）
+SUB_ALIAS = {
+    "handbook": "算法总览 · 12 周迭代计划 · 方法速查 · 进度与指标",
+    "practice": "四轮测试的记录：结论 · 偏差出处 · 标准输出",
+    "points": "四种定位法 · 分段切分法 · 长度阈值 · 输出格式规范",
+    "types": "分类 · 关联分析 · 策略生成 · 流程执行 · 长篇输出",
+    "vocab": "领域词表 · 动作词库 · 句式模板 · 长文框架",
+    "cards": "每天 15 分钟积累法 · 一份样本一张卡",
+    "rubric": "评分档位 · 评审五块模板 · 常见偏差诊断表",
+    "nine-steps": "每次分析必须做满的九步 · 三条质量红线",
+    "diagram-02": "流程可视化 · 悬停输出句自动高亮原始输入",
+    "diagram-05": "哪些取自原文、哪些自行生成 · 成分实测 · 13 个评分点逐点对照",
+    "practice-archive": "成长曲线 · 引用占比变化 · 五份分析索引 · 复现的毛病",
+    "diagram-p1": "样本 01 · 4.5/15：三色解剖 + 8 个评分点逐点对照",
+    "diagram-p2": "样本 02 · 7/10：三色解剖 + 7 个评分点逐点对照",
+    "diagram-p3": "样本 03 · 11/15：三色解剖 + 13 个评分点逐点对照",
+    "diagram-quote": "10 个引号提法 100% 是评分点 · 提法／引语／空词／修辞四种处理",
+}
+
+
+def sub_alias(slug: str, fallback: str = "") -> str:
+    return SUB_ALIAS.get(slug, fallback)
+
+
+def alias(slug: str, fallback: str = "") -> str:
+    return ALIAS.get(slug, (fallback, fallback))[0]
+
+
+def tab_title(slug: str, fallback: str = "") -> str:
+    return ALIAS.get(slug, (fallback, f"{fallback} · {BRAND}"))[1]
 
 # ---------------------------------------------------------------- 页面清单
 
@@ -46,10 +114,10 @@ PAGES = [
     dict(slug="cards", group="方法", title="素材卡模板",
          sub="每天 15 分钟积累法 · 一篇文章一张卡",
          src="申论/素材/00-素材卡模板.md"),
-    dict(slug="rubric", group="教学标准", title="批改评分标准",
+    dict(slug="rubric", group="评估规范", title="批改评分标准",
          sub="评分档次 · 批改五块模板 · 常见失分诊断表",
          src="skill/references/03-批改评分标准.md"),
-    dict(slug="nine-steps", group="教学标准", title="示范课九步法",
+    dict(slug="nine-steps", group="评估规范", title="示范课九步法",
          sub="每道题解析必须做满的九步 · 三条质量红线",
          src="skill/references/06-详解标准-示范课九步法.md"),
 ]
@@ -64,16 +132,16 @@ DIAGRAMS = [
          sub="哪些是抄的、哪些是自己写的 · 成分实测 · 13 个采分点逐点对照",
          src="申论/练习5-综合分析-图解.html",
          preview="申论/练习5-图解-效果预览.png", thumb="assets/preview-05.png"),
-    dict(slug="practice-archive", group="练习解析", title="练习档案",
+    dict(slug="practice-archive", group="结果分析", title="练习档案",
          sub="成长曲线 ·「抄」的占比变化 · 五份解析索引 · 复现的毛病",
          src="申论/练习档案.html", preview=None, thumb=None),
-    dict(slug="diagram-p1", group="练习解析", title="练习 1 三色解剖",
+    dict(slug="diagram-p1", group="结果分析", title="练习 1 三色解剖",
          sub="老旧小区困难 · 4.5/15：三色解剖 + 8 个采分点逐点对照",
          src="申论/练习1-归纳概括-图解.html", preview=None, thumb=None),
-    dict(slug="diagram-p2", group="练习解析", title="练习 2 三色解剖",
+    dict(slug="diagram-p2", group="结果分析", title="练习 2 三色解剖",
          sub="三市做法 · 7/10：三色解剖 + 7 个采分点逐点对照",
          src="申论/练习2-归纳概括-图解.html", preview=None, thumb=None),
-    dict(slug="diagram-p3", group="练习解析", title="练习 3 三色解剖",
+    dict(slug="diagram-p3", group="结果分析", title="练习 3 三色解剖",
          sub="乡村民宿问题 · 11/15：三色解剖 + 13 个采分点逐点对照",
          src="申论/练习3-归纳概括-图解.html", preview=None, thumb=None),
     dict(slug="diagram-quote", group="方法", title="引号、抽象概念、比喻：抄不抄",
@@ -94,7 +162,7 @@ LINK_FIX = {
     "第2课-综合分析-图解.html": "diagram-02.html",
 }
 
-GROUP_ORDER = ["核心资料", "练习解析", "方法", "教学标准"]
+GROUP_ORDER = ["核心资料", "结果分析", "方法", "评估规范"]
 
 # ---------------------------------------------------------------- Markdown 转换
 
@@ -466,6 +534,8 @@ h1,h2,h3,h4{line-height:1.45;letter-spacing:-.01em}
 
 def page_shell(*, title: str, sub: str, kicker: str, body: str, toc: str,
                mode: str, slug: str, meta: list[str], toc_count: int) -> str:
+    tab = tab_title(slug, title)        # 伪装层：标签页 / 任务栏也只显示技术文档名
+    title = alias(slug, title)
     other = f"{slug}.html" if mode == "mobile" else f"{slug}-m.html"
     other_label = "桌面版" if mode == "mobile" else "手机版"
     toc_block = (
@@ -482,8 +552,9 @@ def page_shell(*, title: str, sub: str, kicker: str, body: str, toc: str,
 <meta name="theme-color" content="#312e81">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="视觉识别">
 <meta name="description" content="{html.escape(sub)}">
-<title>{html.escape(title)} · {SITE_TITLE}</title>
+<title>{html.escape(tab)}</title>
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body class="mode-{mode}">
@@ -561,8 +632,8 @@ def build_index(mode: str) -> str:
                 )
             cards.append(f"""      <article class="card">
         {thumb}
-        <a class="card-title" href="{p['slug']}.html">{html.escape(p['title'])}</a>
-        <p class="card-sub">{html.escape(p['sub'])}</p>
+        <a class="card-title" href="{p['slug']}.html">{html.escape(alias(p['slug'], p['title']))}</a>
+        <p class="card-sub">{html.escape(sub_alias(p["slug"], p["sub"]))}</p>
         <div class="card-links">{links}</div>
       </article>""")
         sections.append(
@@ -580,6 +651,7 @@ def build_index(mode: str) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#312e81">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="视觉识别">
 <meta name="description" content="SITEDESC">
 <title>SITETITLE</title>
 <link rel="stylesheet" href="assets/site.css">
@@ -587,9 +659,9 @@ def build_index(mode: str) -> str:
 <body class="MODE">
 <div class="hero">
   <div class="h-in">
-    <span class="kicker">公务员考试 · 申论</span>
-    <h1>申论学习库</h1>
-    <p class="sub">要点抄材料，骨架自己搭 · 一句一勾 · 字数实测 · 正反两层对称</p>
+    <span class="kicker">视觉识别 · 技术文档</span>
+    <h1>视觉识别项目</h1>
+    <p class="sub">算法说明 · 数据处理 · 结果分析 · 评估记录</p>
     <div class="meta"><span>NPAGES 份资料</span><span>桌面版 + 手机版</span><span>NDIAGRAMS 份图解课件</span></div>
   </div>
 </div>
@@ -599,7 +671,7 @@ def build_index(mode: str) -> str:
   </div>
 BODY
   <footer class="foot">
-    申论学习库 ｜ <a href="https://github.com/Medivhcrf/CivilServants">GitHub 仓库</a>
+    视觉识别项目 ｜ <a href="https://github.com/Medivhcrf/CivilServants">GitHub 仓库</a>
   </footer>
 </div>
 AUTODETECT
@@ -626,7 +698,7 @@ AUTODETECT
         css_common.replace("SITEDESC", SITE_DESC)
         .replace("NPAGES", str(len(PAGES)))
         .replace("NDIAGRAMS", str(len(DIAGRAMS)))
-        .replace("SITETITLE", SITE_TITLE + (" · 总目录（手机版）" if mode == "mobile" else " · 总目录"))
+        .replace("SITETITLE", SITE_TITLE + (" · 索引（手机版）" if mode == "mobile" else " · 索引"))
         .replace("MODE", "mode-mobile" if mode == "mobile" else "mode-desktop")
         .replace("NOTICE", notice)
         .replace("AUTODETECT", autodetect)
@@ -651,6 +723,10 @@ def main() -> int:
             continue
         md = src.read_text(encoding="utf-8")
         body, toc = md_to_html(md)
+        # 伪装层：正文里的大标题（<h1 id="...">…</h1>）与侧栏目录同步改名
+        for _old, _new in BODY_FIX.items():
+            body = re.sub(rf'<h1([^>]*)>{re.escape(_old)}</h1>', rf'<h1\1>{_new}</h1>', body)
+        toc = [(lvl, hid, BODY_FIX.get(txt, txt)) for lvl, hid, txt in toc]
         toc_html = build_toc(toc, "desktop", body.count("<table"))
 
         n_tables = body.count('class="table-wrap"')
@@ -662,7 +738,7 @@ def main() -> int:
                     '</tbody></table></div><div class="scroll-hint">← 表格可左右滑动 →</div>',
                 )
             out = page_shell(
-                title=p["title"], sub=p["sub"], kicker=p["group"],
+                title=p["title"], sub=sub_alias(p["slug"], p["sub"]), kicker=p["group"],
                 body=b, toc=toc_html, mode=mode, slug=p["slug"], toc_count=len(toc),
                 meta=[f"{len(body)} 字符", "桌面版" if mode == "desktop" else "手机版"],
             )

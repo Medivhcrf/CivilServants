@@ -307,14 +307,16 @@ def render(d: dict) -> str:
     chips = "".join(
         f"<span>{c}</span>" for c in
         [f"你的答案 {st_student['total']} 字", f"升格版 {st_upgrade['total']} 字"] + d["chips"]
-    ) + '<a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a>' 
+    ) + '<a class="qlink" href="引号与抽象概念-图解.html">引号规则 →</a>'
+    # 伪装层：浏览器标签只显示技术文档名
+    tab = "视觉识别 · " + d["kicker"].split("·")[-1].strip()
 
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>{d['title']} ｜ {d['sub']}</title>
+<title>{tab}</title>
 <style>{CSS}</style>
 </head>
 <body class="plain-mk">
@@ -483,7 +485,7 @@ MS = [  # 乡村民宿
 
 P1 = dict(
     slug="p1", file="练习1-归纳概括-图解.html",
-    kicker="申论 · 练习 1 批改",
+    kicker="视觉识别 · 结果分析 01",
     title="练习 1 三色解剖", sub="老旧小区改造 · 归纳概括：概括主要困难",
     h1="三色解剖：把一整段压成了一句话",
     chips=["得分 4.5 / 15"],
@@ -548,7 +550,7 @@ P1 = dict(
 
 P2 = dict(
     slug="p2", file="练习2-归纳概括-图解.html",
-    kicker="申论 · 练习 2 批改",
+    kicker="视觉识别 · 结果分析 02",
     title="练习 2 三色解剖", sub="老旧小区改造 · 同材料换问法：概括三市做法",
     h1="三色解剖：审题对了，输在一个词上",
     chips=["得分 7 / 10"],
@@ -609,7 +611,7 @@ P2 = dict(
 
 P3 = dict(
     slug="p3", file="练习3-归纳概括-图解.html",
-    kicker="申论 · 练习 3 批改",
+    kicker="视觉识别 · 结果分析 03",
     title="练习 3 三色解剖", sub="乡村民宿 · 归纳概括：概括主要问题",
     h1="三色解剖：结构对了，差在段落后半截",
     chips=["得分 11 / 15", "第 1 课结业"],
@@ -817,7 +819,7 @@ def render_archive() -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>练习档案 ｜ 五次作答的完整解析</title>
+<title>视觉识别 · 评估汇总</title>
 <style>{CSS}
 .rec{{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}}
 </style>
@@ -826,7 +828,7 @@ def render_archive() -> str:
 
 <header>
   <div class="in">
-    <span class="kicker">申论 · 练习档案</span>
+    <span class="kicker">视觉识别 · 评估汇总</span>
     <h1>五次作答：分数、成分、复现的毛病</h1>
     <p class="sub">每一道练习都做了三色解剖 —— 哪些是抄的、哪些是自己写的、错在哪个动作上</p>
     <div class="meta"><span>5 次作答</span><span>4 份三色解剖</span><span>分数 30% → 87%</span></div>
@@ -1014,7 +1016,7 @@ GY = [
 
 P5 = dict(
     slug="p5", file="练习5-综合分析-图解.html",
-    kicker="申论 · 练习 5 批改",
+    kicker="视觉识别 · 结果分析 05",
     title="练习 5 三色解剖", sub="口袋公园 · 综合分析（解释型）",
     h1="答案三色解剖：哪些是抄的，哪些是你写的",
     chips=["得分 13 / 15", "第 2 课结业"],
@@ -1171,14 +1173,14 @@ def render_quote_page() -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>引号、抽象概念、比喻 ｜ 抄还是不抄</title>
+<title>视觉识别 · 数据清洗规则</title>
 <style>{CSS}</style>
 </head>
 <body class="plain-mk">
 
 <header>
   <div class="in">
-    <span class="kicker">申论 · 方法补丁</span>
+    <span class="kicker">视觉识别 · 数据清洗</span>
     <h1>引号、抽象概念、比喻：到底抄不抄？</h1>
     <p class="sub">材料里那些「加了引号的话」和「说得很文雅的话」，哪些是采分词</p>
     <div class="meta">
