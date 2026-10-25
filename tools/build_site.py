@@ -232,7 +232,51 @@ LINK_FIX = {
     "第2课-综合分析-图解.html": "diagram-02.html",
 }
 
-GROUP_ORDER = ["核心资料", "结果分析", "方法", "评估规范"]
+GROUP_ORDER = ["每日", "课程", "练习与批改", "方法与规范", "档案"]
+
+# 旧分组名 → 首页新分组（PAGES 里不改，只在这里归并）
+GROUP_MAP = {
+    "核心资料": "档案",
+    "结果分析": "练习与批改",
+    "方法": "方法与规范",
+    "评估规范": "方法与规范",
+}
+
+# 个别页面单独安家，覆盖 GROUP_MAP
+SLUG_GROUP = {
+    "practice": "练习与批改",
+    "diagram-02": "练习与批改",
+    "diagram-05": "练习与批改",
+}
+
+# 每组一句话：什么情况下点这里
+GROUP_BLURB = {
+    "每日": "每天只点这里：当前批次的输入材料、任务清单和交卷前自检。",
+    "课程": "说明书正文。按顺序读，一次一个阶段；读完立刻去做对应样本。",
+    "练习与批改": "历史样本全档：原始输出、诊断结论、漏点出处、校正版、逐点解剖。",
+    "方法与规范": "卡住时来查：定位方法、输出公式、词表句式、评分档位、复盘流程、时长配置。",
+    "档案": "总览、进度、分数、打卡；换设备或写周复盘时看。",
+}
+
+# 首页「按顺序学」路径：(次序名, 主题, 目标 slug, 状态)
+LEARNING_PATH = [
+    ("阶段 0", "总览与路线", "handbook", "done"),
+    ("阶段 1", "定位与提取", "points", "done"),
+    ("阶段 2", "关联分析", "types", "done"),
+    ("阶段 3", "策略生成", "lesson3", "active"),
+    ("阶段 4", "流程执行", "lesson4", "active"),
+    ("阶段 5", "长篇输出（一）", "course", "todo"),
+    ("阶段 6", "长篇输出（二）", "course", "todo"),
+    ("阶段 7", "混合题型", "course", "todo"),
+    ("阶段 8", "复盘与验收", "nine-steps", "todo"),
+]
+
+PATH_STATE_LABEL = {"done": "已结业", "active": "在学", "todo": "未开始"}
+
+
+def group_of(page: dict) -> str:
+    slug = page["slug"]
+    return SLUG_GROUP.get(slug, GROUP_MAP.get(page["group"], page["group"]))
 
 # ---------------------------------------------------------------- Markdown 转换
 
@@ -672,11 +716,12 @@ def build_toc(toc: list[tuple[int, str, str]], mode: str, table_count: int) -> s
 
 
 def build_index(mode: str) -> str:
+    suffix = "-m" if mode == "mobile" else ""
     groups: dict[str, list[dict]] = {}
     for p in PAGES:
-        groups.setdefault(p["group"], []).append(p)
+        groups.setdefault(group_of(p), []).append(p)
     for d in reversed(DIAGRAMS):
-        groups.setdefault(d["group"], []).insert(0, {**d, "is_diagram": True})
+        groups.setdefault(group_of(d), []).insert(0, {**d, "is_diagram": True})
 
     sections = []
     for g in GROUP_ORDER:
@@ -707,12 +752,44 @@ def build_index(mode: str) -> str:
         <div class="card-links">{links}</div>
       </article>""")
         sections.append(
-            f'  <section class="idx-group">\n    <h2>{html.escape(g)}</h2>\n    <div class="cards">\n'
+            f'  <section class="idx-group">\n    <h2>{html.escape(g)}</h2>\n'
+            f'    <p class="group-blurb">{html.escape(GROUP_BLURB.get(g, ""))}</p>\n'
+            f'    <div class="cards">\n'
             + "\n".join(cards)
             + "\n    </div>\n  </section>"
         )
 
-    body = "\n".join(sections)
+    # 首页第一屏：现在做什么
+    now_block = f"""  <section class="now">
+    <div class="now-kicker">现在从这里开始</div>
+    <h2 class="now-title">{html.escape(alias("today", "今日任务"))}</h2>
+    <p class="now-sub">今天的输入材料、任务清单、时间轴和交卷前自查，全在这一页。</p>
+    <ol class="now-steps">
+      <li><b>读</b>　打开当前批次：先看输入材料，再看今天的任务清单（20 分钟）</li>
+      <li><b>做</b>　限时完成，写完自查；过程中不翻说明书（45 分钟）</li>
+      <li><b>回</b>　把输出贴回来，拿到漏点诊断再回写记录（10 分钟）</li>
+    </ol>
+    <a class="now-btn" href="today{suffix}.html">打开今天的批次 →</a>
+  </section>"""
+
+    # 首页第二屏：按顺序学
+    path_items = []
+    for name, topic, slug, state in LEARNING_PATH:
+        path_items.append(
+            f'      <a class="path-item {state}" href="{slug}{suffix}.html">'
+            f'<span class="path-dot"></span>'
+            f'<span class="path-name">{html.escape(name)}</span>'
+            f'<span class="path-topic">{html.escape(topic)}</span>'
+            f'<span class="path-state">{PATH_STATE_LABEL[state]}</span></a>'
+        )
+    path_block = (
+        '  <section class="path">\n    <h2>按顺序学</h2>\n'
+        '    <p class="group-blurb">上一个阶段结业了再进下一个。'
+        '「在学」的两个阶段是当前重点，「未开始」的还没讲义。</p>\n'
+        '    <div class="path-list">\n' + "\n".join(path_items) + "\n    </div>\n  </section>"
+    )
+
+    body = now_block + "\n" + path_block + "\n" + "\n".join(sections)
 
     css_common = """<!DOCTYPE html>
 <html lang="zh-CN">
@@ -725,6 +802,42 @@ def build_index(mode: str) -> str:
 <meta name="description" content="SITEDESC">
 <title>SITETITLE</title>
 <link rel="stylesheet" href="assets/site.css">
+<style>
+.notice{margin-bottom:18px}
+.now{margin:0 0 30px;padding:24px 22px 22px;border-radius:18px;
+  background:linear-gradient(135deg,#312e81 0%,#4338ca 100%);color:#fff}
+.now-kicker{font-size:12px;letter-spacing:.14em;opacity:.72}
+.now-title{font-size:27px;line-height:1.25;margin:8px 0 6px;font-weight:700}
+.now-sub{font-size:14px;opacity:.82;margin:0 0 16px}
+.now-steps{margin:0 0 18px;padding-left:22px;font-size:14.5px;line-height:1.85}
+.now-btn{display:inline-block;padding:11px 22px;border-radius:999px;background:#fff;
+  color:#312e81;font-weight:700;font-size:15px;text-decoration:none}
+.now-btn:hover{background:#e8e8ff}
+.path{margin:0 0 30px}
+.path h2{font-size:19px;margin:0 0 6px}
+.path-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));
+  gap:10px;margin:14px 0 0}
+.path-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:12px;
+  background:#fff;border:1px solid #e3e5ee;text-decoration:none;color:inherit;font-size:14px}
+.path-item:hover{border-color:#c3c7dd}
+.path-dot{width:9px;height:9px;border-radius:50%;background:#cbd0e0;flex:0 0 auto}
+.path-item.done .path-dot{background:#16a34a}
+.path-item.active .path-dot{background:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.16)}
+.path-name{font-weight:700;white-space:nowrap}
+.path-topic{flex:1;color:#6b7080;font-size:13px}
+.path-state{font-size:11.5px;color:#959ab0;white-space:nowrap}
+.group-blurb{margin:-4px 0 14px;color:#6b7080;font-size:13.5px;line-height:1.6}
+@media (prefers-color-scheme:dark){
+  .path-item{background:#1b1d2a;border-color:#2c2f42}
+  .path-topic,.group-blurb{color:#9aa0b5}
+  .path-state{color:#7b8097}
+}
+@media (max-width:560px){
+  .now{padding:20px 18px}
+  .now-title{font-size:23px}
+  .path-list{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body class="MODE">
 <div class="hero">
@@ -749,12 +862,11 @@ AUTODETECT
 </html>
 """
     notice = (
-        "<strong>手机上浏览？</strong>每份资料都有手机版（字号更大、单栏排版、目录可折叠）。"
-        "点卡片上的<b>手机版</b>即可。"
+        "<strong>怎么看这个站：</strong>第一屏是<b>今天做什么</b>；第二屏是<b>按顺序学</b>的九个阶段；"
+        "下面才是全部资料，按用途分五组。每份资料都有手机版，点卡片上的<b>手机版</b>即可。"
         if mode == "desktop" else
-        "<strong>你在看手机版。</strong>手机版是单栏大字号排版，目录可折叠、表格可左右滑动。"
-        "想用电脑看，点卡片上的<b>桌面版</b>；"
-        '也可以<a href="index.html?desk=1">强制打开桌面版总目录</a>。'
+        "<strong>你在看手机版。</strong>从上往下就三步：先做「现在从这里开始」，"
+        "再看「按顺序学」走到哪了，最后才翻下面的资料卡片。"
     )
     # 手机打开首页时自动切到手机版；用 ?desk=1 可以强制留在桌面版
     autodetect = (
