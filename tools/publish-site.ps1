@@ -23,22 +23,22 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
 function Invoke-Git {
-    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
     $prev = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        $text = (git -C $root @Args 2>&1 | Out-String)
+        $text = (git -C $root @GitArgs 2>&1 | Out-String)
         return [pscustomobject]@{ Code = $LASTEXITCODE; Text = $text }
     }
     finally { $ErrorActionPreference = $prev }
 }
 
 function Invoke-GitAt {
-    param([string]$Dir, [Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
+    param([string]$Dir, [Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
     $prev = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        $text = (git -C $Dir @Args 2>&1 | Out-String)
+        $text = (git -C $Dir @GitArgs 2>&1 | Out-String)
         return [pscustomobject]@{ Code = $LASTEXITCODE; Text = $text }
     }
     finally { $ErrorActionPreference = $prev }
