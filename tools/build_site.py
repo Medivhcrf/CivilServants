@@ -725,7 +725,8 @@ def build_index(mode: str) -> str:
 
     sections = []
     for g in GROUP_ORDER:
-        if g not in groups:
+        # 「每日」由首屏的 now 块承担，不再重复出一组卡片
+        if g not in groups or g == "每日":
             continue
         cards = []
         for p in groups[g]:
