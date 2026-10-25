@@ -137,13 +137,20 @@ description: 申论私教 skill。用于系统学习申论（国考／省考／�
 | `申论/*-效果预览.png` | 图解课件的悬停态预览图 |
 | `tools/build_site.py` | Markdown → 静态站点构建脚本 |
 | `tools/publish.sh` | 一键构建并发布到 GitHub Pages |
-| `tools/sync.ps1` | Windows：提交并推送学习记录（`./tools/sync.ps1 "说明"`） |
+| `tools/sync.cmd` | 想自己写提交说明时用：`.\tools\sync.cmd "说明"`（可加 `-NoPush`） |
+| `tools/autosync.cmd` | **自动同步**（双击可用）：调 `autosync.ps1`，有改动就提交、有领先就推送，幂等 |
+| `tools/autosync.ps1` | 自动同步的实现；日志在 `.git\autosync.log`（不进仓库） |
+| `tools/setup-credentials.cmd` | 一次性写入推送凭据（存进 `.git\config` 的 remote URL，不提交），并 dry-run 验证 |
 
-**每课上完后**：更新 `申论/练习记录.md` 与 `references/00-学习路线与进度.md` 的进度，然后同步到 GitHub：
+**每课／每天结束后，主动跑一次自动同步**（学员不用记这件事）：
 
-```bash
-./tools/sync.ps1 "Day 12：概括题 8/15，漏点集中在培训与资金"   # Windows
+```powershell
+.\tools\autosync.cmd
 ```
+
+它会自动生成提交信息并推送；没有改动就什么都不做。想在提交说明里写清楚今天的收获，用 `.\tools\sync.cmd "Day 12：概括题 8/15，漏点集中在培训与资金"`。
+
+> 注意：本机执行策略禁止直接运行 `.ps1`，所以文档里一律走 `.cmd` 包装（内部用 `-ExecutionPolicy Bypass`，不改系统设置）。
 
 要让站点也更新，再跑 `python tools/build_site.py` 与 `tools/publish.sh "说明"`。
 站点构成与更新流程详见 `references/00-学习路线与进度.md`。

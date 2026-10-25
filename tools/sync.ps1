@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   把学习记录提交并推送到 GitHub。
 .EXAMPLE
