@@ -53,6 +53,16 @@ schtasks /Create /F /SC DAILY /ST 22:30 /TN "CivilServants AutoSync" /TR "cmd /c
 
 删除：`schtasks /Delete /TN "CivilServants AutoSync" /F`
 
+## 更新网站
+
+线上站点 https://medivhcrf.github.io/CivilServants/ 发布自 **`gh-pages` 分支**，内容来自 `docs/`（构建产物，别手改）。改了 Markdown 之后想让它出现在网站上：
+
+```powershell
+.\tools\publish-site.cmd "Day 12：补上学习记录"
+```
+
+它做三件事：跑 `tools/build_site.py` 重建 `docs/` → 提交并推送 `main` → 把 `docs/` 同步到 `gh-pages` 并推送。Pages 构建 1–2 分钟后生效。找不到 python 时用 `-Python <解释器路径>` 指定。
+
 ## 维护提示
 
 - `*.ps1` 必须保存为 **UTF-8 with BOM**。Windows PowerShell 5.1 对无 BOM 的 UTF-8 按 GBK 解码，中文全变乱码，脚本直接语法错误。

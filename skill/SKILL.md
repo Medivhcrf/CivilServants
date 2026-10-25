@@ -135,7 +135,7 @@ description: 申论私教 skill。用于系统学习申论（国考／省考／�
 | `申论/素材/` | 素材卡，一篇文章一个文件 |
 | `申论/*.html` | 图解课件 |
 | `申论/*-效果预览.png` | 图解课件的悬停态预览图 |
-| `tools/build_site.py` | Markdown → 静态站点构建脚本 |
+| `tools/publish-site.cmd` | 重建站点并发布到 GitHub Pages（`.\tools\publish-site.cmd "说明"`） |
 | `tools/publish.sh` | 一键构建并发布到 GitHub Pages |
 | `tools/sync.cmd` | 想自己写提交说明时用：`.\tools\sync.cmd "说明"`（可加 `-NoPush`） |
 | `tools/autosync.cmd` | **自动同步**（双击可用）：调 `autosync.ps1`，有改动就提交、有领先就推送，幂等 |
