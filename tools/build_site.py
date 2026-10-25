@@ -281,8 +281,32 @@ def group_of(page: dict) -> str:
 # ---------------------------------------------------------------- Markdown 转换
 
 
+# 语义色：Markdown 里写 ==问题|这段是问题==，渲染成对应颜色的 <mark>
+MARK_CLASS = {
+    "重点": "hl", "背景": "bg", "意义": "yi",
+    "问题": "wt", "做法": "zf", "结论": "jl", "释义": "sy",
+}
+MARK_RE = re.compile(r"==(?:(重点|背景|意义|问题|做法|结论|释义)\|)?([^=\n]+?)==")
+LEGEND_HTML = (
+    '<div class="legend"><span class="lg-title">颜色怎么读</span>'
+    '<span class="lg m-bg">背景／现状</span>'
+    '<span class="lg m-yi">意义／影响</span>'
+    '<span class="lg m-wt">问题／失分点</span>'
+    '<span class="lg m-zf">做法／正确动作</span>'
+    '<span class="lg m-jl">结论／定论</span>'
+    '<span class="lg m-sy">释义／解释</span>'
+    '<span class="lg m-hl">要记住的重点</span>'
+    '</div>'
+)
+
+
+def mark_repl(m: "re.Match[str]") -> str:
+    key = m.group(1) or "重点"
+    return f'<mark class="m-{MARK_CLASS[key]}">{m.group(2)}</mark>'
+
+
 def inline(text: str) -> str:
-    """行内标记：code / 链接 / 粗体 / 斜体。"""
+    """行内标记：code / 语义色 / 链接 / 粗体 / 斜体。"""
     text = html.escape(text, quote=False)
     codes: list[str] = []
 
@@ -291,6 +315,7 @@ def inline(text: str) -> str:
         return f"\x00{len(codes) - 1}\x00"
 
     text = re.sub(r"`([^`]+)`", stash, text)
+    text = MARK_RE.sub(mark_repl, text)
     text = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", r'<a href="\2" target="_blank" rel="noopener">\1</a>', text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<![*\w])\*([^*\n]+)\*(?!\*)", r"<em>\1</em>", text)
@@ -303,6 +328,8 @@ def inline(text: str) -> str:
 
 def strip_md(text: str) -> str:
     text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"==(?:重点|背景|意义|问题|做法|结论|释义)\|", "", text)
+    text = text.replace("==", "")
     text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     return text.strip()
@@ -314,7 +341,10 @@ def split_row(line: str) -> list[str]:
         line = line[1:]
     if line.endswith("|"):
         line = line[:-1]
-    return [c.strip() for c in line.split("|")]
+    # 表格里也可能写 ==做法|文字==，先把语义色标记内部的竖线保护起来再切列
+    line = re.sub(r"==(?:重点|背景|意义|问题|做法|结论|释义)\|[^=\n]*==",
+                  lambda m: m.group(0).replace("|", "\x01"), line)
+    return [c.strip().replace("\x01", "|") for c in line.split("|")]
 
 
 def build_list(items: list[tuple[int, bool, str]]) -> str:
@@ -635,6 +665,24 @@ h1,h2,h3,h4{line-height:1.45;letter-spacing:-.01em}
   padding:26px 0 8px;border-top:1px solid var(--line);margin-top:34px;
 }
 
+/* ---------- 语义色标记（与图解课件同一套六色） ---------- */
+mark{background:transparent;color:inherit;padding:1px 4px;border-radius:5px;font-weight:650}
+mark.m-hl{background:#fff4cc;box-shadow:inset 0 -2px 0 #e9b949}
+mark.m-bg{background:#edf0f4;box-shadow:inset 0 -2px 0 var(--c-bg);color:#556070}
+mark.m-yi{background:#e7f0ff;box-shadow:inset 0 -2px 0 var(--c-meaning);color:#1a4fbf}
+mark.m-wt{background:#fdeaea;box-shadow:inset 0 -2px 0 var(--c-problem);color:#b22020}
+mark.m-zf{background:#e6f6ee;box-shadow:inset 0 -2px 0 var(--c-action);color:#0b6b45}
+mark.m-jl{background:#f1eaff;box-shadow:inset 0 -2px 0 var(--c-conclusion);color:#5b21b6}
+mark.m-sy{background:#fff3e2;box-shadow:inset 0 -2px 0 var(--c-define);color:#8a5300}
+
+.legend{
+  display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 22px;
+  padding:11px 15px;border:1px dashed var(--line);border-radius:11px;
+  font-size:12.5px;color:var(--ink2);line-height:1.5;
+}
+.legend .lg-title{font-weight:700;color:var(--ink);margin-right:3px}
+.legend .lg{padding:2px 9px;border-radius:99px;font-size:12px}
+
 /* ---------- 手机窄屏适配 ---------- */
 @media (max-width:760px){
   .hero h1{font-size:23px}
@@ -652,6 +700,7 @@ def page_shell(*, title: str, sub: str, kicker: str, body: str, toc: str,
     title = alias(slug, title)
     other = f"{slug}.html" if mode == "mobile" else f"{slug}-m.html"
     other_label = "桌面版" if mode == "mobile" else "手机版"
+    legend = LEGEND_HTML if 'class="m-' in body else ""
     toc_block = (
         f'<details class="toc"><summary>本页目录（{toc_count} 节）</summary>'
         f'<div class="toc-body"><ol>{toc}</ol></div></details>'
@@ -691,6 +740,7 @@ def page_shell(*, title: str, sub: str, kicker: str, body: str, toc: str,
 </header>
 
 <div class="shell">
+  {legend}
   {toc_block}
   <main class="content">
 {body}
