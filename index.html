@@ -9,6 +9,42 @@
 <meta name="description" content="视觉识别项目 · 算法说明 · 数据处理 · 评估记录">
 <title>视觉识别 · 索引</title>
 <link rel="stylesheet" href="assets/site.css">
+<style>
+.notice{margin-bottom:18px}
+.now{margin:0 0 30px;padding:24px 22px 22px;border-radius:18px;
+  background:linear-gradient(135deg,#312e81 0%,#4338ca 100%);color:#fff}
+.now-kicker{font-size:12px;letter-spacing:.14em;opacity:.72}
+.now-title{font-size:27px;line-height:1.25;margin:8px 0 6px;font-weight:700}
+.now-sub{font-size:14px;opacity:.82;margin:0 0 16px}
+.now-steps{margin:0 0 18px;padding-left:22px;font-size:14.5px;line-height:1.85}
+.now-btn{display:inline-block;padding:11px 22px;border-radius:999px;background:#fff;
+  color:#312e81;font-weight:700;font-size:15px;text-decoration:none}
+.now-btn:hover{background:#e8e8ff}
+.path{margin:0 0 30px}
+.path h2{font-size:19px;margin:0 0 6px}
+.path-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));
+  gap:10px;margin:14px 0 0}
+.path-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:12px;
+  background:#fff;border:1px solid #e3e5ee;text-decoration:none;color:inherit;font-size:14px}
+.path-item:hover{border-color:#c3c7dd}
+.path-dot{width:9px;height:9px;border-radius:50%;background:#cbd0e0;flex:0 0 auto}
+.path-item.done .path-dot{background:#16a34a}
+.path-item.active .path-dot{background:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.16)}
+.path-name{font-weight:700;white-space:nowrap}
+.path-topic{flex:1;color:#6b7080;font-size:13px}
+.path-state{font-size:11.5px;color:#959ab0;white-space:nowrap}
+.group-blurb{margin:-4px 0 14px;color:#6b7080;font-size:13.5px;line-height:1.6}
+@media (prefers-color-scheme:dark){
+  .path-item{background:#1b1d2a;border-color:#2c2f42}
+  .path-topic,.group-blurb{color:#9aa0b5}
+  .path-state{color:#7b8097}
+}
+@media (max-width:560px){
+  .now{padding:20px 18px}
+  .now-title{font-size:23px}
+  .path-list{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body class="mode-desktop">
 <div class="hero">
@@ -21,10 +57,79 @@
 </div>
 <div class="shell plain">
   <div class="notice">
-    <strong>手机上浏览？</strong>每份资料都有手机版（字号更大、单栏排版、目录可折叠）。点卡片上的<b>手机版</b>即可。
+    <strong>怎么看这个站：</strong>第一屏是<b>今天做什么</b>；第二屏是<b>按顺序学</b>的九个阶段；下面才是全部资料，按用途分五组。每份资料都有手机版，点卡片上的<b>手机版</b>即可。
   </div>
+  <section class="now">
+    <div class="now-kicker">现在从这里开始</div>
+    <h2 class="now-title">当前批次</h2>
+    <p class="now-sub">今天的输入材料、任务清单、时间轴和交卷前自查，全在这一页。</p>
+    <ol class="now-steps">
+      <li><b>读</b>　打开当前批次：先看输入材料，再看今天的任务清单（20 分钟）</li>
+      <li><b>做</b>　限时完成，写完自查；过程中不翻说明书（45 分钟）</li>
+      <li><b>回</b>　把输出贴回来，拿到漏点诊断再回写记录（10 分钟）</li>
+    </ol>
+    <a class="now-btn" href="today.html">打开今天的批次 →</a>
+  </section>
+  <section class="path">
+    <h2>按顺序学</h2>
+    <p class="group-blurb">上一个阶段结业了再进下一个。「在学」的两个阶段是当前重点，「未开始」的还没讲义。</p>
+    <div class="path-list">
+      <a class="path-item done" href="handbook.html"><span class="path-dot"></span><span class="path-name">阶段 0</span><span class="path-topic">总览与路线</span><span class="path-state">已结业</span></a>
+      <a class="path-item done" href="points.html"><span class="path-dot"></span><span class="path-name">阶段 1</span><span class="path-topic">定位与提取</span><span class="path-state">已结业</span></a>
+      <a class="path-item done" href="types.html"><span class="path-dot"></span><span class="path-name">阶段 2</span><span class="path-topic">关联分析</span><span class="path-state">已结业</span></a>
+      <a class="path-item active" href="lesson3.html"><span class="path-dot"></span><span class="path-name">阶段 3</span><span class="path-topic">策略生成</span><span class="path-state">在学</span></a>
+      <a class="path-item active" href="lesson4.html"><span class="path-dot"></span><span class="path-name">阶段 4</span><span class="path-topic">流程执行</span><span class="path-state">在学</span></a>
+      <a class="path-item todo" href="course.html"><span class="path-dot"></span><span class="path-name">阶段 5</span><span class="path-topic">长篇输出（一）</span><span class="path-state">未开始</span></a>
+      <a class="path-item todo" href="course.html"><span class="path-dot"></span><span class="path-name">阶段 6</span><span class="path-topic">长篇输出（二）</span><span class="path-state">未开始</span></a>
+      <a class="path-item todo" href="course.html"><span class="path-dot"></span><span class="path-name">阶段 7</span><span class="path-topic">混合题型</span><span class="path-state">未开始</span></a>
+      <a class="path-item todo" href="nine-steps.html"><span class="path-dot"></span><span class="path-name">阶段 8</span><span class="path-topic">复盘与验收</span><span class="path-state">未开始</span></a>
+    </div>
+  </section>
   <section class="idx-group">
-    <h2>核心资料</h2>
+    <h2>每日</h2>
+    <p class="group-blurb">每天只点这里：当前批次的输入材料、任务清单和交卷前自检。</p>
+    <div class="cards">
+      <article class="card">
+        
+        <a class="card-title" href="today.html">当前批次</a>
+        <p class="card-sub">当前批次 · 四路并行 · 输入 · 任务 · 自检</p>
+        <div class="card-links"><a class="pri" href="today.html">桌面版</a><a class="sec" href="today-m.html">手机版</a></div>
+      </article>
+    </div>
+  </section>
+  <section class="idx-group">
+    <h2>课程</h2>
+    <p class="group-blurb">说明书正文。按顺序读，一次一个阶段；读完立刻去做对应样本。</p>
+    <div class="cards">
+      <article class="card">
+        
+        <a class="card-title" href="course.html">迭代说明</a>
+        <p class="card-sub">版本迭代 · 9 个阶段 · 说明书／图示／样本／验收</p>
+        <div class="card-links"><a class="pri" href="course.html">桌面版</a><a class="sec" href="course-m.html">手机版</a></div>
+      </article>
+      <article class="card">
+        
+        <a class="card-title" href="lesson3.html">策略调优</a>
+        <p class="card-sub">候选策略 · 生成公式 · 七维检索 · 三道校验</p>
+        <div class="card-links"><a class="pri" href="lesson3.html">桌面版</a><a class="sec" href="lesson3-m.html">手机版</a></div>
+      </article>
+      <article class="card">
+        
+        <a class="card-title" href="lesson4.html">执行校验</a>
+        <p class="card-sub">执行链路 · 四问定位 · 模板速查 · 长度阈值</p>
+        <div class="card-links"><a class="pri" href="lesson4.html">桌面版</a><a class="sec" href="lesson4-m.html">手机版</a></div>
+      </article>
+      <article class="card">
+        
+        <a class="card-title" href="quote.html">特征提取</a>
+        <p class="card-sub">字段标注 · 引用与改写四种处理 · 命中率实测</p>
+        <div class="card-links"><a class="pri" href="quote.html">桌面版</a><a class="sec" href="quote-m.html">手机版</a></div>
+      </article>
+    </div>
+  </section>
+  <section class="idx-group">
+    <h2>练习与批改</h2>
+    <p class="group-blurb">历史样本全档：原始输出、诊断结论、漏点出处、校正版、逐点解剖。</p>
     <div class="cards">
       <article class="card">
         <img class="thumb" src="assets/preview-02.png" alt="课件预览">
@@ -38,29 +143,6 @@
         <p class="card-sub">哪些取自原文、哪些自行生成 · 成分实测 · 13 个评分点逐点对照</p>
         <div class="card-links"><a class="pri" href="diagram-05.html">打开课件</a></div>
       </article>
-      <article class="card">
-        
-        <a class="card-title" href="handbook.html">算法说明</a>
-        <p class="card-sub">算法总览 · 12 周迭代计划 · 方法速查 · 进度与指标</p>
-        <div class="card-links"><a class="pri" href="handbook.html">桌面版</a><a class="sec" href="handbook-m.html">手机版</a></div>
-      </article>
-      <article class="card">
-        
-        <a class="card-title" href="practice.html">测试记录</a>
-        <p class="card-sub">四轮测试的记录：结论 · 偏差出处 · 标准输出</p>
-        <div class="card-links"><a class="pri" href="practice.html">桌面版</a><a class="sec" href="practice-m.html">手机版</a></div>
-      </article>
-      <article class="card">
-        
-        <a class="card-title" href="record.html">运行记录</a>
-        <p class="card-sub">每日打卡 · 每周复盘 · 阶段验收 · 跨设备入口</p>
-        <div class="card-links"><a class="pri" href="record.html">桌面版</a><a class="sec" href="record-m.html">手机版</a></div>
-      </article>
-    </div>
-  </section>
-  <section class="idx-group">
-    <h2>结果分析</h2>
-    <div class="cards">
       <article class="card">
         
         <a class="card-title" href="practice-archive.html">评估汇总</a>
@@ -97,10 +179,17 @@
         <p class="card-sub">样本 07 · 21/25：三色解剖 + 12 个评分点逐点对照</p>
         <div class="card-links"><a class="pri" href="diagram-p7.html">打开课件</a></div>
       </article>
+      <article class="card">
+        
+        <a class="card-title" href="practice.html">测试记录</a>
+        <p class="card-sub">四轮测试的记录：结论 · 偏差出处 · 标准输出</p>
+        <div class="card-links"><a class="pri" href="practice.html">桌面版</a><a class="sec" href="practice-m.html">手机版</a></div>
+      </article>
     </div>
   </section>
   <section class="idx-group">
-    <h2>方法</h2>
+    <h2>方法与规范</h2>
+    <p class="group-blurb">卡住时来查：定位方法、输出公式、词表句式、评分档位、复盘流程、时长配置。</p>
     <div class="cards">
       <article class="card">
         <img class="thumb" src="assets/preview-gw.png" alt="课件预览">
@@ -144,11 +233,6 @@
         <p class="card-sub">五轨并行 · 每日时间盒 · 12 周计划 · 记录规范</p>
         <div class="card-links"><a class="pri" href="daily.html">桌面版</a><a class="sec" href="daily-m.html">手机版</a></div>
       </article>
-    </div>
-  </section>
-  <section class="idx-group">
-    <h2>评估规范</h2>
-    <div class="cards">
       <article class="card">
         
         <a class="card-title" href="rubric.html">评估指标</a>
@@ -160,6 +244,24 @@
         <a class="card-title" href="nine-steps.html">训练流程</a>
         <p class="card-sub">每次分析必须做满的九步 · 三条质量红线</p>
         <div class="card-links"><a class="pri" href="nine-steps.html">桌面版</a><a class="sec" href="nine-steps-m.html">手机版</a></div>
+      </article>
+    </div>
+  </section>
+  <section class="idx-group">
+    <h2>档案</h2>
+    <p class="group-blurb">总览、进度、分数、打卡；换设备或写周复盘时看。</p>
+    <div class="cards">
+      <article class="card">
+        
+        <a class="card-title" href="handbook.html">算法说明</a>
+        <p class="card-sub">算法总览 · 12 周迭代计划 · 方法速查 · 进度与指标</p>
+        <div class="card-links"><a class="pri" href="handbook.html">桌面版</a><a class="sec" href="handbook-m.html">手机版</a></div>
+      </article>
+      <article class="card">
+        
+        <a class="card-title" href="record.html">运行记录</a>
+        <p class="card-sub">每日打卡 · 每周复盘 · 阶段验收 · 跨设备入口</p>
+        <div class="card-links"><a class="pri" href="record.html">桌面版</a><a class="sec" href="record-m.html">手机版</a></div>
       </article>
     </div>
   </section>
