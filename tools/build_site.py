@@ -740,9 +740,9 @@ def page_shell(*, title: str, sub: str, kicker: str, body: str, toc: str,
 </header>
 
 <div class="shell">
-  {legend}
   {toc_block}
   <main class="content">
+{legend}
 {body}
   </main>
 </div>
