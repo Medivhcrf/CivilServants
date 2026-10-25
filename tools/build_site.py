@@ -16,7 +16,16 @@ from __future__ import annotations
 import html
 import re
 import shutil
+import sys
 from pathlib import Path
+
+# Windows 控制台默认 GBK，打印 ✓ 之类字符会抛 UnicodeEncodeError，直接让构建失败。
+# 这里把标准输出切到 UTF-8 并允许替换，保证任何终端都能跑完。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -50,6 +59,8 @@ ALIAS = {
     "diagram-p7":       ("结果分析 07",  f"{BRAND} · 结果分析 07"),
     "diagram-quote":    ("数据清洗规则", f"{BRAND} · 数据清洗规则"),
     "diagram-gw":       ("公文示范",   f"{BRAND} · 公文示范"),
+    "daily":            ("训练计划",   f"{BRAND} · 训练计划"),
+    "record":           ("运行记录",   f"{BRAND} · 运行记录"),
 }
 
 # 正文首行大标题的同名改写（只替换 <h1>…</h1>，不碰正文里的 申论 二字）
@@ -62,6 +73,8 @@ BODY_FIX = {
     "批改评分标准": "评估指标",
     "详解标准 · 示范课九步法": "训练流程",
     "素材卡模板": "标注模板",
+    "五轨并行每日规程": "训练计划",
+    "学习记录": "运行记录",
 }
 
 
@@ -85,6 +98,8 @@ SUB_ALIAS = {
     "diagram-p7": "样本 07 · 21/25：三色解剖 + 12 个评分点逐点对照",
     "diagram-quote": "10 个引号提法 100% 是评分点 · 提法／引语／空词／修辞四种处理",
     "diagram-gw": "倡议书全流程示范 · 410 字：九件格式解剖 + 逐句溯源 + 字数配比",
+    "daily": "五轨并行 · 每日时间盒 · 12 周计划 · 记录规范",
+    "record": "每日打卡 · 每周复盘 · 阶段验收 · 跨设备入口",
 }
 
 
