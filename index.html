@@ -20,6 +20,9 @@
 .now-btn{display:inline-block;padding:11px 22px;border-radius:999px;background:#fff;
   color:#312e81;font-weight:700;font-size:15px;text-decoration:none}
 .now-btn:hover{background:#e8e8ff}
+.now-btn.sec{margin-left:10px;background:transparent;color:#fff;
+  border:1.5px solid rgba(255,255,255,.55);font-weight:600}
+.now-btn.sec:hover{background:rgba(255,255,255,.14)}
 .path{margin:0 0 30px}
 .path h2{font-size:19px;margin:0 0 6px}
 .path-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));
@@ -52,7 +55,7 @@
     <span class="kicker">视觉识别 · 技术文档</span>
     <h1>视觉识别项目</h1>
     <p class="sub">算法说明 · 数据处理 · 结果分析 · 评估记录</p>
-    <div class="meta"><span>16 份资料</span><span>桌面版 + 手机版</span><span>10 份图解课件</span></div>
+    <div class="meta"><span>17 份资料</span><span>桌面版 + 手机版</span><span>10 份图解课件</span></div>
   </div>
 </div>
 <div class="shell plain">
@@ -69,6 +72,7 @@
       <li><b>回</b>　把输出贴回来，拿到漏点诊断再回写记录（10 分钟）</li>
     </ol>
     <a class="now-btn" href="today.html">打开今天的批次 →</a>
+    <a class="now-btn sec" href="review.html">看上次批改 →</a>
   </section>
   <section class="path">
     <h2>按顺序学</h2>
@@ -131,6 +135,12 @@
     <h2>练习与批改</h2>
     <p class="group-blurb">历史样本全档：原始输出、诊断结论、漏点出处、校正版、逐点解剖。</p>
     <div class="cards">
+      <article class="card">
+        
+        <a class="card-title" href="review.html">偏差复核</a>
+        <p class="card-sub">最新一次的偏差复核：得分 · 逐点对照 · 出处 · 校正版</p>
+        <div class="card-links"><a class="pri" href="review.html">桌面版</a><a class="sec" href="review-m.html">手机版</a></div>
+      </article>
       <article class="card">
         <img class="thumb" src="assets/preview-02.png" alt="课件预览">
         <a class="card-title" href="diagram-02.html">流程可视化</a>
