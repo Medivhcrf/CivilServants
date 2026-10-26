@@ -179,6 +179,39 @@ PAGES = [
          src="skill/references/06-详解标准-示范课九步法.md"),
 ]
 
+# 往期任务单：申论/任务存档/YYYY-MM-DD.md，每天一份，只增不改，永不覆盖
+ARCHIVE_DIR = ROOT / "申论" / "任务存档"
+TODAY_MD = ROOT / "申论" / "今日任务.md"
+
+
+def _today_str() -> str:
+    try:
+        m = re.search(r"(\d{4}-\d{2}-\d{2})", TODAY_MD.read_text(encoding="utf-8"))
+        if m:
+            return m.group(1)
+    except OSError:
+        pass
+    return ""
+
+
+TODAY_STR = _today_str()
+
+if ARCHIVE_DIR.exists():
+    for _p in sorted(ARCHIVE_DIR.glob("*.md"), reverse=True):
+        _date = _p.stem
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", _date) or _date == TODAY_STR:
+            continue
+        _slug = f"task-{_date}"
+        _title = f"{_date} 批次记录"
+        ALIAS.setdefault(_slug, (_title, f"{BRAND} · {_title}"))
+        SUB_ALIAS.setdefault(_slug, "当日素材 · 任务 · 时间轴 · 交卷自检")
+        BODY_FIX.setdefault(f"{_date} 任务单", _title)
+        PAGES.append(dict(
+            slug=_slug, group="往期任务", title=_title,
+            sub="当日素材原文 · 四轨任务 · 时间轴 · 交卷前自查",
+            src=str(_p.relative_to(ROOT)).replace("\\", "/"),
+        ))
+
 # 图解课件：整份 HTML 搬运，不转换
 DIAGRAMS = [
     dict(slug="diagram-02", group="核心资料", title="第 2 课图解课件",
@@ -232,7 +265,7 @@ LINK_FIX = {
     "第2课-综合分析-图解.html": "diagram-02.html",
 }
 
-GROUP_ORDER = ["每日", "课程", "练习与批改", "方法与规范", "档案"]
+GROUP_ORDER = ["每日", "课程", "往期任务", "练习与批改", "方法与规范", "档案"]
 
 # 旧分组名 → 首页新分组（PAGES 里不改，只在这里归并）
 GROUP_MAP = {
@@ -253,6 +286,7 @@ SLUG_GROUP = {
 GROUP_BLURB = {
     "每日": "每天只点这里：当前批次的输入材料、任务清单和交卷前自检。",
     "课程": "说明书正文。按顺序读，一次一个阶段；读完立刻去做对应样本。",
+    "往期任务": "每天的任务单都留着：当时的材料、题目、时间表和自查，随时回看，不会被覆盖。",
     "练习与批改": "历史样本全档：原始输出、诊断结论、漏点出处、校正版、逐点解剖。",
     "方法与规范": "卡住时来查：定位方法、输出公式、词表句式、评分档位、复盘流程、时长配置。",
     "档案": "总览、进度、分数、打卡；换设备或写周复盘时看。",
@@ -779,7 +813,8 @@ def build_index(mode: str) -> str:
         if g not in groups or g == "每日":
             continue
         cards = []
-        for p in groups[g]:
+        shown = groups[g][:8] if g == "往期任务" else groups[g]
+        for p in shown:
             thumb = (
                 f'<img class="thumb" src="{p["thumb"]}" alt="课件预览">'
                 if p.get("is_diagram") and p.get("thumb") else ""
