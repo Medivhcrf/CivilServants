@@ -66,6 +66,7 @@ ALIAS = {
     "lesson3":          ("策略调优",   f"{BRAND} · 策略调优"),
     "lesson4":          ("执行校验",   f"{BRAND} · 执行校验"),
     "quote":            ("特征提取",   f"{BRAND} · 特征提取"),
+    "review":           ("偏差复核",   f"{BRAND} · 偏差复核"),
 }
 
 # 正文首行大标题的同名改写（只替换 <h1>…</h1>，不碰正文里的 申论 二字）
@@ -85,6 +86,7 @@ BODY_FIX = {
     "第 3 课 · 提出对策题": "策略调优",
     "第 4 课　贯彻执行题（公文／应用文）": "执行校验",
     "引号、抽象概念、比喻：抄还是不抄": "特征提取",
+    "本次批改": "偏差复核",
 }
 
 
@@ -115,6 +117,7 @@ SUB_ALIAS = {
     "lesson3": "候选策略 · 生成公式 · 七维检索 · 三道校验",
     "lesson4": "执行链路 · 四问定位 · 模板速查 · 长度阈值",
     "quote": "字段标注 · 引用与改写四种处理 · 命中率实测",
+    "review": "最新一次的偏差复核：得分 · 逐点对照 · 出处 · 校正版",
 }
 
 
@@ -135,6 +138,9 @@ PAGES = [
     dict(slug="today", group="每日", title="今日任务",
          sub="今天的四轨任务单 · 材料原文 · 题目 · 交卷前自查",
          src="申论/今日任务.md"),
+    dict(slug="review", group="练习与批改", title="本次批改",
+         sub="最新一次的批改：题目 · 你的作答 · 逐点对照 · 漏点出处 · 升格版",
+         src="申论/本次批改.md"),
     dict(slug="course", group="课程", title="课程总览",
          sub="九课行程 · 每课讲义／图解／练习／结业标准 · 三道关",
          src="申论/课程总览.md"),
@@ -376,8 +382,9 @@ def split_row(line: str) -> list[str]:
     if line.endswith("|"):
         line = line[:-1]
     # 表格里也可能写 ==做法|文字==，先把语义色标记内部的竖线保护起来再切列
-    line = re.sub(r"==(?:重点|背景|意义|问题|做法|结论|释义)\|[^=\n]*==",
-                  lambda m: m.group(0).replace("|", "\x01"), line)
+    # 转义写法 ==做法\|文字== 也要认（表格里写竖线习惯转义）
+    line = re.sub(r"==(?:重点|背景|意义|问题|做法|结论|释义)\\?\|[^=\n]*==",
+                  lambda m: m.group(0).replace("\\", "").replace("|", "\x01"), line)
     return [c.strip().replace("\x01", "|") for c in line.split("|")]
 
 
@@ -807,6 +814,12 @@ def build_index(mode: str) -> str:
     for d in reversed(DIAGRAMS):
         groups.setdefault(group_of(d), []).insert(0, {**d, "is_diagram": True})
 
+    # 「本次批改」永远排在「练习与批改」组最前面
+    if "练习与批改" in groups:
+        _rv = [p for p in groups["练习与批改"] if p.get("slug") == "review"]
+        if _rv:
+            groups["练习与批改"] = _rv + [p for p in groups["练习与批改"] if p.get("slug") != "review"]
+
     sections = []
     for g in GROUP_ORDER:
         # 「每日」由首屏的 now 块承担，不再重复出一组卡片
@@ -856,6 +869,7 @@ def build_index(mode: str) -> str:
       <li><b>回</b>　把输出贴回来，拿到漏点诊断再回写记录（10 分钟）</li>
     </ol>
     <a class="now-btn" href="today{suffix}.html">打开今天的批次 →</a>
+    <a class="now-btn sec" href="review{suffix}.html">看上次批改 →</a>
   </section>"""
 
     # 首页第二屏：按顺序学
@@ -899,6 +913,9 @@ def build_index(mode: str) -> str:
 .now-btn{display:inline-block;padding:11px 22px;border-radius:999px;background:#fff;
   color:#312e81;font-weight:700;font-size:15px;text-decoration:none}
 .now-btn:hover{background:#e8e8ff}
+.now-btn.sec{margin-left:10px;background:transparent;color:#fff;
+  border:1.5px solid rgba(255,255,255,.55);font-weight:600}
+.now-btn.sec:hover{background:rgba(255,255,255,.14)}
 .path{margin:0 0 30px}
 .path h2{font-size:19px;margin:0 0 6px}
 .path-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));
