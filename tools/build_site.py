@@ -989,7 +989,7 @@ def main() -> int:
         if not src.is_file():
             print(f"  ✗ 源文件缺失，跳过：{p['src']}")
             continue
-        md = src.read_text(encoding="utf-8")
+        md = src.read_text(encoding="utf-8").lstrip("\ufeff")   # 防 BOM 顶掉首行标题
         body, toc = md_to_html(md)
         # 伪装层：正文里的大标题（<h1 id="...">…</h1>）与侧栏目录同步改名
         for _old, _new in BODY_FIX.items():

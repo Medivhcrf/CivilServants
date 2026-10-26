@@ -6,7 +6,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $today = Join-Path $root '申论\今日任务.md'
 if (-not (Test-Path $today)) { throw "找不到 $today" }
 
-$raw = Get-Content -Raw -Encoding UTF8 $today
+$raw = (Get-Content -Raw -Encoding UTF8 $today).TrimStart([char]0xFEFF)
 if ($raw -notmatch '(\d{4}-\d{2}-\d{2})') { throw '今日任务.md 里找不到日期（yyyy-MM-dd）' }
 $date = $Matches[1]
 
