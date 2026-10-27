@@ -62,16 +62,17 @@ if (-not $Python) {
     throw '找不到可用的 python。请安装 Python 3，或用 -Python 指定解释器路径。'
 }
 
-Write-Host "▸ 0/4 生成打印版任务单（$Python）"
-& $Python (Join-Path $root 'tools\make_handout.py')
-if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续构建站点（docx 可手动打印）' }
-
 Write-Host "▸ 1/4 构建站点（$Python）"
 & $Python (Join-Path $root 'tools\build_site.py')
 if ($LASTEXITCODE -ne 0) { throw 'build_site.py 执行失败' }
 
+# build_site.py 会删掉整个 docs/，所以打印版必须在构建之后生成
+Write-Host "▸ 2/4 生成打印版任务单（$Python）"
+& $Python (Join-Path $root 'tools\make_handout.py')
+if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续发布（docx 可手动打印）' }
+
 Write-Host ''
-Write-Host '▸ 2/4 提交并推送 main'
+Write-Host '▸ 3/4 提交并推送 main'
 Invoke-Git add -A | Out-Null
 $staged = @(Invoke-Git diff --cached --name-only).Text
 if (-not $staged.Trim()) {
@@ -87,7 +88,7 @@ if ($r.Code -ne 0) { throw "git push main 失败：$($r.Text)" }
 Write-Host '  main 已推送'
 
 Write-Host ''
-Write-Host '▸ 3/4 同步到 gh-pages'
+Write-Host '▸ 4/4 同步到 gh-pages'
 $r = Invoke-Git fetch --depth 1 origin gh-pages
 if ($r.Code -ne 0) { throw "拉取 gh-pages 失败：$($r.Text)" }
 
@@ -120,4 +121,5 @@ Write-Host ''
 Write-Host '完成。' -ForegroundColor Green
 Write-Host '  仓库：https://github.com/Medivhcrf/CivilServants'
 Write-Host '  站点：https://medivhcrf.github.io/CivilServants/（Pages 构建需 1–2 分钟）'
+
 
