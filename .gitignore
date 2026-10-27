@@ -15,3 +15,7 @@ venv/
 # ä¸´æ—¶äº§ç‰©
 /tmp/
 *.tmp
+
+# ÁÙÊ±äÖÈ¾Ä¿Â¼£¨LibreOffice Kit Ô¤ÀÀ£©
+.dsh-office-*/
+
