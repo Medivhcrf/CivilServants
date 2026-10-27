@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """把 申论/今日任务.md 变成可以打印的 A4 练习纸（docx），再用 LibreOffice Kit 转 PDF。
 
@@ -403,7 +403,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     ARCHIVE.mkdir(parents=True, exist_ok=True)
 
-    name = f"{data['date']}-任务单"
+    name = f"{data['date']}-task"
     docx = out / f"{name}.docx"
     build(data, docx)
     print(f"docx → {docx}")
@@ -424,6 +424,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 
 
