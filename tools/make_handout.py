@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """把 申论/今日任务.md 变成可以打印的 A4 练习纸（docx），再用 LibreOffice Kit 转 PDF。
 
@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -95,6 +96,8 @@ def parse(src: Path) -> dict:
         if start is not None:
             for r in rows[start + 1:]:
                 if not r or not r[0] or r[0].startswith("轨道"):
+                    break
+                if not re.match(r"^\d{1,2}\s*[:：]\s*\d{2}", r[0]):
                     break
                 sched.append(r)
     # 题目：## T2 后的第一条引用块 **题目**：
@@ -247,7 +250,7 @@ def fill_table(table, header, rows, widths, *, size=10.5, header_size=10.5):
             cell_width(c, widths[j])
 
 
-def build(data: dict, dst: Path) -> None:
+def build(data: dict, dst: Path, sample: dict | None = None) -> None:
     doc = Document()
     set_style(doc)
     sec = doc.sections[0]
@@ -267,7 +270,10 @@ def build(data: dict, dst: Path) -> None:
     hr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
 
     para(doc, f"Day {data['day']}　{data['date']}{data['week']}", size=16, bold=True, space_after=2)
-    para(doc, "照时间表推进；来不及时先砍 T1／T4，T2 不许砍。", size=9.5, color=(0x66, 0x66, 0x66))
+    if sample:
+        para(doc, sample.get("note", ""), size=9, bold=True, color=(0xB0, 0x30, 0x30))
+    else:
+        para(doc, "照时间表推进；来不及时先砍 T1／T4，T2 不许砍。", size=9.5, color=(0x66, 0x66, 0x66))
 
     # 时间表（压成一行行短句，省纸）
     if data["sched"]:
@@ -303,6 +309,18 @@ def build(data: dict, dst: Path) -> None:
         r2.font.name = FONT
         r2._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
         right.text = ""
+        if sample:
+            marks = (sample.get("marks") or {}).get(label) or []
+            rp = right.paragraphs[0]
+            rp.paragraph_format.space_after = Pt(0)
+            rp.paragraph_format.line_spacing = 1.1
+            for k, line in enumerate(marks):
+                if k:
+                    rp.add_run("\n")
+                rr = rp.add_run(line)
+                rr.font.size = Pt(7.5)
+                rr.font.name = FONT
+                rr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
         # 一段材料不许被分页切开
         for row in t.rows:
             trPr = row._tr.get_or_add_trPr()
@@ -318,7 +336,10 @@ def build(data: dict, dst: Path) -> None:
     if data["t1_req"]:
         for i, req in enumerate(data["t1_req"][:4], 1):
             para(doc, f"{i}. {req}", size=9, space_after=1)
-    rows = [[str(i), "", ""] for i in range(1, 17)]
+    if sample and sample.get("t1"):
+        rows = [[str(a), str(b), str(c)] for a, b, c in sample["t1"]]
+    else:
+        rows = [[str(i), "", ""] for i in range(1, 17)]
     t = doc.add_table(rows=1, cols=3)
     fill_table(t, ["句号", "我勾到的句子（原词，别改写）", "类标"], rows, [1.6, 13.4, 2.4], size=9)
 
@@ -330,7 +351,13 @@ def build(data: dict, dst: Path) -> None:
 
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
     para(doc, "动笔前先填这三行：", size=9.5, space_after=1)
-    for label in ("表态：", "我主张：", "论证顺序：一、　　　二、　　　三、"):
+    t2 = (sample or {}).get("t2") or {}
+    labels = [
+        ("表态：", t2.get("stance", "")),
+        ("我主张：", t2.get("claim", "")),
+        ("论证顺序：" if t2.get("order") else "论证顺序：一、　　　二、　　　三、", t2.get("order", "")),
+    ]
+    for label, val in labels:
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         p.paragraph_format.line_spacing = 1.5
@@ -339,33 +366,84 @@ def build(data: dict, dst: Path) -> None:
         r.bold = True
         r.font.name = FONT
         r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+        if val:
+            rv = p.add_run(val)
+            rv.font.size = Pt(10)
+            rv.font.name = FONT
+            rv._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
     para(doc, "　", size=6, space_after=2)
-    para(doc, "答案（目标 270–300 字）：", size=9.5, space_after=2)
-    ruled(doc, 14)
+    if t2.get("answer"):
+        para(doc, "答案（答题卡上就这样写成一段，270–300 字）：", size=9.5, bold=True, space_after=3)
+        box(doc, t2["answer"], size=10.5)
+        para(doc, "　", size=6, space_after=2)
+        para(doc, "自己练的时候写在这下面（样例只留 3 行提示位置）：", size=8.5, color=(0x66, 0x66, 0x66))
+        ruled(doc, 3)
+    else:
+        para(doc, "答案（目标 270–300 字）：", size=9.5, space_after=2)
+        ruled(doc, 14)
 
     # T3
     heading(doc, "四、T3 作文零件（25 分钟）")
     if data["t3"]:
         for i, it in enumerate(data["t3"], 1):
             para(doc, f"{i}. {it}", size=9, space_after=1)
+    t3 = (sample or {}).get("t3") or {}
     para(doc, "立意一句（≤30 字）：", size=9.5, bold=True, space_after=2)
-    ruled(doc, 2)
+    if t3.get("idea"):
+        box(doc, t3["idea"], size=10.5)
+    else:
+        ruled(doc, 2)
     para(doc, "三个标题（一实／一虚／一稳）：", size=9.5, bold=True, space_after=2)
-    ruled(doc, 3)
+    if t3.get("titles"):
+        box(doc, "\n".join(t3["titles"]), size=10.5)
+    else:
+        ruled(doc, 3)
     para(doc, "开头段（150 字，不许超）：", size=9.5, bold=True, space_after=2)
-    ruled(doc, 7)
+    if t3.get("para"):
+        box(doc, t3["para"], size=10.5)
+    else:
+        ruled(doc, 7)
 
     # T4
     heading(doc, "五、T4 素材（15 分钟，5 句 + 1 条政策，标 [YYYY-MM]）")
     if data["t4"]:
         for i, it in enumerate(data["t4"], 1):
             para(doc, f"{i}. {it}", size=9, space_after=1)
-    ruled(doc, 4)
+    if sample and sample.get("t4"):
+        box(doc, "\n".join(f"{i}. {x}" for i, x in enumerate(sample["t4"], 1)), size=10)
+    else:
+        ruled(doc, 4)
 
     para(doc, "交作业：T1 勾画稿、T2 表态行 + 300 字、T3 三样零件（拍照发对话即可）。",
          size=8.5, color=(0x66, 0x66, 0x66), space_before=6)
 
     doc.save(dst)
+
+
+
+def box(doc, text: str, *, size: float = 10.5) -> None:
+    """带边框的答题区（样例文字写在这里）。"""
+    t = doc.add_table(rows=1, cols=1)
+    t.style = "Table Grid"
+    t.autofit = False
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    c = t.rows[0].cells[0]
+    cell_width(c, 17.4)
+    trPr = t.rows[0]._tr.get_or_add_trPr()
+    trPr.append(OxmlElement('w:cantSplit'))
+    c.text = ""
+    lines = text.split("\n")
+    first = True
+    for line in lines:
+        p = c.paragraphs[0] if first else c.add_paragraph()
+        first = False
+        p.paragraph_format.space_after = Pt(0)
+        p.paragraph_format.line_spacing = 1.4
+        r = p.add_run(line)
+        r.font.size = Pt(size)
+        r.font.name = FONT
+        r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+    para(doc, "", size=3, space_after=0)
 
 
 def to_pdf(docx: Path, pdf: Path) -> bool:
@@ -395,6 +473,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=str(SRC))
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--sample", default="", help="样例答案 JSON 路径（留空=空白练习纸）")
     args = ap.parse_args()
 
     src = Path(args.src)
@@ -403,19 +482,24 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     ARCHIVE.mkdir(parents=True, exist_ok=True)
 
-    name = f"{data['date']}-task"
+    sample = None
+    if args.sample:
+        raw = Path(args.sample).read_text(encoding="utf-8-sig")
+        sample = json.loads(raw)
+    name = f"{data['date']}-task" + ("-sample" if sample else "")
     docx = out / f"{name}.docx"
-    build(data, docx)
+    build(data, docx, sample)
     print(f"docx → {docx}")
 
     pdf = out / f"{name}.pdf"
     if to_pdf(docx, pdf):
         print(f"pdf  → {pdf}")
-        shutil.copy2(pdf, ARCHIVE / f"{data['date']}-打印版.pdf")
-        print(f"归档 → {ARCHIVE / (data['date'] + '-打印版.pdf')}")
-        # 固定文件名，站点上一个永远指向"今天"的打印入口
-        shutil.copy2(pdf, out / "today.pdf")
-        print(f"最新 → {out / 'today.pdf'}")
+        if not sample:
+            shutil.copy2(pdf, ARCHIVE / f"{data['date']}-打印版.pdf")
+            print(f"归档 → {ARCHIVE / (data['date'] + '-打印版.pdf')}")
+            # 固定文件名，站点上一个永远指向"今天"的打印入口
+            shutil.copy2(pdf, out / "today.pdf")
+            print(f"最新 → {out / 'today.pdf'}")
     else:
         print("pdf 转换失败（docx 已保存，可用 Word 打开打印）", file=sys.stderr)
         return 1

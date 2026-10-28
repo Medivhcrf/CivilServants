@@ -72,6 +72,11 @@ Write-Host "▸ 2/4 生成打印版任务单（$Python）"
 if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续发布（docx 可手动打印）' }
 & $Python (Join-Path $root 'tools\make_review_docx.py')
 if ($LASTEXITCODE -ne 0) { Write-Host '  批改讲义生成失败，继续发布' }
+$sampleJson = Join-Path $root 'tools\handout-sample.json'
+if (Test-Path $sampleJson) {
+    & $Python (Join-Path $root 'tools\make_handout.py') --sample $sampleJson
+    if ($LASTEXITCODE -ne 0) { Write-Host '  样例答卷生成失败，继续发布' }
+}
 
 Write-Host ''
 Write-Host '▸ 3/4 提交并推送 main'
