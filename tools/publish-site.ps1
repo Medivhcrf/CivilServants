@@ -70,6 +70,8 @@ if ($LASTEXITCODE -ne 0) { throw 'build_site.py 执行失败' }
 Write-Host "▸ 2/4 生成打印版任务单（$Python）"
 & $Python (Join-Path $root 'tools\make_handout.py')
 if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续发布（docx 可手动打印）' }
+& $Python (Join-Path $root 'tools\make_review_docx.py')
+if ($LASTEXITCODE -ne 0) { Write-Host '  批改讲义生成失败，继续发布' }
 
 Write-Host ''
 Write-Host '▸ 3/4 提交并推送 main'
