@@ -156,28 +156,8 @@ def table_widths(rows: list[list[str]], total: float = 17.6) -> list[float]:
     return [head] + [rest] * (n - 1)
 
 
-def build(data: dict, dst: Path) -> None:
-    doc = Document()
-    set_style(doc)
-    sec = doc.sections[0]
-    sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
-    sec.top_margin = Cm(1.6)
-    sec.bottom_margin = Cm(1.5)
-    sec.left_margin = Cm(1.7)
-    sec.right_margin = Cm(1.5)
-
-    hp = sec.header.paragraphs[0]
-    hp.text = ""
-    hr = hp.add_run(f"申论 · 批改讲义 · {data['title']}")
-    hr.font.size = Pt(8.5)
-    hr.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
-    hr.font.name = FONT
-    hr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-
-    para(doc, data["title"], size=16, bold=True, space_after=2)
-    para(doc, "考场版解析：题目 · 你的作答 · 得分 · 逐条对照 · 漏点 · 升格版 · 三步法", size=9, color=(0x66, 0x66, 0x66))
-
-    for b in data["block"]:
+def emit_blocks(doc, blocks) -> None:
+    for b in blocks:
         t = b["t"]
         if t == "hr":
             continue
@@ -229,6 +209,31 @@ def build(data: dict, dst: Path) -> None:
             p.paragraph_format.space_after = Pt(3)
             p.paragraph_format.line_spacing = 1.32
             add_rich(p, b["text"], size=10.5)
+
+
+
+def build(data: dict, dst: Path) -> None:
+    doc = Document()
+    set_style(doc)
+    sec = doc.sections[0]
+    sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
+    sec.top_margin = Cm(1.6)
+    sec.bottom_margin = Cm(1.5)
+    sec.left_margin = Cm(1.7)
+    sec.right_margin = Cm(1.5)
+
+    hp = sec.header.paragraphs[0]
+    hp.text = ""
+    hr = hp.add_run(f"申论 · 批改讲义 · {data['title']}")
+    hr.font.size = Pt(8.5)
+    hr.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
+    hr.font.name = FONT
+    hr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+
+    para(doc, data["title"], size=16, bold=True, space_after=2)
+    para(doc, "考场版解析：题目 · 你的作答 · 得分 · 逐条对照 · 漏点 · 升格版 · 三步法", size=9, color=(0x66, 0x66, 0x66))
+
+    emit_blocks(doc, data["block"])
 
     doc.save(str(dst))
 

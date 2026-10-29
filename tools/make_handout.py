@@ -250,7 +250,7 @@ def fill_table(table, header, rows, widths, *, size=10.5, header_size=10.5):
             cell_width(c, widths[j])
 
 
-def build(data: dict, dst: Path, sample: dict | None = None) -> None:
+def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None = None, break_t1: bool = False) -> None:
     doc = Document()
     set_style(doc)
     sec = doc.sections[0]
@@ -332,6 +332,8 @@ def build(data: dict, dst: Path, sample: dict | None = None) -> None:
         doc.paragraphs[-1].add_run(" ").font.size = Pt(4)
 
     # T1
+    if break_t1:
+        doc.add_page_break()
     heading(doc, "二、T1 勾画稿（一句一勾，标类：背 意 问 做 观 结）")
     if data["t1_req"]:
         for i, req in enumerate(data["t1_req"][:4], 1):
@@ -414,8 +416,15 @@ def build(data: dict, dst: Path, sample: dict | None = None) -> None:
     else:
         ruled(doc, 4)
 
-    para(doc, "交作业：T1 勾画稿、T2 表态行 + 300 字、T3 三样零件（拍照发对话即可）。",
-         size=8.5, color=(0x66, 0x66, 0x66), space_before=6)
+    if not extra:
+        para(doc, "交作业：T1 勾画稿、T2 表态行 + 300 字、T3 三样零件（拍照发对话即可）。",
+             size=8.5, color=(0x66, 0x66, 0x66), space_before=6)
+
+    if extra and Path(extra).exists():
+        doc.add_page_break()
+        import make_review_docx  # 延迟导入，避免循环
+        blocks = make_review_docx.parse(Path(extra))["block"]
+        make_review_docx.emit_blocks(doc, blocks)
 
     doc.save(dst)
 
@@ -443,7 +452,7 @@ def box(doc, text: str, *, size: float = 10.5) -> None:
         r.font.size = Pt(size)
         r.font.name = FONT
         r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-    para(doc, "", size=3, space_after=0)
+    c.paragraphs[-1].paragraph_format.space_after = Pt(6)
 
 
 def to_pdf(docx: Path, pdf: Path) -> bool:
@@ -474,6 +483,9 @@ def main() -> int:
     ap.add_argument("--src", default=str(SRC))
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--sample", default="", help="样例答案 JSON 路径（留空=空白练习纸）")
+    ap.add_argument("--extra", default="", help="解析 markdown 路径（附在最后，另起一页）")
+    ap.add_argument("--name", default="", help="输出文件名（不含扩展名）")
+    ap.add_argument("--break-t1", action="store_true", help="材料较短时，T1 前强制分页")
     args = ap.parse_args()
 
     src = Path(args.src)
@@ -486,9 +498,10 @@ def main() -> int:
     if args.sample:
         raw = Path(args.sample).read_text(encoding="utf-8-sig")
         sample = json.loads(raw)
-    name = f"{data['date']}-task" + ("-sample" if sample else "")
+    extra = Path(args.extra) if args.extra else None
+    name = args.name or (f"{data['date']}-task" + ("-sample" if sample else ""))
     docx = out / f"{name}.docx"
-    build(data, docx, sample)
+    build(data, docx, sample, extra, args.break_t1)
     print(f"docx → {docx}")
 
     pdf = out / f"{name}.pdf"
