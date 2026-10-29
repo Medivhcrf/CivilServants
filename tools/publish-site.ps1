@@ -74,6 +74,8 @@ if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续发布（
 if ($LASTEXITCODE -ne 0) { Write-Host '  批改讲义生成失败，继续发布' }
 & $Python (Join-Path $root 'tools\make_packs.py')
 if ($LASTEXITCODE -ne 0) { Write-Host '  复习包生成失败，继续发布' }
+& $Python (Join-Path $root 'tools\make_review_book.py') 2>$null
+
 
 $sampleJson = Join-Path $root 'tools\handout-sample.json'
 if (Test-Path $sampleJson) {

@@ -250,7 +250,8 @@ def fill_table(table, header, rows, widths, *, size=10.5, header_size=10.5):
             cell_width(c, widths[j])
 
 
-def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None = None, break_t1: bool = False) -> None:
+def new_doc(header_text: str = "") -> Document:
+    """建一个 A4 文档，设好样式、页边距和页眉。"""
     doc = Document()
     set_style(doc)
     sec = doc.sections[0]
@@ -259,16 +260,26 @@ def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None 
     sec.bottom_margin = Cm(1.6)
     sec.left_margin = Cm(1.8)
     sec.right_margin = Cm(1.6)
+    if header_text:
+        hp = sec.header.paragraphs[0]
+        hp.text = ""
+        hr = hp.add_run(header_text)
+        hr.font.size = Pt(8.5)
+        hr.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
+        hr.font.name = FONT
+        hr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+    return doc
 
-    # 页眉
-    hp = sec.header.paragraphs[0]
-    hp.text = ""
-    hr = hp.add_run(f"申论 · Day {data['day']} · {data['date']}{data['week']} · 打印练习纸　　姓名／日期：__________")
-    hr.font.size = Pt(8.5)
-    hr.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
-    hr.font.name = FONT
-    hr._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
 
+def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None = None, break_t1: bool = False) -> None:
+    header = f"申论 · Day {data['day']} · {data['date']}{data['week']} · 打印练习纸　　姓名／日期：__________"
+    doc = new_doc(header)
+    render_into(doc, data, sample, extra, break_t1)
+    doc.save(str(dst))
+
+
+def render_into(doc: Document, data: dict, sample: dict | None = None,
+                extra: Path | None = None, break_t1: bool = False) -> None:
     para(doc, f"Day {data['day']}　{data['date']}{data['week']}", size=16, bold=True, space_after=2)
     if sample:
         para(doc, sample.get("note", ""), size=9, bold=True, color=(0xB0, 0x30, 0x30))
@@ -425,8 +436,6 @@ def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None 
         import make_review_docx  # 延迟导入，避免循环
         blocks = make_review_docx.parse(Path(extra))["block"]
         make_review_docx.emit_blocks(doc, blocks)
-
-    doc.save(dst)
 
 
 
