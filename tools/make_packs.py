@@ -36,7 +36,7 @@ def main() -> int:
     built = []
 
     # 今天
-    sample = TOOLS / "handout-sample.json"
+    sample = TOOLS / f"sample-{today}.json"
     extra = ROOT / "申论" / "本次批改.md"
     if sample.exists() and extra.exists() and today:
         args = ["--sample", str(sample), "--extra", str(extra),

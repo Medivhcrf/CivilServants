@@ -77,7 +77,8 @@ if ($LASTEXITCODE -ne 0) { Write-Host '  复习包生成失败，继续发布' }
 & $Python (Join-Path $root 'tools\make_review_book.py') 2>$null
 
 
-$sampleJson = Join-Path $root 'tools\handout-sample.json'
+$today = (Select-String -Path (Join-Path $root '申论\今日任务.md') -Pattern '\d{4}-\d{2}-\d{2}' | Select-Object -First 1).Matches[0].Value
+$sampleJson = Join-Path $root ('tools\sample-' + $today + '.json')
 if (Test-Path $sampleJson) {
     & $Python (Join-Path $root 'tools\make_handout.py') --sample $sampleJson
     if ($LASTEXITCODE -ne 0) { Write-Host '  样例答卷生成失败，继续发布' }
