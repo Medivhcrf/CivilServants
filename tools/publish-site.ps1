@@ -67,8 +67,13 @@ Write-Host "▸ 1/4 构建站点（$Python）"
 if ($LASTEXITCODE -ne 0) { throw 'build_site.py 执行失败' }
 
 # build_site.py 会删掉整个 docs/，所以打印版必须在构建之后生成
-Write-Host "▸ 2/4 生成打印版任务单（$Python）"
-& $Python (Join-Path $root 'tools\make_handout.py')
+Write-Host "▸ 2/4 生成打印版（$Python）"
+$sheet = Get-Content (Join-Path $root '申论\今日任务.md') -Raw -Encoding utf8
+if ($sheet -match '第二部分：题目') {
+    & $Python (Join-Path $root 'tools\make_paper.py')
+} else {
+    & $Python (Join-Path $root 'tools\make_handout.py')
+}
 if ($LASTEXITCODE -ne 0) { Write-Host '  打印版生成失败，继续发布（docx 可手动打印）' }
 & $Python (Join-Path $root 'tools\make_review_docx.py')
 if ($LASTEXITCODE -ne 0) { Write-Host '  批改讲义生成失败，继续发布' }
