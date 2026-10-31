@@ -164,6 +164,7 @@ def main() -> int:
         print("没解析到题目（需要 ### 第 N 题（…） 与 > **题目 N**：…）", file=sys.stderr)
         return 1
     name = args.name or f"{data['date']}-paper"
+    OUT.mkdir(parents=True, exist_ok=True)
     dst = OUT / f"{name}.docx"
     build(data, dst)
     import shutil
