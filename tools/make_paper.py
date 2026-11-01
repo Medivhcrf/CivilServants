@@ -86,12 +86,12 @@ def answer_lines(meta: str) -> int:
     return max(8, min(22, math.ceil(n / 26)))
 
 
-def build(data: dict, dst: Path) -> None:
-    header = f"申论 · Day {data['day']} · {data['date']}{data['week']} · 整卷摸底　　姓名／日期：__________"
+def build(data: dict, dst: Path, label: str = "整卷摸底") -> None:
+    header = f"申论 · Day {data['day']} · {data['date']}{data['week']} · {label}　　姓名／日期：__________"
     doc = H.new_doc(header)
 
-    H.para(doc, f"Day {data['day']}　{data['date']}{data['week']}　整卷摸底", size=16, bold=True, space_after=2)
-    H.para(doc, "不计时，但设硬截止；做不完就写“没做完”——没做完的位置就是摸底结果。",
+    H.para(doc, f"Day {data['day']}　{data['date']}{data['week']}　{label}", size=16, bold=True, space_after=2)
+    H.para(doc, ("不计时，但设硬截止；做不完就写“没做完”——没做完的位置就是摸底结果。" if label == "整卷摸底" else "同一套材料重做三题：右栏空着不许动笔，每题只盯一个动作。"),
            size=9, bold=True, color=(0xB0, 0x30, 0x30))
 
     if data["sched"]:
@@ -158,6 +158,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=str(ROOT / "申论" / "今日任务.md"))
     ap.add_argument("--name", default="")
+    ap.add_argument("--label", default="整卷摸底")
     args = ap.parse_args()
     data = parse_paper(Path(args.src))
     if not data["questions"]:
@@ -166,7 +167,7 @@ def main() -> int:
     name = args.name or f"{data['date']}-paper"
     OUT.mkdir(parents=True, exist_ok=True)
     dst = OUT / f"{name}.docx"
-    build(data, dst)
+    build(data, dst, args.label)
     import shutil
     shutil.copyfile(dst.with_suffix(".pdf"), OUT / "today.pdf")
     print(f"today.pdf ← {dst.with_suffix('.pdf').name}")
