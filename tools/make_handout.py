@@ -52,13 +52,21 @@ def clean(s: str) -> str:
     return s.strip()
 
 
+def _heading_hit(ln: str, kw: str) -> bool:
+    """标题行是否命中关键词：既认 '## T1'，也认 '## 二、T1 勾画稿'。"""
+    s = ln.strip()
+    if not s.startswith("## "):
+        return False
+    return kw.replace("## ", "").strip() in s
+
+
 def grab_section(lines: list[str], start_kw: str, stop_kw: list[str]) -> list[str]:
     out, on = [], False
     for ln in lines:
-        if not on and ln.strip().startswith(start_kw):
+        if not on and _heading_hit(ln, start_kw):
             on = True
             continue
-        if on and any(ln.strip().startswith(k) for k in stop_kw):
+        if on and any(_heading_hit(ln, k) for k in stop_kw):
             break
         if on:
             out.append(ln)
@@ -75,7 +83,7 @@ def parse(src: Path) -> dict:
 
     # 材料：**材料一** 换行 正文
     mats = []
-    for m in re.finditer(r"\*\*材料([一二三四五六七八九十]+)\*\*\s*\n+(.*?)(?=\n\s*\*\*材料|\n---|\n## )",
+    for m in re.finditer(r"\*\*材料([一二三四五六七八九十]+)\*\*[ \t]*\n?(.*?)(?=\n\s*\*\*材料|\n---|\n## )",
                          text, re.S):
         body = clean(" ".join(x.strip() for x in m.group(2).splitlines() if x.strip()))
         if body:
@@ -100,17 +108,20 @@ def parse(src: Path) -> dict:
                 if not re.match(r"^\d{1,2}\s*[:：]\s*\d{2}", r[0]):
                     break
                 sched.append(r)
-    # 题目：## T2 后的第一条引用块 **题目**：
+    # 题目：T2 段里的每一条引用块 **题目**：（支持两道小题）
     t2 = grab_section(lines, "## T2", ["## 交卷前自查", "## T3"])
-    question = ""
+    questions = []
     for ln in t2:
-        m = re.match(r">\s*\*\*题目\*\*[:：]\s*(.+)$", clean(ln) if not ln.startswith(">") else ln.lstrip("> ").replace("**题目**", "**题目**"))
+        if not ln.strip().startswith(">"):
+            continue
+        m = re.search(r"\*\*题目\*\*[:：]\s*(.+)$", ln)
         if m:
-            question = clean(m.group(1))
-            break
+            questions.append(clean(m.group(1)))
+    question = questions[0] if questions else ""
     if not question:
         m = re.search(r"\*\*题目\*\*[:：]\s*(.+?)(?:\n|$)", text)
         question = clean(m.group(1)) if m else ""
+        questions = [question] if question else []
 
     t1 = grab_section(lines, "## T1", ["## T2"])
     t3 = grab_section(lines, "## T3", ["## T4"])
@@ -131,6 +142,7 @@ def parse(src: Path) -> dict:
         "mats": mats,
         "sched": sched,
         "question": question,
+        "questions": questions,
         "t1_req": bullets(t1),
         "t3": bullets(t3),
         "t4": bullets(t4),
@@ -358,42 +370,56 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
 
     # T2
     doc.add_page_break()
-    heading(doc, "三、T2 作答（限时 25 分钟，300 字，20 分）")
-    if data["question"]:
-        para(doc, "题目：" + data["question"], size=10, bold=True, space_after=4)
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(0)
-    para(doc, "动笔前先填这三行：", size=9.5, space_after=1)
-    t2 = (sample or {}).get("t2") or {}
-    labels = [
-        ("表态：", t2.get("stance", "")),
-        ("我主张：", t2.get("claim", "")),
-        ("论证顺序：" if t2.get("order") else "论证顺序：一、　　　二、　　　三、", t2.get("order", "")),
-    ]
-    for label, val in labels:
-        p = doc.add_paragraph()
-        p.paragraph_format.space_after = Pt(2)
-        p.paragraph_format.line_spacing = 1.5
-        r = p.add_run(label)
-        r.font.size = Pt(10)
-        r.bold = True
-        r.font.name = FONT
-        r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-        if val:
-            rv = p.add_run(val)
-            rv.font.size = Pt(10)
-            rv.font.name = FONT
-            rv._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-    para(doc, "　", size=6, space_after=2)
-    if t2.get("answer"):
-        para(doc, "答案（答题卡上就这样写成一段，270–300 字）：", size=9.5, bold=True, space_after=3)
-        box(doc, t2["answer"], size=10.5)
-        para(doc, "　", size=6, space_after=2)
-        para(doc, "自己练的时候写在这下面（样例只留 3 行提示位置）：", size=8.5, color=(0x66, 0x66, 0x66))
-        ruled(doc, 3)
+    qs = data.get("questions") or ([data["question"]] if data.get("question") else [])
+    if len(qs) > 1:
+        for qi, q in enumerate(qs, 1):
+            if qi > 1:
+                doc.add_page_break()
+            heading(doc, f"三、T2 第 {qi} 题")
+            para(doc, "题目：" + q, size=10, bold=True, space_after=6)
+            m = re.search(r"(\d{2,4})\s*字", q)
+            lines_n = (int(m.group(1)) // 26 + 3) if m else 13
+            para(doc, f"答案（{m.group(1) + ' 字以内' if m else '按题目字数'}）：", size=9.5, space_after=2)
+            ruled(doc, lines_n)
+            para(doc, "　", size=6, space_after=2)
     else:
-        para(doc, "答案（目标 270–300 字）：", size=9.5, space_after=2)
-        ruled(doc, 14)
+        heading(doc, "三、T2 作答（限时 25 分钟，300 字，20 分）")
+        if data["question"]:
+            para(doc, "题目：" + data["question"], size=10, bold=True, space_after=4)
+
+    if len(qs) <= 1:
+        doc.add_paragraph().paragraph_format.space_after = Pt(0)
+        para(doc, "动笔前先填这三行：", size=9.5, space_after=1)
+        t2 = (sample or {}).get("t2") or {}
+        labels = [
+            ("表态：", t2.get("stance", "")),
+            ("我主张：", t2.get("claim", "")),
+            ("论证顺序：" if t2.get("order") else "论证顺序：一、　　　二、　　　三、", t2.get("order", "")),
+        ]
+        for label, val in labels:
+            p = doc.add_paragraph()
+            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.line_spacing = 1.5
+            r = p.add_run(label)
+            r.font.size = Pt(10)
+            r.bold = True
+            r.font.name = FONT
+            r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+            if val:
+                rv = p.add_run(val)
+                rv.font.size = Pt(10)
+                rv.font.name = FONT
+                rv._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+        para(doc, "　", size=6, space_after=2)
+        if t2.get("answer"):
+            para(doc, "答案（答题卡上就这样写成一段，270–300 字）：", size=9.5, bold=True, space_after=3)
+            box(doc, t2["answer"], size=10.5)
+            para(doc, "　", size=6, space_after=2)
+            para(doc, "自己练的时候写在这下面（样例只留 3 行提示位置）：", size=8.5, color=(0x66, 0x66, 0x66))
+            ruled(doc, 3)
+        else:
+            para(doc, "答案（目标 270–300 字）：", size=9.5, space_after=2)
+            ruled(doc, 14)
 
     # T3
     heading(doc, "四、T3 作文零件（25 分钟）")
