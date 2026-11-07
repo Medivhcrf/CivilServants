@@ -28,7 +28,7 @@ def parse_paper(src: Path) -> dict:
     week = re.search(r"（(周[一二三四五六日])）", text[:600])
 
     mats = []
-    for m in re.finditer(r"\*\*材料([一二三四五六七八九十]+)\*\*\s*\n+(.*?)(?=\n\s*\*\*材料|\n---|\n## )",
+    for m in re.finditer(r"\*\*材料([一二三四五六七八九十]+)\*\*[ \t]*\n?(.*?)(?=\n\s*\*\*材料|\n---|\n## )",
                          text, re.S):
         body = H.clean(" ".join(x.strip() for x in m.group(2).splitlines() if x.strip()))
         if body:
@@ -91,7 +91,11 @@ def build(data: dict, dst: Path, label: str = "整卷摸底") -> None:
     doc = H.new_doc(header)
 
     H.para(doc, f"Day {data['day']}　{data['date']}{data['week']}　{label}", size=16, bold=True, space_after=2)
-    H.para(doc, ("不计时，但设硬截止；做不完就写“没做完”——没做完的位置就是摸底结果。" if label == "整卷摸底" else "同一套材料重做三题：右栏空着不许动笔，每题只盯一个动作。"),
+    _note = {
+        "整卷摸底": "不计时，但设硬截止；做不完就写“没做完”——没做完的位置就是摸底结果。",
+        "回炉卷": "同一套材料重做三题：右栏空着不许动笔，每题只盯一个动作。",
+    }.get(label, "150 分钟一到就停笔；右栏空着不许动笔，没写完的地方写“没写完”。")
+    H.para(doc, _note,
            size=9, bold=True, color=(0xB0, 0x30, 0x30))
 
     if data["sched"]:

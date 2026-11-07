@@ -69,7 +69,7 @@ if ($LASTEXITCODE -ne 0) { throw 'build_site.py 执行失败' }
 # build_site.py 会删掉整个 docs/，所以打印版必须在构建之后生成
 Write-Host "▸ 2/4 生成打印版（$Python）"
 $sheet = Get-Content (Join-Path $root '申论\今日任务.md') -Raw -Encoding utf8
-if ($sheet -match '第二部分：题目') {
+if ($sheet -match '第二部分：题目|## 二、题目') {
     & $Python (Join-Path $root 'tools\make_paper.py')
 } else {
     & $Python (Join-Path $root 'tools\make_handout.py')
