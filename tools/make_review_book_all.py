@@ -23,6 +23,8 @@ KITS = [
     ("review-2026-11-02.md", "练习 14 · 回炉卷 · 29 / 80", "B 县老城更新：同材料重做三题"),
     ("review-2026-11-03.md", "练习 15 · 强化期混合练 · 22 / 35", "Q 县「村 BA」：概括＋解释型分析"),
     ("review-2026-11-05.md", "练习 16 · 回炉第二遍 · 31 / 35", "Q 县「村 BA」：概括第二遍＋解释型换问法"),
+    ("review-2026-11-06.md", "参考答案 · Day 10 对策题 · 372 字", "D 县脐橙电商：打通农产品上行的最后一公里"),
+    ("review-2026-11-07.md", "参考答案 · Day 11 限时整卷（四题）", "新就业形态：算法、保障、责任、话语权"),
 ]
 
 
@@ -43,14 +45,14 @@ def main() -> int:
 
     hp = sec.header.paragraphs[0]
     hp.text = ""
-    hr = hp.add_run("申论 · 批改合集 · 练习 9–15（2026-10-26 至 2026-11-03）")
+    hr = hp.add_run("申论 · 批改合集 · 练习 9–16 ＋ 两份参考答案（2026-10-26 至 2026-11-07）")
     hr.font.size = R.Pt(8.5)
     hr.font.name = R.FONT
     hr._element.rPr.rFonts.set(R.qn("w:eastAsia"), R.FONT)
 
     # 封面
     R.para(doc, "申论批改合集", size=26, bold=True, space_after=6)
-    R.para(doc, "练习 9 – 15 ｜ 七次真实作答 ｜ 批注 ＋ 标准答案", size=12, color=(0x55, 0x55, 0x55), space_after=14)
+    R.para(doc, "练习 9 – 16 ｜ 八次真实作答 ＋ 参考答案 2 份 ｜ 批注 ＋ 标准答案", size=12, color=(0x55, 0x55, 0x55), space_after=14)
     R.para(doc, "每一节的结构都一样：", size=10.5, bold=True, space_after=3)
     for i, t in enumerate(
         [
