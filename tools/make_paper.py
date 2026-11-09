@@ -66,7 +66,10 @@ def parse_paper(src: Path) -> dict:
             questions.append({"meta": meta or f"第 {m.group(1)} 题", "stem": H.clean(m.group(2))})
             meta = ""
 
+    m = re.search(r"^#\s+Day\s*(\d+)[^\n]*?\*\*([^*]+)\*\*", text, re.M)
+    label = (m.group(2).strip() if m else "")
     return {
+        "label": label,
         "date": date.group(1) if date else "0000-00-00",
         "day": day.group(1) if day else "?",
         "week": week.group(1) if week else "",
@@ -86,7 +89,8 @@ def answer_lines(meta: str) -> int:
     return max(8, min(22, math.ceil(n / 26)))
 
 
-def build(data: dict, dst: Path, label: str = "整卷摸底") -> None:
+def build(data: dict, dst: Path, label: str = "") -> None:
+    label = label or data.get("label") or "整卷摸底"
     header = f"申论 · Day {data['day']} · {data['date']}{data['week']} · {label}　　姓名／日期：__________"
     doc = H.new_doc(header)
 
@@ -94,6 +98,7 @@ def build(data: dict, dst: Path, label: str = "整卷摸底") -> None:
     _note = {
         "整卷摸底": "不计时，但设硬截止；做不完就写“没做完”——没做完的位置就是摸底结果。",
         "回炉卷": "同一套材料重做三题：右栏空着不许动笔，每题只盯一个动作。",
+        "复盘日": "今天不写新题：20 分钟对照、30 分钟微练、10 分钟补两句。落笔前先想要写多少字。",
     }.get(label, "150 分钟一到就停笔；右栏空着不许动笔，没写完的地方写“没写完”。")
     H.para(doc, _note,
            size=9, bold=True, color=(0xB0, 0x30, 0x30))
@@ -107,7 +112,8 @@ def build(data: dict, dst: Path, label: str = "整卷摸底") -> None:
                 line += f"　（{r[3]}）"
             H.para(doc, line, size=9, space_after=1.5, line=1.15)
 
-    H.heading(doc, "一、材料（右边空白处写勾画）")
+    if data["mats"]:
+        H.heading(doc, "一、材料（右边空白处写勾画）")
     for label, body in data["mats"]:
         t = doc.add_table(rows=1, cols=2)
         t.style = "Table Grid"
@@ -162,7 +168,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=str(ROOT / "申论" / "今日任务.md"))
     ap.add_argument("--name", default="")
-    ap.add_argument("--label", default="整卷摸底")
+    ap.add_argument("--label", default="")
     args = ap.parse_args()
     data = parse_paper(Path(args.src))
     if not data["questions"]:
