@@ -383,7 +383,13 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
             ruled(doc, lines_n)
             para(doc, "　", size=6, space_after=2)
     else:
-        heading(doc, "三、T2 作答（限时 25 分钟，300 字，20 分）")
+        _q = data["question"] or ""
+        _m = re.search(r"(\d{2,4})\s*字以内", _q)
+        _n = int(_m.group(1)) if _m else 300
+        _m2 = re.search(r"(\d{1,3})\s*分", _q)
+        _score = _m2.group(1) if _m2 else "20"
+        _mins = 30 if _n >= 400 else 25
+        heading(doc, f"三、T2 作答（限时 {_mins} 分钟，{_n} 字，{_score} 分）")
         if data["question"]:
             para(doc, "题目：" + data["question"], size=10, bold=True, space_after=4)
 
@@ -418,8 +424,8 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
             para(doc, "自己练的时候写在这下面（样例只留 3 行提示位置）：", size=8.5, color=(0x66, 0x66, 0x66))
             ruled(doc, 3)
         else:
-            para(doc, "答案（目标 270–300 字）：", size=9.5, space_after=2)
-            ruled(doc, 14)
+            para(doc, f"答案（目标 {_n - 30 if _n >= 400 else _n - 30}–{_n} 字）：", size=9.5, space_after=2)
+            ruled(doc, _n // 26 + 3)
 
     # T3
     heading(doc, "四、T3 作文零件（25 分钟）")
