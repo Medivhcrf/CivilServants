@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -235,6 +236,101 @@ def cover(doc):
 
 
 # ---------------- 一天的正文 ----------------
+ARCHIVE = ROOT / "申论" / "任务存档"
+
+
+def questions_for(k):
+    """从任务存档里取当天的题目原文，返回 [(标签, 题干)]。"""
+    path = ARCHIVE / f"{k['date']}.md"
+    if not path.exists():
+        return []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    out = []
+    for i, ln in enumerate(lines):
+        t = ln.strip()
+        m = re.match(r"^>\s*\*\*题目\s*(\d*)\s*\*\*\s*[:：]?\s*(.+)$", t)
+        if m:
+            num, body = m.group(1), m.group(2)
+            out.append((f"第 {num} 题" if num else "原题", body.strip()))
+            continue
+        m = re.match(r"^##\s*T2\s*·\s*作答.*$", t)
+        if m:
+            for j in range(i + 1, min(i + 6, len(lines))):
+                nxt = lines[j].strip()
+                if nxt.startswith(">"):
+                    body = nxt.lstrip("> ").strip()
+                    if body:
+                        out.append(("原题", body))
+                    break
+    # 去掉残留的 **题目**：前缀，并按内容去重（同一题常被抄两份）
+    cleaned, seen = [], set()
+    for label, body in out:
+        body = re.sub(r"^\*\*题目[^*]*\*\*\s*[:：]?\s*", "", body).strip()
+        key = body[:40]
+        if not body or key in seen:
+            continue
+        seen.add(key)
+        cleaned.append((label, body))
+    return cleaned
+
+
+REQ_RE = re.compile(r"（([^（）]*?(?:\d+\s*字|\d+\s*分|要求)[^（）]*?)）")
+TYPE_WORDS = ("工作方案", "倡议书", "评析", "评价", "概括", "对策建议", "对策", "提纲",
+              "议论文", "短评", "简报", "讲话稿", "解说词")
+ROLE_RE = re.compile(r"假如你是[^，。；]{2,30}?(?:工作人员|干部|干事|负责人|专员)")
+NUM_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:字|分|分钟)")
+
+
+def question_block(doc, label: str, body: str):
+    """一行原题：紫色标签 + 题干（黑），括号里的字数/分值（红），其余数字（琥珀）。"""
+    p = doc.add_paragraph()
+    pf = p.paragraph_format
+    pf.space_before = Pt(2)
+    pf.space_after = Pt(2)
+    pf.line_spacing = 1.35
+    pf.left_indent = Cm(0.2)
+    shade_par(p, "F2ECF9")
+
+    def run(text, color=INK, bold=False, size=9.2):
+        if not text:
+            return
+        r = p.add_run(text)
+        r.font.size = Pt(size)
+        r.bold = bold
+        r.font.color.rgb = color
+        r.font.name = FONT
+        r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+
+    run(f" {label} ", PURPLE, True, 8.5)
+    run("　")
+
+    # 三种标记同时上色：括号里的字数/分值（红）、身份限定（蓝）、文种（紫加粗）
+    spans = []  # (start, end, kind)
+    for m in REQ_RE.finditer(body):
+        spans.append((m.start(), m.end(), "req"))
+    for m in ROLE_RE.finditer(body):
+        spans.append((m.start(), m.end(), "role"))
+    for word in TYPE_WORDS:
+        for m in re.finditer(re.escape(word), body):
+            spans.append((m.start(), m.end(), "type"))
+    spans.sort()
+
+    pos = 0
+    for start, end, kind in spans:
+        if start < pos:  # 重叠，跳过
+            continue
+        run(body[pos:start], INK, False, 9.2)
+        seg = body[start:end]
+        if kind == "req":
+            run(seg, RED, True, 9.0)
+        elif kind == "role":
+            run(seg, BLUE, True, 9.2)
+        else:
+            run(seg, PURPLE, True, 9.2)
+        pos = end
+    run(body[pos:], INK, False, 9.2)
+
+
 def day_section(doc, k):
     # 不强制分页：内容短的日子不再留半页空白；用彩色横幅做视觉分割
     spacer = doc.add_paragraph()
@@ -252,10 +348,18 @@ def day_section(doc, k):
         shade_par(p, FILL_GRAY)
 
     if not k["src"]:
-        txt(doc, "（这一天没有作答或没有批改，仅记录任务与结果。）", size=9, color=GRAY, space_after=4)
+        CUR_SCORE[0], CUR_SCORE[1] = score_color(k["score"], k["full"])
+        for label, body in questions_for(k):
+            question_block(doc, label, body)
+        txt(doc, "（这一天没有留下批改：只记录题目与结果。）", size=9, color=GRAY, space_after=4)
         return
 
     CUR_SCORE[0], CUR_SCORE[1] = score_color(k["score"], k["full"])
+
+    for label, body in questions_for(k):
+        question_block(doc, label, body)
+    txt(doc, "", size=3, space_after=3)
+
     src = ROOT / "tools" / k["src"]
     data = R.parse(src)
     emit_colored(doc, data["block"])
@@ -287,9 +391,18 @@ def heading_color(text: str):
 
 
 def emit_colored(doc, blocks):
+    skip = False
     for b in blocks:
         kind = b["t"]
         if kind == "hr":
+            continue
+        if kind in ("h2", "h3"):
+            head = R.plain(b["text"])
+            # 原题由 question_block 统一渲染（带颜色），这里跳过解析自带的题目小节
+            skip = "题目" in head
+            if skip:
+                continue
+        if skip:
             continue
         if kind == "h2":
             body = R.plain(b["text"])
