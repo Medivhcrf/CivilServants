@@ -304,6 +304,8 @@ def question_block(doc, label: str, body: str):
     run(f" {label} ", PURPLE, True, 8.5)
     run("　")
 
+    body = re.sub(r"\*\*|__", "", body)  # 题干里残留的粗体标记直接去掉
+
     # 三种标记同时上色：括号里的字数/分值（红）、身份限定（蓝）、文种（紫加粗）
     spans = []  # (start, end, kind)
     for m in REQ_RE.finditer(body):
@@ -331,6 +333,91 @@ def question_block(doc, label: str, body: str):
     run(body[pos:], INK, False, 9.2)
 
 
+MAT_LABEL_RE = re.compile(r"^\*\*(材料[一二三四五六七八九十]+|第\s*\d+\s*段)\*\*[ \t\u3000]*(.*)$")
+DIGIT_RE = re.compile(r"\d+(?:\.\d+)?%?")
+
+
+_CN = "零一二三四五六七八九十"
+
+
+def _norm_label(label: str) -> str:
+    """「第 3 段」统一改成「材料三」，让十三天的标签一致。"""
+    m = re.match(r"^第\s*(\d+)\s*段$", label)
+    if not m:
+        return label
+    n = int(m.group(1))
+    if n <= 10:
+        return "材料" + _CN[n]
+    if n < 20:
+        return "材料十" + _CN[n - 10]
+    return f"材料{n}"
+
+
+def materials_for(k):
+    """从任务存档里取当天的材料原文，返回 [(标签, 正文)]。两种写法都认：
+       **材料一** 正文同行  /  **材料一** 独占一行，正文在下一行起。"""
+    path = ARCHIVE / f"{k['date']}.md"
+    if not path.exists():
+        return []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    out = []
+    i = 0
+    while i < len(lines):
+        t = lines[i].strip()
+        m = MAT_LABEL_RE.match(t)
+        if not m:
+            i += 1
+            continue
+        label, rest = m.group(1), m.group(2).strip()
+        buf = [rest] if rest else []
+        j = i + 1
+        while j < len(lines):
+            nxt = lines[j].strip()
+            if not nxt or MAT_LABEL_RE.match(nxt) or nxt.startswith("---") or nxt.startswith("## "):
+                break
+            if nxt.startswith(">") or nxt.startswith("|") or nxt.startswith("**要求"):
+                break
+            buf.append(nxt)
+            j += 1
+        body = " ".join(x for x in buf if x).strip()
+        body = re.sub(r"\s+", " ", body)
+        if body:
+            label = _norm_label(label)
+            out.append((label, body))
+        i = j if j > i else i + 1
+    return out
+
+
+def material_block(doc, label, body):
+    """一段原文：青底 + 青标签，正文 8.6pt，数字用琥珀色单独标出来。"""
+    p = doc.add_paragraph()
+    pf = p.paragraph_format
+    pf.space_before = Pt(0)
+    pf.space_after = Pt(3)
+    pf.line_spacing = 1.3
+    pf.left_indent = Cm(0.2)
+    shade_par(p, "F4F7F6")
+
+    def run(text, color=INK, bold=False, size=8.6):
+        if not text:
+            return
+        r = p.add_run(text)
+        r.font.size = Pt(size)
+        r.bold = bold
+        r.font.color.rgb = color
+        r.font.name = FONT
+        r._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
+
+    run(label, TEAL, True, 9.0)
+    run("　")
+    pos = 0
+    for m in DIGIT_RE.finditer(body):
+        run(body[pos:m.start()], INK, False, 8.6)
+        run(m.group(0), AMBER, True, 8.6)
+        pos = m.end()
+    run(body[pos:], INK, False, 8.6)
+
+
 def day_section(doc, k):
     # 不强制分页：内容短的日子不再留半页空白；用彩色横幅做视觉分割
     spacer = doc.add_paragraph()
@@ -351,13 +438,24 @@ def day_section(doc, k):
         CUR_SCORE[0], CUR_SCORE[1] = score_color(k["score"], k["full"])
         for label, body in questions_for(k):
             question_block(doc, label, body)
-        txt(doc, "（这一天没有留下批改：只记录题目与结果。）", size=9, color=GRAY, space_after=4)
+        mats = materials_for(k)
+        if mats:
+            txt(doc, f"材料原文（{len(mats)} 段）", size=9, bold=True, color=TEAL, space_after=2)
+            for label, body in mats:
+                material_block(doc, label, body)
+        txt(doc, "（这一天没有留下批改：只记录题目、材料与结果。）", size=9, color=GRAY, space_after=4)
         return
 
     CUR_SCORE[0], CUR_SCORE[1] = score_color(k["score"], k["full"])
 
     for label, body in questions_for(k):
         question_block(doc, label, body)
+
+    mats = materials_for(k)
+    if mats:
+        txt(doc, f"材料原文（{len(mats)} 段）", size=9, bold=True, color=TEAL, space_after=2)
+        for label, body in mats:
+            material_block(doc, label, body)
     txt(doc, "", size=3, space_after=3)
 
     src = ROOT / "tools" / k["src"]
