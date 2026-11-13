@@ -395,9 +395,18 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
 
     if len(qs) <= 1:
         doc.add_paragraph().paragraph_format.space_after = Pt(0)
-        para(doc, "动笔前先填这三行：", size=9.5, space_after=1)
+        _q = data.get("question") or ""
+        # 公文类（倡议书／工作方案／公开信…）不问"表态"，改给骨架行
+        if any(k in _q for k in ("倡议书", "工作方案", "公开信", "倡议", "短评", "讲话稿")):
+            para(doc, "动笔前先填这四行（缺一行不写正文）：", size=9.5, space_after=1)
+            for label in ("我是谁：", "写给谁：", "为什么写：", "希望他们做什么："):
+                para(doc, label, size=9.5, bold=True, space_after=6)
+            para(doc, "骨架：标题 → 主送 → 依据句 → 三条任务（每条 60–80 字）→ 号召 → 落款 → 日期",
+                 size=9, space_after=8)
+        else:
+            para(doc, "动笔前先填这三行：", size=9.5, space_after=1)
         t2 = (sample or {}).get("t2") or {}
-        labels = [
+        labels = [] if any(k in _q for k in ("倡议书", "工作方案", "公开信", "倡议", "短评", "讲话稿")) else [
             ("表态：", t2.get("stance", "")),
             ("我主张：", t2.get("claim", "")),
             ("论证顺序：" if t2.get("order") else "论证顺序：一、　　　二、　　　三、", t2.get("order", "")),
