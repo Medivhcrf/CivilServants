@@ -257,9 +257,14 @@ def main() -> int:
 
     m = re.search(r"(\d{4}-\d{2}-\d{2})", src.read_text(encoding="utf-8"))
     date = m.group(1) if m else "today"
-    mm = re.search(r"练习\s*(\d+)", src.read_text(encoding="utf-8"))
-    if mm:
-        data["title"] = f"练习 {mm.group(1)} · 批改解析"
+    md = src.read_text(encoding="utf-8")
+    first_h1 = next((x[2:].strip() for x in md.splitlines() if x.startswith("# ")), None)
+    if first_h1:
+        data["title"] = plain(first_h1)
+    else:
+        mm = re.search(r"练习\s*(\d+)", md)
+        if mm:
+            data["title"] = f"练习 {mm.group(1)} · 批改解析"
     name = args.name or f"{date}-review"
 
     docx = out / f"{name}.docx"
