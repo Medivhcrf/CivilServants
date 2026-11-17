@@ -1077,6 +1077,11 @@ def main() -> int:
     (DOCS / "index-m.html").write_text(build_index("mobile"), encoding="utf-8")
     print("  ✓ 总目录       index.html + index-m.html")
 
+    # 静态专题页：申论/*.html 里的手工页原样带进站点
+    for sp in sorted((ROOT / "申论").glob("*.html")):
+        shutil.copy2(sp, DOCS / sp.name)
+        print(f"  ✓ 专题页       {sp.name}")
+
     (DOCS / ".nojekyll").write_text("", encoding="utf-8")
     print(f"\n构建完成 → {DOCS}")
     return 0
