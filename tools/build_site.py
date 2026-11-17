@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import html
+from urllib.parse import quote
 import re
 import shutil
 import sys
@@ -811,6 +812,25 @@ def build_toc(toc: list[tuple[int, str, str]], mode: str, table_count: int) -> s
     return items
 
 
+def compare_pages() -> list[dict]:
+    """申论/*答案对照.html → 首页卡片（按修改时间倒序，最新在前）。"""
+    out = []
+    for f in sorted((ROOT / "申论").glob("*答案对照.html"),
+                    key=lambda x: x.stat().st_mtime, reverse=True):
+        name = f.stem
+        m = re.match(r"练习\s*(\d+)", name)
+        num = m.group(1) if m else ""
+        out.append({
+            "slug": f.stem,
+            "group": "练习与批改",
+            "title": f"答案对照（练习 {num}）" if num else name,
+            "sub": "四色对照：你的答案 · 标准答案 · 逐条判定 · 失分一页看完",
+            "href": quote(f.name),
+            "is_raw": True,
+        })
+    return out
+
+
 def build_index(mode: str) -> str:
     suffix = "-m" if mode == "mobile" else ""
     groups: dict[str, list[dict]] = {}
@@ -818,6 +838,9 @@ def build_index(mode: str) -> str:
         groups.setdefault(group_of(p), []).append(p)
     for d in reversed(DIAGRAMS):
         groups.setdefault(group_of(d), []).insert(0, {**d, "is_diagram": True})
+
+    for cp in compare_pages():
+        groups.setdefault("练习与批改", []).insert(0, cp)
 
     # 「本次批改」永远排在「练习与批改」组最前面
     if "练习与批改" in groups:
@@ -837,7 +860,9 @@ def build_index(mode: str) -> str:
                 f'<img class="thumb" src="{p["thumb"]}" alt="课件预览">'
                 if p.get("is_diagram") and p.get("thumb") else ""
             )
-            if p.get("is_diagram"):
+            if p.get("is_raw"):
+                links = f'<a class="pri" href="{p["href"]}">打开对照</a>'
+            elif p.get("is_diagram"):
                 links = f'<a class="pri" href="{p["slug"]}.html">打开课件</a>'
             elif mode == "mobile":
                 links = (
@@ -851,7 +876,7 @@ def build_index(mode: str) -> str:
                 )
             cards.append(f"""      <article class="card">
         {thumb}
-        <a class="card-title" href="{p['slug']}.html">{html.escape(alias(p['slug'], p['title']))}</a>
+        <a class="card-title" href="{p['href'] if p.get('is_raw') else p['slug'] + '.html'}">{html.escape(alias(p['slug'], p['title']))}</a>
         <p class="card-sub">{html.escape(sub_alias(p["slug"], p["sub"]))}</p>
         <div class="card-links">{links}</div>
       </article>""")
