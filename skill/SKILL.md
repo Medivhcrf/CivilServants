@@ -162,3 +162,10 @@ description: 申论私教 skill。用于系统学习申论（国考／省考／�
 
 要让站点也更新，再跑 `python tools/build_site.py` 与 `tools/publish.sh "说明"`。
 站点构成与更新流程详见 `references/00-学习路线与进度.md`。
+
+**批改输出标准（2026-11-17 起固定）**：每次批改必须产出三样——
+1. 文字版：申论/练习记录.md 追加条目 + 申论/本次批改.md 覆盖（得分／逐条对照／漏点／升格版／一个动作）。
+2. **彩色对照版**（学员要求的形式）：写数据文件 	ools/compare/<日期>.json，跑 python tools/make_compare.py tools/compare/<日期>.json，产出 申论/<练习号>-答案对照.html 与 docs/print/<日期>-compare.pdf|docx。
+   - 标记约定：ok＝绿底（写到）／part＝黄底（写了一半）／miss＝红底删除线（缺）／dd＝绿下划线（标准答案里补给他的部分）。
+   - 结构约定：每题三段＝你的答案（逐句上色）→ 标准答案（补的部分下划线）→ 逐条对照表（要素／你的／判定＋分值），末尾「失分一页看完」＋「一句话带走」。
+3. 把 PDF 与 HTML 复制到 E:\Harness\ 并把 HTML 在站点上给出链接（build_site 会把 申论/*.html 原样带到站点）。
