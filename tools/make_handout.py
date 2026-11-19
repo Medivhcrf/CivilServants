@@ -623,7 +623,7 @@ def docx_to_pdf_html(docx: Path, pdf: Path) -> bool:
             first_row = tbl.split("<tr>", 1)[-1].split("</tr>", 1)[0]
             return tbl.replace("<table>", '<table class="grid">', 1) if first_row.count("<td") > 10 else tbl
         body = re.sub(r"<table>.*?</table>", _mark_grid, body, flags=re.S)
-        body = re.sub(r"(?=<p[^>]*><strong>\s*(?:三|四)、)",
+        body = re.sub(r"(?=<p[^>]*><strong>\s*(?:二|三|四)、)",
                       '<div style="break-before: page"></div>', body)
         css = (ROOT / "tools" / "print.css").read_text(encoding="utf-8") if (ROOT / "tools" / "print.css").exists() else ""
         html = f"<html><head><meta charset='utf-8'><style>{css}</style></head><body>{body}</body></html>"
