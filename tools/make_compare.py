@@ -267,6 +267,8 @@ def main():
     print("docx ->", out_docx)
     out_pdf = out_docx.with_suffix(".pdf")
     ok = H.to_pdf(out_docx, out_pdf)
+    if not ok:
+        ok = H.html_to_pdf(out_html, out_pdf)  # 没有 LibreOffice 时，直接用彩色 HTML 版出 PDF
     print("pdf  ->", out_pdf if ok else "FAILED")
     return 0
 

@@ -1,0 +1,40 @@
+/* 打印用 A4 样式：make_handout.py 的 docx 经 pandoc 转成 HTML 后套用。 */
+@page {
+  size: A4;
+  margin: 1.4cm 1.3cm;
+}
+
+body {
+  font-family: "Noto Serif CJK SC", "Songti SC", serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: #111;
+}
+
+h1 { font-size: 15pt; margin: 0 0 6pt; }
+h2 { font-size: 12pt; margin: 12pt 0 5pt; }
+p  { margin: 2.5pt 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 5pt 0;
+}
+
+td, th {
+  border: 0.6pt solid #888;
+  padding: 3pt 5pt;
+  vertical-align: top;
+  font-size: 10pt;
+}
+
+th { background: #eee; }
+
+tr { break-inside: avoid; }
+h2 { break-after: avoid; }
+
+/* docx 里的“横线”是单列表格的行高；pandoc 丢掉 trHeight，这里补回来 */
+tr { height: 24pt; }
+
+blockquote { margin: 4pt 0 4pt 8pt; padding-left: 8pt; border-left: 2pt solid #bbb; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; }

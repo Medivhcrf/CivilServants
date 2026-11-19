@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -505,22 +506,111 @@ def box(doc, text: str, *, size: float = 10.5) -> None:
     c.paragraphs[-1].paragraph_format.space_after = Pt(6)
 
 
-def to_pdf(docx: Path, pdf: Path) -> bool:
-    if not NODE.exists() or not CLI.exists():
+def _soffice_path() -> Path | None:
+    """本机 LibreOffice：优先系统安装，其次工作区 .tools/lo 里的解包版。"""
+    for c in (os.environ.get("SOFFICE_BIN"), shutil.which("soffice"), shutil.which("libreoffice"),
+              str(ROOT / ".tools" / "lo" / "usr" / "lib" / "libreoffice" / "program" / "soffice")):
+        if c and Path(c).exists():
+            return Path(c)
+    return None
+
+
+def _soffice_env() -> dict:
+    """把解包版 LibreOffice 的库目录、字体配置和 HOME 挂进子进程环境。"""
+    env = dict(os.environ)
+    prefix = ROOT / ".tools" / "lo"
+    lib_dirs = [str(d) for d in (prefix / "usr/lib/x86_64-linux-gnu",
+                                 prefix / "usr/lib/libreoffice/program") if d.exists()]
+    if lib_dirs:
+        env["LD_LIBRARY_PATH"] = ":".join(lib_dirs + ([env["LD_LIBRARY_PATH"]] if env.get("LD_LIBRARY_PATH") else []))
+    fonts = ROOT / ".tools" / "fonts.conf"
+    if fonts.exists():
+        env["FONTCONFIG_FILE"] = str(fonts)
+    home = ROOT / ".tools" / "home"
+    home.mkdir(parents=True, exist_ok=True)
+    env["HOME"] = str(home)
+    env.setdefault("SAL_USE_VCLPLUGIN", "svp")
+    return env
+
+
+def html_to_pdf(html_path: Path, pdf: Path, css: Path | None = None) -> bool:
+    """HTML → PDF（weasyprint）。Linux 上没有 LibreOffice 时的兜底。"""
+    env = _soffice_env()  # 复用：字体配置 + HOME
+    os.environ.setdefault("FONTCONFIG_FILE", env.get("FONTCONFIG_FILE", ""))
+    os.environ.setdefault("HOME", env.get("HOME", str(ROOT)))
+    try:
+        import weasyprint  # 延迟导入：Windows 上不需要它
+    except ImportError:
         return False
-    # LibreOffice Kit 不会覆盖已存在的输出文件，先转成临时名再替换
-    tmp = pdf.with_name(pdf.stem + ".tmp.pdf")
-    for f in (tmp, pdf):
-        if f.exists():
-            f.unlink()
-    r = subprocess.run([str(NODE), str(CLI), "convert", "--input", str(docx), "--output", str(tmp)],
-                       capture_output=True, encoding="utf-8", errors="replace")
-    ok = tmp.exists() and tmp.stat().st_size > 0 and tmp.open("rb").read(5) == b"%PDF-"
-    if ok:
-        tmp.replace(pdf)
-    else:
+    stylesheets = []
+    if css and css.exists():
+        stylesheets.append(weasyprint.CSS(filename=str(css)))
+    if pdf.exists():
+        pdf.unlink()  # 先删旧文件，避免把上一次的产物当成本次成功
+    weasyprint.HTML(filename=str(html_path)).write_pdf(str(pdf), stylesheets=stylesheets or None)
+    return pdf.exists() and pdf.stat().st_size > 0 and pdf.open("rb").read(5) == b"%PDF-"
+
+
+def docx_to_pdf_html(docx: Path, pdf: Path) -> bool:
+    """docx → html（pandoc）→ pdf（weasyprint）。"""
+    try:
+        import pypandoc
+        import weasyprint
+    except ImportError:
+        return False
+    tmp_html = pdf.parent / (pdf.stem + ".html.tmp")
+    try:
+        body = pypandoc.convert_file(str(docx), "html", extra_args=["--wrap=none"])
+        # docx 的分页符 pandoc 会丢：T2、T3 两段各起一页，避免答案横线被拆到两页
+        body = re.sub(r"(?=<p[^>]*><strong>\s*(?:三|四)、)",
+                      '<div style="break-before: page"></div>', body)
+        css = (ROOT / "tools" / "print.css").read_text(encoding="utf-8") if (ROOT / "tools" / "print.css").exists() else ""
+        html = f"<html><head><meta charset='utf-8'><style>{css}</style></head><body>{body}</body></html>"
+        tmp_html.write_text(html, encoding="utf-8")
+        return html_to_pdf(tmp_html, pdf)
+    finally:
+        if tmp_html.exists():
+            tmp_html.unlink()
+
+
+def to_pdf(docx: Path, pdf: Path) -> bool:
+    """docx → pdf。依次尝试：LibreOffice Kit、本机 soffice、pandoc+weasyprint。"""
+    if NODE.exists() and CLI.exists():
+        # LibreOffice Kit 不会覆盖已存在的输出文件，先转成临时名再替换
+        tmp = pdf.with_name(pdf.stem + ".tmp.pdf")
+        for f in (tmp, pdf):
+            if f.exists():
+                f.unlink()
+        r = subprocess.run([str(NODE), str(CLI), "convert", "--input", str(docx), "--output", str(tmp)],
+                           capture_output=True, encoding="utf-8", errors="replace")
+        ok = tmp.exists() and tmp.stat().st_size > 0 and tmp.open("rb").read(5) == b"%PDF-"
+        if ok:
+            tmp.replace(pdf)
+            return True
         sys.stderr.write((r.stdout or "") + (r.stderr or ""))
-    return ok
+
+    soffice = _soffice_path()
+    if soffice:
+        profile = ROOT / ".tools" / "home" / "lo-profile"
+        profile.mkdir(parents=True, exist_ok=True)
+        produced = pdf.parent / (docx.stem + ".pdf")
+        for f in {produced, pdf}:
+            if f.exists():
+                f.unlink()  # 同 html_to_pdf：先删旧产物，否则失败也会被判成功
+        r = subprocess.run([str(soffice), "--headless", "--norestore", "--invisible",
+                            f"-env:UserInstallation=file://{profile}",
+                            "--convert-to", "pdf:writer_pdf_Export",
+                            "--outdir", str(pdf.parent), str(docx)],
+                           capture_output=True, encoding="utf-8", errors="replace",
+                           env=_soffice_env(), timeout=180)
+        ok = produced.exists() and produced.stat().st_size > 0 and produced.open("rb").read(5) == b"%PDF-"
+        if ok:
+            if produced != pdf:
+                produced.replace(pdf)
+            return True
+        sys.stderr.write((r.stdout or "") + (r.stderr or ""))
+
+    return docx_to_pdf_html(docx, pdf)
 
 
 def main() -> int:

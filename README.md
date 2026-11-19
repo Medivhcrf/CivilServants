@@ -198,6 +198,24 @@ python3 tools/build_site.py     # 产物在 docs/
 
 新增一份资料，只要在 `tools/build_site.py` 顶部的 `PAGES` 列表里加一行即可自动出桌面版和手机版。
 
+### 打印版 PDF 的生成链路
+
+`tools/make_handout.py`（任务单 / 练习纸）和 `tools/make_compare.py`（答案对照）都要把 docx 转成 PDF，按顺序尝试三种方式：
+
+1. **Windows 本机**：LibreOffice Kit（`E:\...\node.exe` + `cli.js`），原路径不变；
+2. **本机装了 LibreOffice**：`soffice --headless --convert-to pdf`；
+3. **都没有**：`pandoc`（docx→HTML）＋ `WeasyPrint`（HTML→PDF），样式在 `tools/print.css`。
+
+第 3 种只需：
+
+```bash
+pip install python-docx pypandoc-binary weasyprint pymupdf
+```
+
+中文字体走本机 fontconfig；若像本机一样没有系统 CJK 字体，可用 `.tools/fonts.conf` 指向解包出来的 Noto CJK，并设 `FONTCONFIG_FILE`。<br>
+注意：解包安装的 LibreOffice 若启动失败，脚本会自动落到第 3 种，不会产出空 PDF（会先删旧文件再转，失败即报错）。
+
+
 ---
 
 ## 关于 `skill/`
