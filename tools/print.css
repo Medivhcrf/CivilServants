@@ -38,3 +38,8 @@ tr { height: 24pt; }
 
 blockquote { margin: 4pt 0 4pt 8pt; padding-left: 8pt; border-left: 2pt solid #bbb; }
 code { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; }
+
+/* 方格纸：列多，去掉内边距并固定列宽，保证 25 格一行放得下 A4 */
+table.grid { table-layout: fixed; }
+table.grid td { padding: 0; border: 0.5pt solid #999; }
+table.grid td p { margin: 0; }

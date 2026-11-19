@@ -229,6 +229,48 @@ def ruled(doc, n: int, *, gap=0.95, indent=Cm(0), dotted=True):
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
 
+def grid(doc, rows: int, cols: int, *, cell=0.69, height=0.85):
+    """rows×cols 的方格纸：等宽等高，方便写作文时数字数。"""
+    t = doc.add_table(rows=rows, cols=cols)
+    t.autofit = False
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tblPr = t._tbl.tblPr
+    borders = OxmlElement("w:tblBorders")
+    for name in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        el = OxmlElement(f"w:{name}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), "4")
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), "999999")
+        borders.append(el)
+    tblPr.append(borders)
+    layout = OxmlElement("w:tblLayout")
+    layout.set(qn("w:type"), "fixed")
+    tblPr.append(layout)
+    mar = OxmlElement("w:tblCellMar")
+    for side in ("top", "left", "bottom", "right"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:w"), "0")
+        el.set(qn("w:type"), "dxa")
+        mar.append(el)
+    tblPr.append(mar)
+    for row in t.rows:
+        row.height = Cm(height)
+        trPr = row._tr.get_or_add_trPr()
+        h = OxmlElement("w:trHeight")
+        h.set(qn("w:val"), str(int(height * 567)))
+        h.set(qn("w:hRule"), "exact")
+        trPr.append(h)
+        for c in row.cells:
+            c.width = Cm(cell)
+            p0 = c.paragraphs[0]
+            p0.paragraph_format.space_before = Pt(0)
+            p0.paragraph_format.space_after = Pt(0)
+            p0.paragraph_format.line_spacing = 0.9
+            p0.add_run("").font.size = Pt(4)
+    doc.add_paragraph().paragraph_format.space_after = Pt(0)
+
+
 def cell_width(cell, cm):
     cell.width = Cm(cm)
 
@@ -289,6 +331,18 @@ def build(data: dict, dst: Path, sample: dict | None = None, extra: Path | None 
     doc = new_doc(header)
     render_into(doc, data, sample, extra, break_t1)
     doc.save(str(dst))
+
+
+
+def _sched_min(data: dict, tag: str) -> str | None:
+    """从任务单的时间表里取这一轨的时长（分钟），取不到就返回 None。"""
+    for row in data.get("sched") or []:
+        if any(tag in c for c in row):
+            for c in row:
+                m = re.search(r"(\d{1,3})\s*min", c, re.I)
+                if m:
+                    return m.group(1)
+    return None
 
 
 def render_into(doc: Document, data: dict, sample: dict | None = None,
@@ -389,7 +443,7 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
         _n = int(_m.group(1)) if _m else 300
         _m2 = re.search(r"(\d{1,3})\s*分", _q)
         _score = _m2.group(1) if _m2 else "20"
-        _mins = 30 if _n >= 400 else 25
+        _mins = _sched_min(data, "T2") or (30 if _n >= 400 else 25)
         heading(doc, f"三、T2 作答（限时 {_mins} 分钟，{_n} 字，{_score} 分）")
         if data["question"]:
             para(doc, "题目：" + data["question"], size=10, bold=True, space_after=4)
@@ -438,7 +492,7 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
             ruled(doc, _n // 26 + 3)
 
     # T3
-    heading(doc, "四、T3 作文零件（25 分钟）")
+    heading(doc, f"四、T3 作文零件（{_sched_min(data, 'T3') or 25} 分钟）")
     if data["t3"]:
         for i, it in enumerate(data["t3"], 1):
             para(doc, f"{i}. {it}", size=9, space_after=1)
@@ -447,20 +501,20 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
     if t3.get("idea"):
         box(doc, t3["idea"], size=10.5)
     else:
-        ruled(doc, 2)
+        grid(doc, 2, 15)
     para(doc, "三个标题（一实／一虚／一稳）：", size=9.5, bold=True, space_after=2)
     if t3.get("titles"):
         box(doc, "\n".join(t3["titles"]), size=10.5)
     else:
-        ruled(doc, 3)
+        grid(doc, 3, 14)
     para(doc, "开头段（150 字，不许超）：", size=9.5, bold=True, space_after=2)
     if t3.get("para"):
         box(doc, t3["para"], size=10.5)
     else:
-        ruled(doc, 7)
+        grid(doc, 6, 25)  # 6×25＝150 格，正好对上“150 字不许超”
 
     # T4
-    heading(doc, "五、T4 素材（15 分钟，5 句 + 1 条政策，标 [YYYY-MM]）")
+    heading(doc, f"五、T4 素材（{_sched_min(data, 'T4') or 15} 分钟，5 句 + 1 条政策，标 [YYYY-MM]）")
     if data["t4"]:
         for i, it in enumerate(data["t4"], 1):
             para(doc, f"{i}. {it}", size=9, space_after=1)
@@ -470,7 +524,7 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
         ruled(doc, 4)
 
     if not extra:
-        para(doc, "交作业：T1 勾画稿、T2 表态行 + 300 字、T3 三样零件（拍照发对话即可）。",
+        para(doc, "交作业：T1 勾画稿、T2 作答、T3 三样零件（拍照发对话即可）。",
              size=8.5, color=(0x66, 0x66, 0x66), space_before=6)
 
     if extra and Path(extra).exists():
@@ -562,6 +616,11 @@ def docx_to_pdf_html(docx: Path, pdf: Path) -> bool:
     try:
         body = pypandoc.convert_file(str(docx), "html", extra_args=["--wrap=none"])
         # docx 的分页符 pandoc 会丢：T2、T3 两段各起一页，避免答案横线被拆到两页
+        def _mark_grid(m):
+            tbl = m.group(0)
+            first_row = tbl.split("<tr>", 1)[-1].split("</tr>", 1)[0]
+            return tbl.replace("<table>", '<table class="grid">', 1) if first_row.count("<td") > 10 else tbl
+        body = re.sub(r"<table>.*?</table>", _mark_grid, body, flags=re.S)
         body = re.sub(r"(?=<p[^>]*><strong>\s*(?:三|四)、)",
                       '<div style="break-before: page"></div>', body)
         css = (ROOT / "tools" / "print.css").read_text(encoding="utf-8") if (ROOT / "tools" / "print.css").exists() else ""
