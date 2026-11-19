@@ -488,8 +488,10 @@ def render_into(doc: Document, data: dict, sample: dict | None = None,
             para(doc, "自己练的时候写在这下面（样例只留 3 行提示位置）：", size=8.5, color=(0x66, 0x66, 0x66))
             ruled(doc, 3)
         else:
-            para(doc, f"答案（目标 {_n - 30 if _n >= 400 else _n - 30}–{_n} 字）：", size=9.5, space_after=2)
-            ruled(doc, _n // 26 + 3)
+            _cols = 25
+            _rows = (_n + _cols - 1) // _cols  # 450 字 → 18 行 × 25 格，正好写满
+            para(doc, f"答案（目标 {_n - 30}–{_n} 字，每行 25 格）：", size=9.5, space_after=2)
+            grid(doc, _rows, _cols)
 
     # T3
     heading(doc, f"四、T3 作文零件（{_sched_min(data, 'T3') or 25} 分钟）")
