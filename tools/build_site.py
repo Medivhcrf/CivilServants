@@ -17,6 +17,7 @@ import html
 from urllib.parse import quote
 import re
 import shutil
+import tempfile
 import sys
 from pathlib import Path
 
@@ -156,6 +157,9 @@ PAGES = [
     dict(slug="lesson4", group="课程", title="第 4 课 · 贯彻执行",
          sub="审题四问 · 文种速查表 · 三段式字数硬上限 · 身份语气",
          src="skill/references/10-第4课-贯彻执行.md"),
+    dict(slug="lesson5", group="课程", title="第 5 课 · 大作文（一）",
+         sub="时评精读四阶法 · 批注七件套 · 导图 · 模板填空 · 同构仿写",
+         src="skill/references/12-时评精读与大作文四阶法.md"),
     dict(slug="quote", group="课程", title="引号与抽象概念",
          sub="提法／引语／空词／修辞四种处理 · 10 个引号 100% 命中",
          src="skill/references/08-引号与抽象概念.md"),
@@ -256,6 +260,12 @@ DIAGRAMS = [
          sub="第 4 课 · 贯彻执行题 · 410 字满分骨架：九件格式解剖 + 逐句溯源 + 字数配比",
          src="申论/第4课-贯彻执行-图解.html",
          preview="申论/第4课-贯彻执行-图解-效果预览.png", thumb="assets/preview-gw.png"),
+    dict(slug="diagram-l5", group="方法", title="第 5 课 · 时评精读课件",
+         sub="《中国式现代化是从中华大地长出来的现代化》原文＋右栏批注 · 导图 · 四张写作模板（点空格看答案）",
+         src="申论/第5课-时评精读-中国式现代化.html", preview=None, thumb=None),
+    dict(slug="tpl-l5", group="方法", title="第 5 课 · 写作模板空白纸",
+         sub="A4 两页可打印：还原填空 5 张模板 ＋ 迁移作业方格纸（总论点／三分论点／开头／结尾）",
+         src="申论/第5课-模板-空白纸.html", preview=None, thumb=None),
     dict(slug="diagram-quote", group="方法", title="引号、抽象概念、比喻：抄不抄",
          sub="10 个引号提法 100% 是采分词 · 提法／引语／空词／修辞四种处理",
          src="申论/引号与抽象概念-图解.html",
@@ -275,6 +285,9 @@ LINK_FIX = {
     "练习6-提出对策-图解.html": "diagram-p6.html",
     "练习7-提出对策-图解.html": "diagram-p7.html",
     "第2课-综合分析-图解.html": "diagram-02.html",
+    "第5课-时评精读-中国式现代化.html": "diagram-l5.html",
+    "第5课-模板-空白纸.html": "tpl-l5.html",
+    "课程总览.md": "course.html",
 }
 
 GROUP_ORDER = ["每日", "课程", "往期任务", "练习与批改", "方法与规范", "档案"]
@@ -1025,6 +1038,12 @@ AUTODETECT
 
 
 def main() -> int:
+    # docs/print/ 里的 PDF／docx 是 make_handout.py 的产物，不归本站生成。
+    # 以前整目录重建会把它们删掉（2026-11-23 踩过一次），这里先备份再恢复。
+    keep_print = None
+    if (DOCS / "print").is_dir():
+        keep_print = Path(tempfile.mkdtemp(prefix="dsh-print-"))
+        shutil.copytree(DOCS / "print", keep_print / "print")
     if DOCS.exists():
         shutil.rmtree(DOCS)
     ASSETS.mkdir(parents=True, exist_ok=True)
@@ -1097,6 +1116,10 @@ def main() -> int:
             pv = ROOT / d["preview"]
             if pv.is_file():
                 shutil.copy2(pv, ASSETS / Path(d["thumb"]).name)
+
+    if keep_print is not None:
+        shutil.copytree(keep_print / "print", DOCS / "print", dirs_exist_ok=True)
+        shutil.rmtree(keep_print, ignore_errors=True)
 
     (DOCS / "index.html").write_text(build_index("desktop"), encoding="utf-8")
     (DOCS / "index-m.html").write_text(build_index("mobile"), encoding="utf-8")
